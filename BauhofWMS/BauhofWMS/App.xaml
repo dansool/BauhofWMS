@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BauhofWMS.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <OnPlatform x:TypeArguments="x:String" x:Key="FaRegular">
+                <On Platform="Android" Value="FontAwesome5Regular.otf#Font Awesome Regular" />
+                <On Platform="UWP" Value="Assets/FontAwesome5Regular.otf#Font Awesome 5 Free" />
+            </OnPlatform>
+
+            <OnPlatform x:TypeArguments="x:String" x:Key="FaSolid">
+                <On Platform="Android" Value="FontAwesome5Solid.otf#Font Awesome Solid" />
+                <On Platform="UWP" Value="Assets/FontAwesome5Solid.otf#Font Awesome 5 Free" />
+            </OnPlatform>
+
+            <OnPlatform x:TypeArguments="x:String" x:Key="FaBrands">
+                <On Platform="Android" Value="FontAwesome5Brands.otf#Font Awesome Brands" />
+                <On Platform="UWP" Value="Assets/FontAwesome5Brands.otf#Font Awesome 5 Brands" />
+            </OnPlatform>
+
+            <Style TargetType="Button" x:Key="KeyboardButtonNumericStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=26, UWP=22}" />
+                <Setter Property="BackgroundColor" Value="#FF343232" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="Padding" Value="-5" />
+                <Setter Property="BorderColor" Value="#FF343232" />
+            </Style>
+
+            <Style TargetType="Button" x:Key="KeyboardButtonStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Default}" />
+                <Setter Property="BackgroundColor" Value="#FF343232" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HeightRequest" Value="40" />
+                <!--<Setter Property="WidthRequest" Value="*" />-->
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="BorderColor" Value="#FF343232" />
+                <Setter Property="Padding" Value="-10"></Setter>
+            </Style>
+
+            <Style TargetType="Button" x:Key="KeyboardButtonCloseStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="Red" />
+                <Setter Property="HeightRequest" Value="40" />
+            </Style>
+            <Style TargetType="Button" x:Key="KeyboardButtonAddOnButtonStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="HeightRequest" Value="40" />
+            </Style>
+
+            <Style TargetType="Entry" x:Key="ReadOnlyEntryStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+                <Setter Property="VerticalOptions" Value="Fill" />
+                <Setter Property="IsReadOnly" Value="{OnPlatform Android=False, UWP=True}" />
+            </Style>
+            <Style TargetType="Editor" x:Key="ReadOnlyEditorStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+                <Setter Property="VerticalOptions" Value="Fill" />
+                <Setter Property="IsReadOnly" Value="{OnPlatform Android=False, UWP=True}" />
+            </Style>
+
+            <Style TargetType="Button" x:Key="BackButtonStyle">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="Padding" Value="{OnPlatform Android=-10, UWP=0}"></Setter>
+                <Setter Property="Margin" Value="{OnPlatform Android='23,1,0,0', UWP='4,0,0,0'}"></Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

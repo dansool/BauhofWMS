@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="False"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcOperationsRecords">
+    <ViewCell.View>
+        <Frame x:Name="frame" BackgroundColor="Transparent" IsEnabled="False">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertDateTimeLong x:Key="ConvertDateTimeLong"/>
+                </ResourceDictionary>
+            </Frame.Resources>
+            <Grid Margin="-16,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="180" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Grid.Row="0">
+                    <Label Text="Inventuuri kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="0">
+                    <Label Text="{Binding inventoryRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="1">
+                    <Label Text="Liikumise kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="1">
+                    <Label Text="{Binding transferRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="2">
+                    <Label Text="Registri kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="2">
+                    <Label Text="{Binding dbRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="3">
+                    <Label Text="Asukoht:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="3">
+                    <Label Text="{Binding locationCode}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="4">
+                    <Label Text="Viimati uuendatud:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="4">
+                    <Label Text="{Binding dbRecordsUpdateDate, Converter={StaticResource ConvertDateTimeLong}}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

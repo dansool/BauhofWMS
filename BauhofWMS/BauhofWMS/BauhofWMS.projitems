@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{4360A4CC-7DD6-4E15-88C9-B4B02DD93444}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>BauhofWMS</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)App.xaml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)MainPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeDefault.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeLong.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ListViewSelectedColorConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IAppVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ICloseApplication.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IDownloader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteMovementRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Keyboard\CharacterReceived.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Keyboard\KeyBoardButtonPress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Keyboard\ShiftSwitch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Keyboard\ShowKeyBoard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Keyboard\VirtualKeyboardTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Scanner\ScannedDataProcess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StackPanelOperations\BackKeyPress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StackPanelOperations\CollapseAllStackPanels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\CustomEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcOperationsRecords.xaml.cs">
+      <DependentUpon>vcOperationsRecords.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\CheckNewVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\DownloadEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\GetCurrentVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\GetPublishedVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Parsers\TryParseDateTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ParseVersionToList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReaddbRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadInvRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadMovementRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)YesNo.xaml.cs">
+      <DependentUpon>YesNo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)YesNo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcOperationsRecords.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

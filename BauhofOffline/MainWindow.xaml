@@ -1,0 +1,14 @@
+﻿<Window x:Class="BauhofOffline.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BauhofOffline"
+        mc:Ignorable="d"
+        Title="BauhofOffline" Height="113.73" Width="197.996">
+    <Grid>
+        <Button x:Name="btnDownload" Content="Download" HorizontalAlignment="Left" Margin="24,15,0,0" VerticalAlignment="Top" Width="147" Click="btnDownload_Click"/>
+        <Button x:Name="btnUpload" Content="Upload" HorizontalAlignment="Left" Margin="24,47,0,0" VerticalAlignment="Top" Width="147" Click="btnUpload_Click"/>
+
+    </Grid>
+</Window>
