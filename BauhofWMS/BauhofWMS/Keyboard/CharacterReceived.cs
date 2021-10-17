@@ -35,7 +35,22 @@ namespace BauhofWMS.Keyboard
                                             await ScannedDataProcess.DataReceived(pass, "", mp);
                                         }
                                         break;
+                                    case "entStockTakeReadCode":
+                                        {
+                                            mp.SearchEntStockTakeReadCode();
+                                        }
+                                        break;
+                                    case "entTransferReadCode":
+                                        {
+                                            mp.SearchEntTransferReadCode();
+                                        }
+                                        break;
                                     
+                                    case "entSelectItemReadCode":
+                                        {
+                                            mp.SearchEntSelectItemReadCode();
+                                        }
+                                        break;
                                     default:
                                         {
                                             string value = mp.currentScannedValue;
@@ -99,17 +114,15 @@ namespace BauhofWMS.Keyboard
                             try
                             {
                                 await Application.Current.MainPage.Navigation.PopModalAsync();
-
                             }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine(ex.Message);
-                                if (obj.currentLayoutName == "Password")
+                                if (obj.currentLayoutName == "Operations")
                                 {
-                                    //mp.lblPassword.Focus();
-                                    mp.PrepareOperations();
                                 }
-                                //BackKeyPress.Press(mp);
+
+                                BackKeyPress.Press(mp);
                             }
                         }
                         break;

@@ -9,6 +9,7 @@ using System.IO.IsolatedStorage;
 //using BauhofWMSDLL.ListDefinitions;
 
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.UWP.Utils.ReadWriteSettings))]
+
 namespace BauhofWMS.UWP.Utils
 {
     public class ReadWriteSettings : IReadWriteSettingsUWP
@@ -17,12 +18,9 @@ namespace BauhofWMS.UWP.Utils
         {
             try
             {
-                Debug.WriteLine("SaveSettingsAsync " + settings);
                 IsolatedStorageFile isoStore = IsolatedStorageFile.GetUserStoreForApplication();
-                Debug.WriteLine("SaveSettingsAsync isoStore ");
                 if (isoStore.FileExists("BauhofWMSSettings.txt"))
                 {
-                    Debug.WriteLine("SaveSettingsAsync BauhofWMSSettings exists. deleting ");
                     isoStore.DeleteFile("BauhofWMSSettings.txt");
                 }
                 using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("BauhofWMSSettings.txt", FileMode.CreateNew, isoStore))
@@ -32,7 +30,6 @@ namespace BauhofWMS.UWP.Utils
                         writer.WriteLine(settings);
                     }
                 }
-                Debug.WriteLine("SaveSettingsAsync done ");
                 return null;
             }
             catch (Exception ex)

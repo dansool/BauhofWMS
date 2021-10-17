@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" IgnorableNamespaces="uap mp uap3">
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap mp uap3 rescap">
   <Identity Name="0845f631-ed0c-4d3d-a220-ac2a9ed1e9dc" Publisher="CN=Develok OÜ, O=Develok OÜ, STREET=Piiri 8b-8, L=Rakvere, S=Lääne-Virumaa, PostalCode=43616, C=EE" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="ec0cc741-fd3e-485c-81be-68815c480690" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
@@ -25,6 +25,16 @@
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="txt">
+            <uap:DisplayName>txt</uap:DisplayName>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.txt</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
   <Capabilities>
@@ -34,10 +44,12 @@
     <uap:Capability Name="enterpriseAuthentication" />
     <uap:Capability Name="picturesLibrary" />
     <uap3:Capability Name="remoteSystem" />
+    <uap:Capability Name="documentsLibrary" />
     <uap:Capability Name="removableStorage" />
     <uap:Capability Name="sharedUserCertificates" />
     <uap:Capability Name="userAccountInformation" />
     <uap:Capability Name="videosLibrary" />
+    <rescap:Capability Name="broadFileSystemAccess" />
     <DeviceCapability Name="bluetooth" />
     <DeviceCapability Name="location" />
     <DeviceCapability Name="microphone" />

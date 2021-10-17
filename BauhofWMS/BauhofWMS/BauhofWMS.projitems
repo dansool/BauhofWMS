@@ -25,10 +25,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteMovementRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\CharacterReceived.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\KeyBoardButtonPress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\ShiftSwitch.cs" />
@@ -45,17 +47,23 @@
       <DependentUpon>vcOperationsRecords.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcItemSelect.xaml.cs">
+      <DependentUpon>vcItemSelect.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CheckNewVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DownloadEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GetCurrentVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GetPublishedVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Parsers\TryParseDateTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Parsers\TryParseDecimal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ParseVersionToList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReaddbRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YesNo.xaml.cs">
       <DependentUpon>YesNo.xaml</DependentUpon>
@@ -70,6 +78,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcOperationsRecords.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Assets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemSelect.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

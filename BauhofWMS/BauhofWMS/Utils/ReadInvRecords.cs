@@ -30,11 +30,15 @@ namespace BauhofWMS.Utils
                     }
                 }
 
-
                 if (Device.RuntimePlatform == Device.UWP)
                 {
-
+                    var settingsRead = await DependencyService.Get<IReadWriteInvRecordsUWP>().ReadInvRecordsAsync();
+                    if (!string.IsNullOrEmpty(settingsRead))
+                    {
+                        return new Tuple<bool, string>(true, settingsRead);
+                    }
                 }
+                
                 return new Tuple<bool, string>(false, null);
             }
             catch (Exception ex)

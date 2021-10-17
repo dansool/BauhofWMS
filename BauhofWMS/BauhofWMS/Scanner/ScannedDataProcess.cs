@@ -70,10 +70,10 @@ namespace BauhofWMS.Scanner
                             mp.ShowKeyBoard.Hide(mp);
                             
                             mp.entStockTakeReadCode.Text = "";
-                            mp.entStockTakeInternalCode.Text = "";
-                            mp.entStockTakeQuantityQuantity.Text = "";
-                            mp.entStockTakeBarCode.Text = "";
-                            mp.lblItemDesc.Text = "";
+                            mp.lblStockTakeInternalCodeValue.Text = "";
+                            mp.entStockTakeQuantity.Text = "";
+                            mp.lblStockTakeBarCodeValue.Text = "";
+                            mp.lblStockTakeItemDesc.Text = "";
                             var itemExists = mp.lstInternalRecordDB.Where(x => x.barCode == scannedCode);
                             if (itemExists.Any())
                             {
@@ -81,9 +81,9 @@ namespace BauhofWMS.Scanner
                                     itemExists.First().itemCode + "\r\n" +
                                     itemExists.First().itemDesc
                                     );
-                                mp.entStockTakeBarCode.Text = scannedCode;
+                                mp.lblStockTakeBarCodeValue.Text = scannedCode;
                                 mp.entStockTakeReadCode.Text = itemExists.First().itemCode;
-                                mp.lblItemDesc.Text  = itemExists.First().itemDesc;
+                                mp.lblStockTakeItemDesc.Text  = itemExists.First().itemDesc;
                             }
                             else
                             {

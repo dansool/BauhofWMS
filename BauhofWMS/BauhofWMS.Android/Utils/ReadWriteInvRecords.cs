@@ -47,5 +47,10 @@ namespace BauhofWMS.Droid.Utils
             }
             return result;
         }
+
+        public async Task<string> WriteInvRecordsAsync()
+        {
+            return "";
+        }
     }
 }

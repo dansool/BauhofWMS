@@ -12,40 +12,43 @@ using BauhofWMS.StackPanelOperations;
 using BauhofWMSDLL.ListDefinitions;
 using Newtonsoft.Json;
 
-
 namespace BauhofWMS.Utils
 {
-    public class ReaddbRecords
+    public class WriteInvRecords
     {
-        public async Task<Tuple<bool, string>> Read(MainPage mp)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data)
         {
-            int x = 0;
             try
             {
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWritedbRecordsAndroid>().ReaddbRecordsAsync();
+                    var settingsRead = await DependencyService.Get<IReadWriteInvRecordsAndroid>().WriteInvRecordsAsync(data);
                     if (!string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);
                     }
                 }
-                
 
                 if (Device.RuntimePlatform == Device.UWP)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWritedbRecordsUWP>().ReaddbRecordsAsync();
-                    if (!string.IsNullOrEmpty(settingsRead))
+                    var settingsWrite = await DependencyService.Get<IReadWriteInvRecordsUWP>().WriteInvRecordsAsync(data);
+                    if (!string.IsNullOrEmpty(settingsWrite))
                     {
-                        return new Tuple<bool, string>(true, settingsRead);
+                        return new Tuple<bool, string>(true, settingsWrite);
                     }
+                }
+
+
+                if (Device.RuntimePlatform == Device.UWP)
+                {
+
                 }
                 return new Tuple<bool, string>(false, null);
             }
             catch (Exception ex)
             {
-                return new Tuple<bool, string>(false, "ReaddbRecords " + x + " " + ex.Message);
+                return new Tuple<bool, string>(false, "ReadSettings " + ex.Message);
             }
 
         }

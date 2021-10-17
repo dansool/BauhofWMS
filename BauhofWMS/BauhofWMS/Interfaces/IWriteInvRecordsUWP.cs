@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BauhofWMS
 {
-    interface IReadWriteInvRecordsAndroid
+    public interface IReadWriteInvRecordsUWP
     {
         Task<string> ReadInvRecordsAsync();
         Task<string> WriteInvRecordsAsync(string data);

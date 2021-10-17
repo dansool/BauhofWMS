@@ -45,6 +45,25 @@ namespace BauhofWMS.StackPanelOperations
                         mp.PrepareOperations();
                     }
                     break;
+                case "SelectItem":
+                    {
+                        if (obj.previousLayoutName == "StockTake")
+                        {
+                            obj.previousLayoutName = "";
+                            obj.currentLayoutName = "StockTake";
+                            mp.CollapseAllStackPanels.Collapse(mp);
+                            mp.stkStockTake.IsVisible = true;
+                        }
+                        if (obj.previousLayoutName == "Transfer")
+                        {
+                            obj.previousLayoutName = "";
+                            obj.currentLayoutName = "Transfer";
+                            mp.CollapseAllStackPanels.Collapse(mp);
+                            mp.stkTransfer.IsVisible = true;
+
+                        }
+                    }
+                    break;
                     
             }
         }

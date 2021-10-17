@@ -104,7 +104,9 @@
     <Compile Include="Utils\CloseApplication.cs" />
     <Compile Include="Utils\GetDeviceSerial.cs" />
     <Compile Include="Utils\GetIP.cs" />
+    <Compile Include="Utils\ReadWritedbRecords.cs" />
     <Compile Include="Utils\ReadWriteSettings.cs" />
+    <Compile Include="Utils\ReadWriteInvRecords.cs" />
     <Compile Include="Utils\WriteProfile.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +115,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\dbrecords_2021-10-14_13-34-33.txt" />
     <Content Include="Assets\HonCommands.dll" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
