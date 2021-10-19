@@ -105,6 +105,7 @@
     <Compile Include="Utils\GetDeviceSerial.cs" />
     <Compile Include="Utils\GetIP.cs" />
     <Compile Include="Utils\ReadWritedbRecords.cs" />
+    <Compile Include="Utils\ReadWriteMovementRecords.cs" />
     <Compile Include="Utils\ReadWriteSettings.cs" />
     <Compile Include="Utils\ReadWriteInvRecords.cs" />
     <Compile Include="Utils\WriteProfile.cs" />

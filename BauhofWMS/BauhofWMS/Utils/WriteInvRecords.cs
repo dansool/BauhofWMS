@@ -24,19 +24,21 @@ namespace BauhofWMS.Utils
                 if (Device.RuntimePlatform == Device.Android)
                 {
                     var settingsRead = await DependencyService.Get<IReadWriteInvRecordsAndroid>().WriteInvRecordsAsync(data);
-                    if (!string.IsNullOrEmpty(settingsRead))
+                    if (string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);
                     }
+                    return new Tuple<bool, string>(false, settingsRead);
                 }
 
                 if (Device.RuntimePlatform == Device.UWP)
                 {
                     var settingsWrite = await DependencyService.Get<IReadWriteInvRecordsUWP>().WriteInvRecordsAsync(data);
-                    if (!string.IsNullOrEmpty(settingsWrite))
+                    if (string.IsNullOrEmpty(settingsWrite))
                     {
                         return new Tuple<bool, string>(true, settingsWrite);
                     }
+                    return new Tuple<bool, string>(false, settingsWrite);
                 }
 
 
@@ -48,7 +50,7 @@ namespace BauhofWMS.Utils
             }
             catch (Exception ex)
             {
-                return new Tuple<bool, string>(false, "ReadSettings " + ex.Message);
+                return new Tuple<bool, string>(false, "WriteInvRecords " + ex.Message);
             }
 
         }

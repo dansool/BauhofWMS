@@ -51,16 +51,19 @@ namespace BauhofWMS.Keyboard
                                             mp.SearchEntSelectItemReadCode();
                                         }
                                         break;
+                                    case "entItemInfoReadCode":
+                                        {
+                                            mp.PrepareItemInfo(mp.entItemInfoReadCode.Text);
+                                        }
+                                        break;
                                     default:
                                         {
                                             string value = mp.currentScannedValue;
                                             mp.currentScannedValue = "";
-                                            if (obj.currentLayoutName == "TransferLotsItems")
-                                            {
-                                                await ScannedDataProcess.DataReceived(value, "", mp);
-                                            }
                                         }
                                         break;
+
+                                        
 
                                 }
                                 if (mp.focusedEditor == "entPassword")

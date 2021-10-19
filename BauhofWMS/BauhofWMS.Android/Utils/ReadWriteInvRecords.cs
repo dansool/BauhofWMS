@@ -27,7 +27,7 @@ namespace BauhofWMS.Droid.Utils
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
             foreach (var r in dir.ListFiles())
             {
-                if (r.Name.ToUpper().StartsWith("INV_") && r.Name.ToUpper().EndsWith(".TXT"))
+                if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
@@ -48,9 +48,30 @@ namespace BauhofWMS.Droid.Utils
             return result;
         }
 
-        public async Task<string> WriteInvRecordsAsync()
+        public async Task<string> WriteInvRecordsAsync(string data)
         {
-            return "";
+            var result = "";
+            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+            foreach (var r in dir.ListFiles())
+            {
+                if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
+                {
+                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                    
+                    if (backingFile != null || File.Exists(backingFile))
+                    {
+                        File.Delete(backingFile);
+                    }
+                    using (var reader = new StreamReader(backingFile, true))
+                    {
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
+                        }
+                    }
+                }
+            }
+            return result;
         }
     }
 }

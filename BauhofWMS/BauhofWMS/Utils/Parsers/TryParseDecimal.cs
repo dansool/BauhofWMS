@@ -14,7 +14,7 @@ namespace BauhofWMS.Utils.Parsers
             {
                 return value;
             }
-            return 0;
+            return -1;
         }
     }
 }

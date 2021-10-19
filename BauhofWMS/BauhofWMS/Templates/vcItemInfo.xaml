@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="False"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcItemInfo">
+    <ViewCell.View>
+        <Frame x:Name="frame" BackgroundColor="Transparent" HorizontalOptions="Fill" Margin="0,-10,-10,0">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ConvertDecimalSpaces x:Key="ConvertDecimalSpaces"/>
+                </ResourceDictionary>
+            </Frame.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding itemDesc}" FontAttributes="Bold" FontSize="18" TextColor="Yellow" VerticalOptions="Start" />
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="18"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0">
+                        <Label Text="SISEKOOD" FontAttributes="Bold" FontSize="16" TextColor="LightBlue" VerticalOptions="End" />
+                    </Grid>
+                    <Grid Grid.Column="2" Grid.Row="0">
+                        <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="16" TextColor="LightBlue" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="1" >
+                        <Label Text="VÖÖTKOOD" FontAttributes="Bold" FontSize="16" TextColor="SandyBrown" VerticalOptions="End" />
+                    </Grid>
+                    <Grid Grid.Column="2" Grid.Row="1">
+                        <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SandyBrown" VerticalOptions="Start" />
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="65"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="20"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="SALDO" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding SKUqty, Mode=TwoWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="18" TextColor="White"  />
+                                        <Span Text=" " FontAttributes="Bold" FontSize="16" TextColor="White"  />
+                                        <Span Text="{Binding itemMagnitude}" FontAttributes="Bold" FontSize="14" TextColor="White" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+                        <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="SORTIMENT" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="4" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label  Text="{Binding sortiment}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
+                        </Grid>
+
+
+                        <Grid Grid.Column="0" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="HIND" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="1" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label  Text="{Binding price}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="3" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="SOODUS" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="4" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label Text="{Binding soodushind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
+                        </Grid>
+
+                        <Grid Grid.Column="0" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="MEISTRIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="1" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label  Text="{Binding meistriklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="3" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="PROFIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
+                        </Grid>
+                        <Grid Grid.Column="4" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="Start">
+                            <Label  Text="{Binding profiklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="18"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="52"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0">
+                        <Label Text="ASUB" FontAttributes="Bold" FontSize="16" TextColor="Lime" VerticalOptions="End" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0">
+                        <Label Text="{Binding SKUBin}" FontAttributes="Bold" FontSize="16" TextColor="Lime" VerticalOptions="Start" />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

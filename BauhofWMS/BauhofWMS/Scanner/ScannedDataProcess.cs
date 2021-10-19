@@ -81,8 +81,9 @@ namespace BauhofWMS.Scanner
                                     itemExists.First().itemCode + "\r\n" +
                                     itemExists.First().itemDesc
                                     );
+                                mp.entStockTakeReadCode.Text = scannedCode;
                                 mp.lblStockTakeBarCodeValue.Text = scannedCode;
-                                mp.entStockTakeReadCode.Text = itemExists.First().itemCode;
+                                mp.lblStockTakeInternalCodeValue.Text = itemExists.First().itemCode;
                                 mp.lblStockTakeItemDesc.Text  = itemExists.First().itemDesc;
                             }
                             else
@@ -92,8 +93,60 @@ namespace BauhofWMS.Scanner
                             }
                         }
                         break;
-                        
 
+                    case "Transfer":
+                        {
+                            Debug.WriteLine("UPDATE LAYOUT");
+                            mp.ShowKeyBoard.Hide(mp);
+
+                            mp.entTransferReadCode.Text = "";
+                            mp.entTransferQuantity.Text = "";
+                            mp.lstTransferInfo = new List<ListOfdbRecords>();
+                            var itemExists = mp.lstInternalRecordDB.Where(x => x.barCode == scannedCode);
+                            if (itemExists.Any())
+                            {
+                                mp.DisplaySuccessMessage(scannedCode + "\r\n" +
+                                    itemExists.First().itemCode + "\r\n" +
+                                    itemExists.First().itemDesc
+                                    );
+                                mp.entTransferReadCode.Text = scannedCode;
+                                
+                                mp.lstTransferInfo.Add(new ListOfdbRecords
+                                {
+                                    barCode = itemExists.First().barCode,
+                                    itemCode = itemExists.First().itemCode,
+                                    itemDesc = itemExists.First().itemDesc,
+                                    itemMagnitude = itemExists.First().itemMagnitude,
+                                    meistriklubihind = itemExists.First().meistriklubihind,
+                                    price = itemExists.First().price,
+                                    profiklubihind = itemExists.First().profiklubihind,
+                                    SKU = itemExists.First().SKU,
+                                    SKUqty = itemExists.First().SKUqty,
+                                    SKUBin = itemExists.First().SKUBin,
+                                    soodushind = itemExists.First().soodushind,
+                                    sortiment = itemExists.First().sortiment,
+
+                                });
+                                mp.LstvTransferInfo.ItemsSource = null;
+                                mp.LstvTransferInfo.ItemsSource = mp.lstTransferInfo;
+                            }
+                            else
+                            {
+
+                                mp.DisplayFailMessage("SKÄNNITUD " + scannedCode + " EI LEITUD REGISTRIST!");
+                            }
+                        }
+                        break;
+                    case "ItemInfo":
+                        {
+                            mp.PrepareItemInfo(scannedCode);
+                        }
+                        break;
+                    case "Operations":
+                        {
+                            mp.PrepareItemInfo(scannedCode);
+                        }
+                        break;
 
                 }
             }

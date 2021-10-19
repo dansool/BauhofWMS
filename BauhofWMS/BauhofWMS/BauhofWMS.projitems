@@ -18,6 +18,7 @@
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeDefault.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeLong.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDecimalSpaces.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ListViewSelectedColorConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IAppVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ICloseApplication.cs" />
@@ -28,9 +29,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteMovementRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteMovementRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsUWP.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\CharacterReceived.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\KeyBoardButtonPress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\ShiftSwitch.cs" />
@@ -43,6 +45,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)StackPanelOperations\BackKeyPress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StackPanelOperations\CollapseAllStackPanels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Templates\CustomEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcItemInfo.xaml.cs">
+      <DependentUpon>vcItemInfo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoItems.xaml.cs">
+      <DependentUpon>vcItemInfoItems.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Templates\vcOperationsRecords.xaml.cs">
       <DependentUpon>vcOperationsRecords.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -64,6 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YesNo.xaml.cs">
       <DependentUpon>YesNo.xaml</DependentUpon>
@@ -87,6 +98,18 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemSelect.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoItems.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

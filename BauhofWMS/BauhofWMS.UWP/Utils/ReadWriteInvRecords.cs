@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 using System.IO.IsolatedStorage;
-//using BauhofWMSDLL.ListDefinitions;
 
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.UWP.Utils.ReadWriteInvRecords))]
 
@@ -69,7 +68,7 @@ namespace BauhofWMS.UWP.Utils
             }
             catch (Exception ex)
             {
-                return "ReadSettingsAsync " + ex.Message;
+                return "ReadInvRecordsAsync " + ex.Message;
             }
         }
     }

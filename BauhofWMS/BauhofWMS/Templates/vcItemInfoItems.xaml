@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="True"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcItemInfoItems">
+    <ViewCell.View>
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                </ResourceDictionary>
+            </Frame.Resources>
+            <Grid Margin="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="322" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                    <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="16" TextColor="Navy" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="0" Grid.Row="1" Margin="0,-4,0,0">
+                    <Label Text="{Binding itemDesc}"  FontAttributes="Bold" FontSize="16" TextColor="Green" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="0" Grid.Row="2" Margin="0,-8,0,0">
+                    <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SaddleBrown" VerticalOptions="Start" />
+                </Grid>
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

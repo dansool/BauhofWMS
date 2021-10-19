@@ -41,6 +41,8 @@
     <Compile Include="ListDefinitions\ListOfdbRecords.cs" />
     <Compile Include="ListDefinitions\ListOfInvRecords.cs" />
     <Compile Include="ListDefinitions\ListOfInvToExport.cs" />
+    <Compile Include="ListDefinitions\ListOfMovement.cs" />
+    <Compile Include="ListDefinitions\ListOfMovementToExport.cs" />
     <Compile Include="ListDefinitions\ListOfOperationsRecords.cs" />
     <Compile Include="ListDefinitions\ListOfSettings.cs" />
     <Compile Include="ListDefinitions\ListOfUser.cs" />

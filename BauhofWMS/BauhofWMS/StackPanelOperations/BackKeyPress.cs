@@ -64,7 +64,14 @@ namespace BauhofWMS.StackPanelOperations
                         }
                     }
                     break;
+                case "ItemInfo":
+                    {
+                        mp.PrepareOperations();
+                    }
+                    break;
                     
+
+
             }
         }
     }

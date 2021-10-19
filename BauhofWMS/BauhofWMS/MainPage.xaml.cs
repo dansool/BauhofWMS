@@ -43,6 +43,8 @@ namespace BauhofWMS
         public TryParseDateTime TryParseDateTime = new TryParseDateTime();
         public TryParseDecimal TryParseDecimal = new TryParseDecimal();
         public WriteInvRecords WriteInvRecords = new WriteInvRecords();
+        public ReadMovementRecords ReadMovementRecords = new ReadMovementRecords();
+        public WriteMovementRecords WriteMovementRecords = new WriteMovementRecords();
         #endregion
         #region Variables
         protected override bool OnBackButtonPressed() => true;
@@ -90,7 +92,9 @@ namespace BauhofWMS
         string tempString = "";
 
         public int invRecordID = 0;
-        public int movementRecordID = 0;
+        public int transferRecordID = 0;
+
+        
         #endregion
         #region lists
         public List<ListOfSettings> lstSettings = new List<ListOfSettings>();
@@ -99,8 +103,16 @@ namespace BauhofWMS
         public List<ListOfdbRecords> lstInternalRecordDB = new List<ListOfdbRecords>();
         public List<ListOfInvRecords> lstInternalInvDB = new List<ListOfInvRecords>();
         public List<ListOfInvToExport> lstInvToExport = new List<ListOfInvToExport>();
-        #endregion
+
+        public List<ListOfMovementRecords> lstInternalMovementDB = new List<ListOfMovementRecords>();
+        public List<ListOfdbRecords> lstTransferInfo = new List<ListOfdbRecords>();
+        public List<ListOfMovementToExport> lstInternalMovementToExport= new List<ListOfMovementToExport>();
+
+        public List<ListOfdbRecords> lstItemInfo = new List<ListOfdbRecords>();
         
+
+        #endregion
+
 
         #region MainPage operations
 
@@ -146,7 +158,7 @@ namespace BauhofWMS
                                 JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                 lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
                                 progressBarActive = false;
-                                Debug.WriteLine("lstInternalRecordDB2 + " + lstInternalRecordDB.Count());
+                                Debug.WriteLine("lstInternalRecordDB2 meistriklubihind " + lstInternalRecordDB.First().meistriklubihind);
                             }
                         }
                         else
@@ -988,6 +1000,12 @@ namespace BauhofWMS
             PrepareTransfer();
         }
 
+        private void btnOperationsItemInfo_Clicked(object sender, EventArgs e)
+        {
+            string scannedCode = "438499239448";
+            PrepareItemInfo(scannedCode);
+        }
+
         private void btnOperationsExport_Clicked(object sender, EventArgs e)
         {
 
@@ -1038,64 +1056,65 @@ namespace BauhofWMS
             {
                 lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
             }
-            entStockTakeReadCode.Text = "438499239403";
+            //entStockTakeReadCode.Text = "438499239441";
         }
 
         private async void btnStockTakeQuantityOK_Clicked(object sender, EventArgs e)
         {
-            Debug.WriteLine("X1");
+            bool proceed = true;
             decimal quantity = 0;
             if (!string.IsNullOrEmpty(entStockTakeQuantity.Text))
             {
                 quantity = TryParseDecimal.Parse(entStockTakeQuantity.Text);
             }
-            if (quantity > -1)
+            if (string.IsNullOrEmpty(lblStockTakeInternalCodeValue.Text))
             {
-                Debug.WriteLine("X2");
-                if (invRecordID == 0)
+                proceed = false;
+                DisplayFailMessage("KAUPA POLE VALITUD!");
+            }
+            if (quantity == 0)
+            {
+                if (invRecordID != 0)
                 {
-                    int lastRecordID = 0;
-                    if (lstInternalInvDB.Any())
+                    if (!await YesNoDialog("INVENTUUR", "SISESTATUD KOGUS ON 0. JÄTKAMISEL TÜHISTATAKSE VAREM SISESTATUD KOGUS. KAS JÄTKATA?", false))
                     {
-                        lastRecordID = lstInternalInvDB.OrderBy(x => x.recordID).Take(1).First().recordID;
-                    }
-                    lstInternalInvDB.Add(new ListOfInvRecords
-                    {
-                        barCode = lblStockTakeBarCodeValue.Text,
-                        itemCode = lblStockTakeInternalCodeValue.Text,
-                        quantity = quantity,
-                        recordDate = DateTime.Now,
-                        uom = lblStockTakeQuantityUOM.Text,
-                        recordID = lastRecordID + 1
-                    });
-
-                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                    string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
-                    Debug.WriteLine(data);
-                    var writeInvDbToFile = await WriteInvRecords.Write(this, data);
-                    if (writeInvDbToFile.Item1)
-                    {
-                        DisplaySuccessMessage("SALVESTATUD!");
-                        PrepareStockTake();
-                    }
-                    else
-                    {
-                        DisplayFailMessage(writeInvDbToFile.Item2);
+                        proceed = false;
                     }
                 }
                 else
                 {
-                    var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
-                    if (record.Any())
+                    DisplayFailMessage("0 EI SAA KOGUSENA SISESTADA!");
+                }
+            }
+
+            if (proceed)
+            { 
+                if (quantity > -1)
+                {
+                    Debug.WriteLine("X2");
+                    if (invRecordID == 0)
                     {
-                        record.First().quantity = quantity;
-                        record.First().recordDate = DateTime.Now;
+                        int lastRecordID = 0;
+                        if (lstInternalInvDB.Any())
+                        {
+                            lastRecordID = lstInternalInvDB.OrderBy(x => x.recordID).Take(1).First().recordID;
+                        }
+                        lstInternalInvDB.Add(new ListOfInvRecords
+                        {
+                            barCode = lblStockTakeBarCodeValue.Text,
+                            itemCode = lblStockTakeInternalCodeValue.Text,
+                            quantity = quantity,
+                            recordDate = DateTime.Now,
+                            uom = lblStockTakeQuantityUOM.Text,
+                            recordID = lastRecordID + 1
+                        });
 
                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                         string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
-                        Debug.WriteLine(data);
+                       
                         var writeInvDbToFile = await WriteInvRecords.Write(this, data);
-                        if (string.IsNullOrEmpty(writeInvDbToFile.Item2))
+                        //await DisplayAlert("writeInvDbToFile", writeInvDbToFile.Item1 + "  " + writeInvDbToFile.Item2, "OK");
+                        if (writeInvDbToFile.Item1)
                         {
                             DisplaySuccessMessage("SALVESTATUD!");
                             PrepareStockTake();
@@ -1105,13 +1124,36 @@ namespace BauhofWMS
                             DisplayFailMessage(writeInvDbToFile.Item2);
                         }
                     }
+                    else
+                    {
+                        var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
+                        if (record.Any())
+                        {
+                            record.First().quantity = quantity;
+                            record.First().recordDate = DateTime.Now;
+
+                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                            string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
+                           
+                            var writeInvDbToFile = await WriteInvRecords.Write(this, data);
+                            //await DisplayAlert("writeInvDbToFile", writeInvDbToFile.Item1 + "  " + writeInvDbToFile.Item2, "OK");
+                            if (writeInvDbToFile.Item1)
+                            {
+                                DisplaySuccessMessage("SALVESTATUD!");
+                                PrepareStockTake();
+                            }
+                            else
+                            {
+                                DisplayFailMessage(writeInvDbToFile.Item2);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
                 }
             }
-            else
-            {
-                DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
-            }
-
 
         }
 
@@ -1129,7 +1171,7 @@ namespace BauhofWMS
                 {
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entStockTakeReadCode.Text)
-                    || x.itemDesc.Contains(entStockTakeReadCode.Text)
+                    || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
                     || x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
                     if (result.Any())
                     {
@@ -1161,7 +1203,6 @@ namespace BauhofWMS
                             }
                             else
                             {
-                                lblStockTakeQuantity.Text = "";
                                 lblStockTakeBarCodeValue.Text = result.First().barCode;
                                 lblStockTakeInternalCodeValue.Text = result.First().itemCode;
                                 lblStockTakeItemDesc.Text = result.First().itemDesc;
@@ -1214,10 +1255,135 @@ namespace BauhofWMS
                 grdMain.ScaleY = 1.0;
             }
             focusedEditor = "";
+            entTransferReadCode.Text = "";
+            entTransferQuantity.Text = "";
+
+            var resultReadMovementRecords = await ReadMovementRecords.Read(this);
+            if (resultReadMovementRecords.Item1)
+            {
+                if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
+                {
+                    Debug.WriteLine(resultReadMovementRecords.Item2);
+                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                    lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
+                    progressBarActive = false;
+                }
+            }
+            lblTransferAddedRowsValue.Text = "0";
+            if (lstInternalMovementDB.Any())
+            {
+                lblTransferAddedRowsValue.Text = lstInternalMovementDB.Count.ToString();
+            }
+
+            LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+            //LstvTransferInfo.ItemsSource = null;
+            //entTransferReadCode.Text = "438499239403";
         }
 
         private async void btnTransferQuantityOK_Clicked(object sender, EventArgs e)
         {
+            bool proceed = true;
+            decimal quantity = 0;
+            if (!string.IsNullOrEmpty(entTransferQuantity.Text))
+            {
+                quantity = TryParseDecimal.Parse(entTransferQuantity.Text);
+            }
+            if (quantity == -1)
+            {
+                proceed = false;
+                DisplayFailMessage("SISESTATUD KOGUS SISALDAB TÄHTI!");
+
+            }
+            if (proceed)
+            {
+                if (string.IsNullOrEmpty(lstTransferInfo.First().itemCode))
+                {
+                    proceed = false;
+                    DisplayFailMessage("KAUPA POLE VALITUD!");
+                }
+            }
+            if (quantity == 0)
+            {
+                if (transferRecordID != 0)
+                {
+                    if (!await YesNoDialog("LIIKUMINE", "SISESTATUD KOGUS ON 0. JÄTKAMISEL TÜHISTATAKSE VAREM SISESTATUD KOGUS. KAS JÄTKATA?", false))
+                    {
+                        proceed = false;
+                    }
+                }
+                else
+                {
+                    DisplayFailMessage("0 EI SAA KOGUSENA SISESTADA!");
+                }
+            }
+            if (proceed)
+            {
+                if (quantity > -1)
+                {
+                    Debug.WriteLine("X2");
+                    if (transferRecordID == 0)
+                    {
+                        int lastRecordID = 0;
+                        if (lstInternalMovementDB.Any())
+                        {
+                            lastRecordID = lstInternalMovementDB.OrderBy(x => x.recordID).Take(1).First().recordID;
+                        }
+                        lstInternalMovementDB.Add(new ListOfMovementRecords
+                        {
+                            barCode = lstTransferInfo.First().barCode,
+                            itemCode = lstTransferInfo.First().itemCode,
+                            quantity = quantity,
+                            recordDate = DateTime.Now,
+                            uom = lblStockTakeQuantityUOM.Text,
+                            recordID = lastRecordID + 1
+                        });
+
+                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                        string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
+                        Debug.WriteLine(data);
+                        var writeMovementDbToFile = await WriteMovementRecords.Write(this, data);
+                        //await DisplayAlert("writeMovementDbToFile", writeMovementDbToFile.Item1 + "  " + writeMovementDbToFile.Item2, "OK");
+                        if (writeMovementDbToFile.Item1)
+                        {
+                            DisplaySuccessMessage("SALVESTATUD!");
+                            PrepareTransfer();
+                        }
+                        else
+                        {
+                            DisplayFailMessage(writeMovementDbToFile.Item2);
+                        }
+                    }
+                    else
+                    {
+                        var record = lstInternalMovementDB.Where(x => x.recordID == transferRecordID);
+                        if (record.Any())
+                        {
+                            record.First().quantity = quantity;
+                            record.First().recordDate = DateTime.Now;
+
+                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                            string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
+                            Debug.WriteLine(data);
+                            var writeMovementDbToFile = await WriteMovementRecords.Write(this, data);
+                            //await DisplayAlert("writeMovementDbToFile", writeMovementDbToFile.Item1 + "  " + writeMovementDbToFile.Item2, "OK");
+                            if (writeMovementDbToFile.Item1)
+                            {
+                                DisplaySuccessMessage("SALVESTATUD!");
+                                PrepareTransfer();
+                            }
+                            else
+                            {
+                                DisplayFailMessage(writeMovementDbToFile.Item2);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                }
+            }
+            
         }
 
         private async void btnTransferReadCode_Clicked(object sender, EventArgs e)
@@ -1237,7 +1403,7 @@ namespace BauhofWMS
         {
         }
 
-        public void SearchEntTransferReadCode()
+        public async void SearchEntTransferReadCode()
         {
             if (!string.IsNullOrEmpty(entTransferReadCode.Text))
             {
@@ -1245,16 +1411,72 @@ namespace BauhofWMS
                 {
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entTransferReadCode.Text)
-                    || x.itemDesc.Contains(entTransferReadCode.Text)
+                    || x.itemDesc.ToUpper().Contains(entTransferReadCode.Text.ToUpper())
                     || x.barCode.Contains(entTransferReadCode.Text)).ToList();
                     if (result.Any())
                     {
                         if (result.Count() == 1)
                         {
-                            lblTransferBarCodeValue.Text = result.First().barCode;
-                            lblTransferInternalCodeValue.Text = result.First().itemCode;
-                            lblTransferItemDesc.Text = result.First().itemDesc;
-                            lblTransferQuantityUOM.Text = result.First().itemMagnitude;
+                            if (lstInternalMovementDB.Any())
+                            {
+                                var s = lstInternalMovementDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
+                                if (s.Any())
+                                {
+                                    if (await YesNoDialog("LIIKUMINE", "KAUP ON JUBA LIIGUTATUD. KAS SOOVID PARANDADA?", false))
+                                    {
+                                        transferRecordID = s.First().recordID;
+                                        entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
+                                        lstTransferInfo = new List<ListOfdbRecords>();
+                                        lstTransferInfo.Add(new ListOfdbRecords
+                                        {
+                                            barCode = result.First().barCode,
+                                            itemCode = result.First().itemCode,
+                                            itemDesc = result.First().itemDesc,
+                                            itemMagnitude = result.First().itemMagnitude,
+                                            meistriklubihind = result.First().meistriklubihind,
+                                            price = result.First().price,
+                                            profiklubihind = result.First().profiklubihind,
+                                            SKU = result.First().SKU,
+                                            SKUqty = result.First().SKUqty,
+                                            SKUBin = result.First().SKUBin,
+                                            soodushind = result.First().soodushind,
+                                            sortiment = result.First().sortiment,
+
+                                        });
+                                        LstvTransferInfo.ItemsSource = null;
+                                        LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                    }
+                                    else
+                                    {
+                                        transferRecordID = 0;
+                                        lstTransferInfo = new List<ListOfdbRecords>();
+                                        LstvTransferInfo.ItemsSource = null;
+                                        LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                lstTransferInfo = new List<ListOfdbRecords>();
+                                lstTransferInfo.Add(new ListOfdbRecords
+                                {
+                                    barCode = result.First().barCode,
+                                    itemCode = result.First().itemCode,
+                                    itemDesc = result.First().itemDesc,
+                                    itemMagnitude = result.First().itemMagnitude,
+                                    meistriklubihind = result.First().meistriklubihind,
+                                    price = result.First().price,
+                                    profiklubihind = result.First().profiklubihind,
+                                    SKU = result.First().SKU,
+                                    SKUqty = result.First().SKUqty,
+                                    SKUBin = result.First().SKUBin,
+                                    soodushind = result.First().soodushind,
+                                    sortiment = result.First().sortiment,
+
+                                });
+                                LstvTransferInfo.ItemsSource = null;
+                                LstvTransferInfo.ItemsSource = lstTransferInfo;
+                            }
                         }
                         else
                         {
@@ -1313,7 +1535,7 @@ namespace BauhofWMS
             {
                 var result = lstInternalRecordDB.Where(x =>
                       x.itemCode.Contains(entSelectItemReadCode.Text)
-                   || x.itemDesc.Contains(entSelectItemReadCode.Text)
+                   || x.itemDesc.ToUpper().Contains(entSelectItemReadCode.Text.ToUpper())
                    || x.barCode.Contains(entSelectItemReadCode.Text)).ToList();
                 LstvSelectItem.ItemsSource = null;
                 LstvSelectItem.ItemsSource = result;
@@ -1352,9 +1574,9 @@ namespace BauhofWMS
             if (obj.previousLayoutName == "Transfer")
             {
                 entTransferReadCode.Text = entSelectItemReadCode.Text;
-                lblTransferBarCodeValue.Text = item.barCode;
-                lblTransferItemDesc.Text = item.itemDesc;
-                lblTransferInternalCodeValue.Text = item.itemCode;
+                //lblTransferBarCodeValue.Text = item.barCode;
+                //lblTransferItemDesc.Text = item.itemDesc;
+                //lblTransferInternalCodeValue.Text = item.itemCode;
                 CollapseAllStackPanels.Collapse(this);
                 stkTransfer.IsVisible = true;
             }
@@ -1375,7 +1597,7 @@ namespace BauhofWMS
                 {
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entSelectItemReadCode.Text)
-                    || x.itemDesc.Contains(entSelectItemReadCode.Text)
+                    || x.itemDesc.ToUpper().Contains(entSelectItemReadCode.Text.ToUpper())
                     || x.barCode.Contains(entSelectItemReadCode.Text)).ToList();
                     if (result.Any())
                     {
@@ -1395,5 +1617,88 @@ namespace BauhofWMS
         }
 
         #endregion
+
+        #region stkItemInfo
+
+        public async void PrepareItemInfo(string scannedCode)
+        {
+            
+            CollapseAllStackPanels.Collapse(this);
+            stkItemInfo.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "ItemInfo";
+            lblItemInfoHeader.Text = "KAUBA INFO";
+            LstvItemInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+            LstvItemInfoItems.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoItems)) : new DataTemplate(typeof(vcItemInfoItems));
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvItemInfo.ItemsSource = null;
+            LstvItemInfoItems.ItemsSource = null;
+            if (!string.IsNullOrEmpty(scannedCode))
+            {
+                entItemInfoReadCode.Text = scannedCode;
+                SearchEntItemInfoReadCode();
+            }
+        }
+        
+        private void btnItemInfoReadCode_Clicked(object sender, EventArgs e)
+        {
+            SearchEntItemInfoReadCode();
+        }
+
+        public void SearchEntItemInfoReadCode()
+        {
+            ShowKeyBoard.Hide(this);
+            LstvItemInfoItems.ItemsSource = null;
+            lstItemInfo = new List<ListOfdbRecords>();
+            LstvItemInfo.ItemsSource = null;
+            if (!string.IsNullOrEmpty(entItemInfoReadCode.Text))
+            {
+                if (entItemInfoReadCode.Text.Length > 5)
+                {
+                    var result = lstInternalRecordDB.Where(x =>
+                       x.itemCode.Contains(entItemInfoReadCode.Text)
+                    || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
+                    || x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
+                    if (result.Any())
+                    {
+                        LstvItemInfoItems.ItemsSource = result;
+                        if (result.Count == 1)
+                        {
+                            lstItemInfo = result;
+                            LstvItemInfo.ItemsSource = lstItemInfo;
+                        }
+                    }
+                    else
+                    {
+                        DisplayFailMessage("EI LEITUD MIDAGI!");
+
+                    }
+                }
+                else
+                {
+                    DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
+                }
+            }
+        }
+
+        private void LstvItemInfoItems_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            lstItemInfo = new List<ListOfdbRecords>();
+            var item = e.Item as ListOfdbRecords;
+            lstItemInfo.Add(item);
+            LstvItemInfo.ItemsSource = lstItemInfo;
+        }
+
+        #endregion
+
     }
 }

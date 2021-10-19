@@ -18,24 +18,9 @@ namespace BauhofWMSDLL.ListDefinitions
         public decimal SKUqty { get; set; }
         public string SKUBin { get; set; }
         public decimal price { get; set; }
-        public decimal meistriklubi { get; set; }
-        public decimal profiklubi { get; set; }
-       
-    }
-
-    public class ListOfdbRecords2
-    {
-        public string fileName { get; set; }
-        //public string itemCode { get; set; }
-        //public string barCode { get; set; }
-        //public string itemDesc { get; set; }
-        //public string itemMagnitude { get; set; }
-        //public string SKU { get; set; }
-        //public decimal SKUqty { get; set; }
-        //public string SKUBin { get; set; }
-        //public decimal price { get; set; }
-        //public decimal meistriklubi { get; set; }
-        //public decimal profiklubi { get; set; }
-
+        public decimal meistriklubihind { get; set; }
+        public decimal profiklubihind { get; set; }
+        public string sortiment { get; set; }
+        public decimal soodushind { get; set; }
     }
 }

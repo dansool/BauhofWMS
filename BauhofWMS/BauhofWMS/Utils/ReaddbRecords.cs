@@ -35,6 +35,7 @@ namespace BauhofWMS.Utils
 
                 if (Device.RuntimePlatform == Device.UWP)
                 {
+                    
                     var settingsRead = await DependencyService.Get<IReadWritedbRecordsUWP>().ReaddbRecordsAsync();
                     if (!string.IsNullOrEmpty(settingsRead))
                     {

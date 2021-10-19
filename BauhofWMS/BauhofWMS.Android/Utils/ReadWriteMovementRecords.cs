@@ -27,7 +27,7 @@ namespace BauhofWMS.Droid.Utils
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
             foreach (var r in dir.ListFiles())
             {
-                if (r.Name.ToUpper().StartsWith("MOVEMENT_") && r.Name.ToUpper().EndsWith(".TXT"))
+                if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
@@ -41,6 +41,32 @@ namespace BauhofWMS.Droid.Utils
                         while ((line = await reader.ReadLineAsync()) != null)
                         {
                             result = result + line;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public async Task<string> WriteMovementRecordsAsync(string data)
+        {
+            var result = "";
+            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+            foreach (var r in dir.ListFiles())
+            {
+                if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
+                {
+                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+
+                    if (backingFile != null || File.Exists(backingFile))
+                    {
+                        File.Delete(backingFile);
+                    }
+                    using (var reader = new StreamReader(backingFile, true))
+                    {
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
                         }
                     }
                 }
