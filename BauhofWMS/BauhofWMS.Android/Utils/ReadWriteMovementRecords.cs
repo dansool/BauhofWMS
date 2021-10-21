@@ -58,16 +58,19 @@ namespace BauhofWMS.Droid.Utils
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    if (backingFile != null || File.Exists(backingFile))
+                    File.Delete(backingFile);
+                    using (StreamWriter writer = new StreamWriter(backingFile))
                     {
-                        File.Delete(backingFile);
+                        writer.Write(data);
                     }
-                    using (var reader = new StreamReader(backingFile, true))
+                }
+                else
+                {
+                    var backingFile = Path.Combine(dir.AbsolutePath, "MOVEMENTRECORDSDB.TXT");
+
+                    using (StreamWriter writer = new StreamWriter(backingFile))
                     {
-                        using (StreamWriter writer = new StreamWriter(backingFile))
-                        {
-                            writer.Write(data);
-                        }
+                        writer.Write(data);
                     }
                 }
             }

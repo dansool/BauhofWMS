@@ -8,7 +8,7 @@
     <TemplateGuid>{c9e5eea5-ca05-42a1-839b-61506e0a37df}</TemplateGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BauhofWMS.Droid</RootNamespace>
-    <AssemblyName>BauhofWMS.Android</AssemblyName>
+    <AssemblyName>BauhofWMS</AssemblyName>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -20,6 +20,11 @@
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <AndroidKeyStore>true</AndroidKeyStore>
+    <AndroidSigningKeyStore>C:\Users\dansool\source\repos\BauhofWMS\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
+    <AndroidSigningStorePass>Dr0p0ff.</AndroidSigningStorePass>
+    <AndroidSigningKeyPass>Dr0p0ff.</AndroidSigningKeyPass>
+    <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +47,8 @@
     <WarningLevel>4</WarningLevel>
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BauhofWMSDLL">
@@ -89,6 +96,8 @@
     <Compile Include="Utils\ReadWriteMovementRecords.cs" />
     <Compile Include="Utils\ReadWriteSettings.cs" />
     <Compile Include="Utils\Version_Android.cs" />
+    <Compile Include="Utils\WriteInvRecordsToExportFile.cs" />
+    <Compile Include="Utils\WriteMovementRecordsToExportFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\FontAwesome5Brands.otf" />
@@ -124,6 +133,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splashscreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\bauhof.png" />
   </ItemGroup>
   <Import Project="..\BauhofWMS\BauhofWMS.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

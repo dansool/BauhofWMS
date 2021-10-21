@@ -30,6 +30,7 @@ namespace BauhofWMS.Utils
 
                     };
                     lstResult.Add(row);
+                    Debug.WriteLine("ParseVersionToList.Count =  " + lstResult.Count);
                     return lstResult;
                 }
                 else

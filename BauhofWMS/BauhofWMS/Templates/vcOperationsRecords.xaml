@@ -21,8 +21,8 @@
                     <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150" />
-                    <ColumnDefinition Width="180" />
+                    <ColumnDefinition Width="145" />
+                    <ColumnDefinition Width="192" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" Grid.Row="0">
                     <Label Text="Inventuuri kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />

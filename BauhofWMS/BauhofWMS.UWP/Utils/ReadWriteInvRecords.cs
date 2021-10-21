@@ -17,18 +17,18 @@ namespace BauhofWMS.UWP.Utils
         {
             try
             {
-                IsolatedStorageFile isoStore = IsolatedStorageFile.GetUserStoreForApplication();
-                if (isoStore.FileExists("invRecordsDB.txt"))
+                Windows.Storage.StorageFolder _folder = await Windows.Storage.KnownFolders.DocumentsLibrary.CreateFolderAsync("Bauhof", Windows.Storage.CreationCollisionOption.OpenIfExists);
+                var p = await _folder.GetFilesAsync();
+                foreach (var file in p)
                 {
-                    isoStore.DeleteFile("invRecordsDB.txt");
-                }
-                using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("invRecordsDB.txt", FileMode.CreateNew, isoStore))
-                {
-                    using (StreamWriter writer = new StreamWriter(isoStream))
+                    if (file.Name.ToUpper() == "INVRECORDSDB.TXT")
                     {
-                        writer.Write(data);
+                        await file.DeleteAsync();
                     }
                 }
+
+                Windows.Storage.StorageFile myFile = await _folder.CreateFileAsync("INVRECORDSDB.TXT", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                await Windows.Storage.FileIO.WriteTextAsync(myFile, data);
                 return null;
             }
             catch (Exception ex)
@@ -40,29 +40,16 @@ namespace BauhofWMS.UWP.Utils
         {
             try
             {
-
-                IsolatedStorageFile isoStore = IsolatedStorageFile.GetUserStoreForApplication();
-                if (isoStore.FileExists("invRecordsDB.txt"))
+                string result = "";
+                Windows.Storage.StorageFolder _folder = await Windows.Storage.KnownFolders.DocumentsLibrary.CreateFolderAsync("Bauhof", Windows.Storage.CreationCollisionOption.OpenIfExists);
+                var p = await _folder.GetFilesAsync();
+                foreach (var file in p)
                 {
-                    string result = "";
-                    using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream("invRecordsDB.txt", FileMode.Open, isoStore))
+                    if (file.Name.ToUpper() == "INVRECORDSDB.TXT")
                     {
-                        using (var reader = new StreamReader(isoStream, true))
-                        {
-                            string line;
-                            while ((line = await reader.ReadLineAsync()) != null)
-                            {
-                                result = result + line;
-                            }
-                            
-                        }
-                        //using (StreamReader reader = new StreamReader(isoStream))
-                        //{
-                        //    result = result + reader.ReadLine();
-                        //    return result;
-                        //}
+                        result = await Windows.Storage.FileIO.ReadTextAsync(file);
+                        return result;
                     }
-                    return result;
                 }
                 return null;
             }

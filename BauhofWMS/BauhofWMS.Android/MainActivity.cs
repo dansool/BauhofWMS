@@ -31,7 +31,7 @@ namespace BauhofWMS.Droid
 {
     [Activity(
         Label = "xx",
-        Icon = "@mipmap/icon",
+        Icon = "@drawable/bauhof",
         Theme = "@style/MainTheme",
         MainLauncher = false,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]

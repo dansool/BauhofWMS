@@ -58,6 +58,7 @@ namespace BauhofWMS.StackPanelOperations
                         {
                             obj.previousLayoutName = "";
                             obj.currentLayoutName = "Transfer";
+                            
                             mp.CollapseAllStackPanels.Collapse(mp);
                             mp.stkTransfer.IsVisible = true;
 
@@ -69,8 +70,23 @@ namespace BauhofWMS.StackPanelOperations
                         mp.PrepareOperations();
                     }
                     break;
+                case "StockTakeAddedRowsView":
+                    {
+                        obj.previousLayoutName = "";
+                        obj.currentLayoutName = "StockTake";
+                        mp.CollapseAllStackPanels.Collapse(mp);
+                        mp.stkStockTake.IsVisible = true;
+                    }
+                    break;
+                case "TransferAddedRowsView":
+                    {
+                        obj.previousLayoutName = "";
+                        obj.currentLayoutName = "Transfer";
+                        mp.CollapseAllStackPanels.Collapse(mp);
+                        mp.stkTransfer.IsVisible = true;
+                    }
+                    break;
                     
-
 
             }
         }
