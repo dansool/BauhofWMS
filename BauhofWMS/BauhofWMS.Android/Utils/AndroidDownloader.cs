@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Xamarin.Forms;
-using BauhofWMS.Droid;
+using Android.Webkit;
+using BauhofWMS.Droid.Utils;
+using Java.IO;
+using System;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
-using System.ComponentModel;
-using Android.Webkit;
-using Java.IO;
-using BauhofWMS.Droid.Utils;
-using System.Diagnostics;
+using Xamarin.Essentials;
+using Xamarin.Forms;
 
 [assembly: Dependency(typeof(AndroidDownloader))]
 
@@ -29,7 +20,7 @@ namespace BauhofWMS.Droid.Utils
         string pathToNewFolder = "";
         string fileName = "";
         string urlGet = "";
-
+        const string PACKAGE_INSTALLED_ACTION = "com.example.android.apis.content.SESSION_API_PACKAGE_INSTALLED";
 
         public void DownloadFile(string url)
         {
@@ -91,6 +82,44 @@ namespace BauhofWMS.Droid.Utils
                     if (OnFileDownloaded != null)
                         OnFileDownloaded.Invoke(this, new DownloadEventArgs(true));
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+        }
+
+        public void LaunchLocalFile(string fileName)
+        {
+            try
+            {
+                pathToNewFolder = Android.OS.Environment.DirectoryDcim;
+                String sdcardRoot = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Download"); //Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
+                String apkSavePath = sdcardRoot + "/" + fileName;
+
+                Java.IO.File file = new Java.IO.File(apkSavePath);
+                Intent install = new Intent(Intent.ActionView);
+
+                // Old Approach
+                if (Android.OS.Build.VERSION.SdkInt < BuildVersionCodes.N)
+                {
+                    install.SetFlags(ActivityFlags.NewTask | ActivityFlags.GrantReadUriPermission);
+                    install.SetDataAndType(Android.Net.Uri.FromFile(file), "application/vnd.android.package-archive"); //mimeType
+                }
+                else
+                {
+                    Android.Net.Uri apkURI = Android.Support.V4.Content.FileProvider.GetUriForFile(Forms.Context, Forms.Context.ApplicationContext.PackageName + ".fileprovider", file);
+                    install.SetDataAndType(apkURI, "application/vnd.android.package-archive");
+                    install.AddFlags(ActivityFlags.NewTask);
+                    install.AddFlags(ActivityFlags.GrantReadUriPermission);
+                }
+
+                Forms.Context.StartActivity(Intent.CreateChooser(install, "Your title"));
+
+            }
+            catch (ActivityNotFoundException ex)
+            {
+                System.Console.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {

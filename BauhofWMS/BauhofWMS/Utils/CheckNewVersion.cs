@@ -21,8 +21,6 @@ namespace BauhofWMS.Utils
                 string publishedVersion = null;
                 var p = 0;
 
-                Debug.WriteLine("GetPublishedVersion");
-               
                 if (Device.RuntimePlatform == Device.UWP)
                 {
                     currentVersion = DependencyService.Get<IPlatformDetailsUWP>().GetPlatformName();
@@ -33,6 +31,11 @@ namespace BauhofWMS.Utils
                     var version = DependencyService.Get<IAppVersion>().GetVersion();
                     currentVersion = build + ".0." + version;
                     p = 3;
+                    var versionWrite = await DependencyService.Get<IReadWriteVersionAndroid>().WriteVersionAsync(currentVersion);
+                    if (versionWrite.Any())
+                    {
+                        Debug.WriteLine("VIIGA: " + versionWrite);
+                    }
                 }
                 var lstCurrentVersion = ParseVersionToList.Get(currentVersion);
                 return new Tuple<bool, string, string, string, string>(true, null, publishedVersion, currentVersion, null);

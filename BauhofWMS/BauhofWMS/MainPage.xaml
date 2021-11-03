@@ -285,8 +285,9 @@
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="5"/>
-                            <ColumnDefinition Width="220"/>
-                          </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="40"/>
+                         </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
                             <RowDefinition Height="55"/>
                           </Grid.RowDefinitions>
@@ -295,12 +296,15 @@
                               <Button Text="LOE KOOD" x:Name="btnStockTakeReadCode" x:FieldModifier="public" Clicked="btnStockTakeReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="42"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
                             </Frame>
                           </Grid>
-                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
+                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="FillAndExpand" >
                             <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entStockTakeReadCode" x:Name="entStockTakeReadCode"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
                             </Frame>
                           </Grid>
-                        </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                        <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
                         <Grid Grid.Row="2" HorizontalOptions="Start">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -309,7 +313,7 @@
                             <RowDefinition Height="20"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
-                            <Label x:Name="lblStockTakeItemDesc" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Magenta"  />
+                            <Label x:Name="lblStockTakeItemDesc" x:FieldModifier="public" Text="X" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Magenta"  />
                           </Grid>
                         </Grid>
                         <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
@@ -321,12 +325,11 @@
                           <Grid.RowDefinitions>
                             <RowDefinition Height="20"/>
                             <RowDefinition Height="20"/>
-                            <RowDefinition Height="20"/>
                           </Grid.RowDefinitions>
                          
 
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakeInternalCode" x:FieldModifier="public" Text="SISEKOOD" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
+                            <Label x:Name="lblStockTakeInternalCode" x:FieldModifier="public" Text="KAUBAKOOD" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
                             <Label x:Name="lblStockTakeInternalCodeValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
@@ -336,12 +339,6 @@
                           </Grid>
                           <Grid Grid.Column="2" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
                             <Label x:Name="lblStockTakeBarCodeValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="0" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakesortiment" x:FieldModifier="public" Text="SORTIMENT" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="2" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakesortimentValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
                           </Grid>
                         </Grid>
                        
@@ -423,7 +420,8 @@
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="5"/>
-                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="40"/>
                           </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
                             <RowDefinition Height="55"/>
@@ -433,12 +431,15 @@
                               <Button Text="LOE KOOD" x:Name="btnTransferReadCode" x:FieldModifier="public" Clicked="btnTransferReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="42"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
                             </Frame>
                           </Grid>
-                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
+                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
                             <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entTransferReadCode" x:Name="entTransferReadCode"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="20" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
                             </Frame>
                           </Grid>
-                        </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="TransferReadCodeClear" x:Name="btnTransferReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnTransferReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
                         <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-10,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -587,7 +588,8 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="5"/>
-                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="55"/>
@@ -597,10 +599,13 @@
                                         <Button Text="LOE KOOD" x:Name="btnItemInfoReadCode" x:FieldModifier="public" Clicked="btnItemInfoReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="42"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
                                     </Frame>
                                 </Grid>
-                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
                                     <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                                         <entry:CustomEntry ClassId="entItemInfoReadCode" x:Name="entItemInfoReadCode"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
                                     </Frame>
+                                </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="ItemInfoReadCodeClear" x:Name="btnItemInfoReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnItemInfoReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
                             <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-10,0,0">

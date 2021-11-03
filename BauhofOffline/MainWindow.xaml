@@ -5,10 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BauhofOffline"
         mc:Ignorable="d"
-        Title="BauhofOffline" Height="113.73" Width="197.996">
+        Title="BauhofOffline" Height="249.063" Width="612.996"
+        WindowStartupLocation="CenterScreen"
+        Background="AliceBlue">
     <Grid>
-        <Button x:Name="btnDownload" Content="Download" HorizontalAlignment="Left" Margin="24,15,0,0" VerticalAlignment="Top" Width="147" Click="btnDownload_Click"/>
-        <Button x:Name="btnUpload" Content="Upload" HorizontalAlignment="Left" Margin="24,47,0,0" VerticalAlignment="Top" Width="147" Click="btnUpload_Click"/>
+        <TextBlock x:Name="txtBkStatus" HorizontalAlignment="Center" TextAlignment="Center" Margin="5,10,6,0" Foreground="Red" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="263"/>
+        <Button x:Name="btnDownload" Content="Lae failid skännerist" HorizontalAlignment="Left" Margin="24,51,0,0" VerticalAlignment="Top" Width="206" Click="btnDownload_Click"/>
+        <Button x:Name="btnUpload" Content="Lae failid skännerisse" HorizontalAlignment="Left" Margin="24,86,0,0" VerticalAlignment="Top" Width="206" Click="btnUpload_Click"/>
+        <Button x:Name="btnUpdate" Content="Update" Visibility="Visible" Background="LimeGreen" HorizontalAlignment="Left" Margin="24,153,0,0" VerticalAlignment="Top" Width="206" Click="btnUpdate_Click"/>
+        <TextBlock x:Name="txtBkScannerVersion" HorizontalAlignment="Left" Margin="22,111,0,0" TextWrapping="Wrap" Text="Skänneril versioon:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="txtBkScannerVersionValue" HorizontalAlignment="Left" Margin="135,111,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"/>
+        <TextBlock x:Name="txtBkLatestVersion" HorizontalAlignment="Left" Margin="24,132,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Saadaval "/><Run Text="versioon:"/></TextBlock>
+        <TextBlock x:Name="txtBkLatestVersionValue" HorizontalAlignment="Left" Margin="135,132,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"></TextBlock>
+        <TextBlock x:Name="txtBkDownloadFiles" HorizontalAlignment="Left" Margin="238,47,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

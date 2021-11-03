@@ -9,5 +9,7 @@ namespace BauhofWMS
     {
         void DownloadFile(string url);
         event EventHandler<DownloadEventArgs> OnFileDownloaded;
+
+        void LaunchLocalFile(string fileName);
     }
 }

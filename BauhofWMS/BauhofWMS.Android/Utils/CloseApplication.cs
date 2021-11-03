@@ -13,12 +13,14 @@ using Xamarin.Forms;
 
 namespace BauhofWMS.Droid.Utils
 {
+   
     public class CloseApplication : ICloseApplication
     {
         public void closeApplication()
         {
             var activity = (Activity)Forms.Context;
-            activity.FinishAffinity();
+            //activity.FinishAffinity();
+            activity.FinishAndRemoveTask();
         }
     }
 

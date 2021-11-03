@@ -46,6 +46,14 @@
                 <Setter Property="TextColor" Value="Red" />
                 <Setter Property="HeightRequest" Value="40" />
             </Style>
+
+            <Style TargetType="Button" x:Key="KeyboardButtonEntClearStyle">
+                <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HeightRequest" Value="40" />
+            </Style>
+            
             <Style TargetType="Button" x:Key="KeyboardButtonAddOnButtonStyle">
                 <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
                 <Setter Property="BackgroundColor" Value="Transparent" />

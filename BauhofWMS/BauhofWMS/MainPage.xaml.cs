@@ -12,13 +12,10 @@ using BauhofWMS.StackPanelOperations;
 using BauhofWMSDLL.ListDefinitions;
 using Newtonsoft.Json;
 using BauhofWMS.Templates;
-//using BauhofWMSDLL.WCF;
 using BauhofWMSDLL.Utils;
 using BauhofWMS.Keyboard;
 using BauhofWMS.Scanner;
 using BauhofWMS.Utils.Parsers;
-using System.Threading;
-//using BauhofWMS.Utils.Parsers;
 
 
 namespace BauhofWMS
@@ -47,6 +44,7 @@ namespace BauhofWMS
         public WriteMovementRecords WriteMovementRecords = new WriteMovementRecords();
         public WriteInvRecordsToExportFile WriteInvRecordsToExportFile = new WriteInvRecordsToExportFile();
         public WriteMovementRecordsToExportFile WriteMovementRecordsToExportFile = new WriteMovementRecordsToExportFile();
+        public VersionCheckLocal VersionCheckLocal = new VersionCheckLocal();
         #endregion
         #region Variables
         protected override bool OnBackButtonPressed() => true;
@@ -127,7 +125,6 @@ namespace BauhofWMS
 
         public async void StartMainPage()
         {
-
             try
             {
                 if (string.IsNullOrEmpty(obj.deviceSerial))
@@ -421,9 +418,6 @@ namespace BauhofWMS
             }
             return YesNoResult;
         }
-
-
-
 
         private void BackButton_Clicked(object sender, EventArgs e)
         {
@@ -983,8 +977,10 @@ namespace BauhofWMS
             }
             focusedEditor = "";
             Debug.WriteLine(obj.companyName);
-            var version = await VersionCheck.Check(obj.companyName, obj.pin, this);
+            //var version = await VersionCheck.Check(obj.companyName, obj.pin, this);
+            var version = await VersionCheckLocal.Check(obj.companyName, obj.pin, this);
 
+           
             Debug.WriteLine("version true/false : " + version.Item1);
             Debug.WriteLine("version error:  " + version.Item2);
             Debug.WriteLine("version update: " + version.Item3);
@@ -1044,8 +1040,7 @@ namespace BauhofWMS
         {
             if (await YesNoDialog("EKSPORT", "KAS OLED KINDEL, ET KÕIK ANDMED ON KOGUTUD JA VÕIB JÄTKATA EKSPORDIGA?", false))
             {
-                if (await YesNoDialog("EKSPORT", "KINDEL?", false))
-                {
+               
                     bool proceed = true;
                     string exportFileNameStamp = "";
                     string year = DateTime.Now.Year.ToString();
@@ -1102,7 +1097,6 @@ namespace BauhofWMS
                     {
                         DisplaySuccessMessage("SALVESTATUD!");
                     }
-                }
             }
         }
 
@@ -1151,7 +1145,9 @@ namespace BauhofWMS
             {
                 lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
             }
-            //entStockTakeReadCode.Text = "438499239441";
+            focusedEditor = "entStockTakeReadCode";
+            entStockTakeReadCode.BackgroundColor = Color.Yellow;
+            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
         }
 
         private async void btnStockTakeQuantityOK_Clicked(object sender, EventArgs e)
@@ -1316,6 +1312,11 @@ namespace BauhofWMS
                                         lblStockTakeInternalCodeValue.Text = result.First().itemCode;
                                         lblStockTakeItemDesc.Text = result.First().itemDesc;
                                         lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
+
+                                        focusedEditor = "entStockTakeQuantity";
+                                        entStockTakeQuantity.BackgroundColor = Color.Yellow;
+                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                        entStockTakeReadCode.BackgroundColor = Color.White;
                                     }
                                     else
                                     {
@@ -1326,6 +1327,10 @@ namespace BauhofWMS
                                         lblStockTakeInternalCodeValue.Text = "";
                                         lblStockTakeItemDesc.Text = "";
                                         lblStockTakeQuantityUOM.Text = "";
+                                        focusedEditor = "entStockTakeReadCode";
+                                        entStockTakeReadCode.BackgroundColor = Color.Yellow;
+                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                                        entStockTakeQuantity.BackgroundColor = Color.White;
                                     }
                                 }
                                 else
@@ -1335,6 +1340,10 @@ namespace BauhofWMS
                                     lblStockTakeInternalCodeValue.Text = result.First().itemCode;
                                     lblStockTakeItemDesc.Text = result.First().itemDesc;
                                     lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
+                                    focusedEditor = "entStockTakeQuantity";
+                                    entStockTakeQuantity.BackgroundColor = Color.Yellow;
+                                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                    entStockTakeReadCode.BackgroundColor = Color.White;
                                 }
                             }
                             else
@@ -1344,6 +1353,10 @@ namespace BauhofWMS
                                 lblStockTakeInternalCodeValue.Text = result.First().itemCode;
                                 lblStockTakeItemDesc.Text = result.First().itemDesc;
                                 lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
+                                focusedEditor = "entStockTakeQuantity";
+                                entStockTakeQuantity.BackgroundColor = Color.Yellow;
+                                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                entStockTakeReadCode.BackgroundColor = Color.White;
                             }
                         }
                         else
@@ -1371,6 +1384,10 @@ namespace BauhofWMS
             PrepareStockTakeAddedRowsView();
         }
 
+        private void btnStockTakeReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entStockTakeReadCode.Text = "";
+        }
         #endregion
 
         #region stkTransfer
@@ -1416,7 +1433,11 @@ namespace BauhofWMS
             LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
             LstvTransferInfo.ItemsSource = null;
             LstvTransferInfo.ItemsSource = lstTransferInfo;
-            //entTransferReadCode.Text = "438499239403";
+
+
+            focusedEditor = "entTransferReadCode";
+            entTransferReadCode.BackgroundColor = Color.Yellow;
+            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
         }
 
         private async void btnTransferQuantityOK_Clicked(object sender, EventArgs e)
@@ -1612,6 +1633,10 @@ namespace BauhofWMS
                                         lblTransferQuantityUOM.Text = result.First().itemMagnitude;
                                         LstvTransferInfo.ItemsSource = null;
                                         LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                        focusedEditor = "entTransferQuantity";
+                                        entTransferQuantity.BackgroundColor = Color.Yellow;
+                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                        entTransferReadCode.BackgroundColor = Color.White;
                                     }
                                     else
                                     {
@@ -1622,6 +1647,10 @@ namespace BauhofWMS
                                         lstTransferInfo = new List<ListOfdbRecords>();
                                         LstvTransferInfo.ItemsSource = null;
                                         LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                        focusedEditor = "entTransferReadCode";
+                                        entTransferReadCode.BackgroundColor = Color.Yellow;
+                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                                        entTransferQuantity.BackgroundColor = Color.White;
                                     }
                                 }
                                 else
@@ -1648,6 +1677,10 @@ namespace BauhofWMS
                                     lblTransferQuantityUOM.Text = result.First().itemMagnitude;
                                     LstvTransferInfo.ItemsSource = null;
                                     LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                    focusedEditor = "entTransferQuantity";
+                                    entTransferQuantity.BackgroundColor = Color.Yellow;
+                                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                    entTransferReadCode.BackgroundColor = Color.White;
                                 }
                             }
                             else
@@ -1674,6 +1707,10 @@ namespace BauhofWMS
                                 lblTransferQuantityUOM.Text = result.First().itemMagnitude;
                                 LstvTransferInfo.ItemsSource = null;
                                 LstvTransferInfo.ItemsSource = lstTransferInfo;
+                                focusedEditor = "entTransferQuantity";
+                                entTransferQuantity.BackgroundColor = Color.Yellow;
+                                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                entTransferReadCode.BackgroundColor = Color.White;
                             }
                         }
                         else
@@ -1695,7 +1732,10 @@ namespace BauhofWMS
             }
         }
 
-
+        private void btnTransferReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entTransferReadCode.Text = "";
+        }
         #endregion
 
         #region stkSelectItem
@@ -1830,6 +1870,10 @@ namespace BauhofWMS
                 entItemInfoReadCode.Text = scannedCode;
                 SearchEntItemInfoReadCode();
             }
+
+            focusedEditor = "entItemInfoReadCode";
+            entItemInfoReadCode.BackgroundColor = Color.Yellow;
+            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
         }
 
         private void btnItemInfoReadCode_Clicked(object sender, EventArgs e)
@@ -1879,6 +1923,11 @@ namespace BauhofWMS
             var item = e.Item as ListOfdbRecords;
             lstItemInfo.Add(item);
             LstvItemInfo.ItemsSource = lstItemInfo;
+        }
+
+        private void btnItemInfoReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entItemInfoReadCode.Text = "";
         }
 
         #endregion
@@ -1943,6 +1992,10 @@ namespace BauhofWMS
         {
 
         }
+
+
         #endregion
+
+      
     }
 }

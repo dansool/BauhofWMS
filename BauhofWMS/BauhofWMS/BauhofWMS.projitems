@@ -33,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteVersionAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsToExportFileAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsToExportFileUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteMovementRecordsToExportFileAndroid.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheckLocal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecordsToExportFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecords.cs" />

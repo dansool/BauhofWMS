@@ -37,6 +37,8 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
     <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+    <AndroidSupportedAbis />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +50,9 @@
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+    <EnableProguard>false</EnableProguard>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BauhofWMSDLL">
@@ -98,6 +102,7 @@
     <Compile Include="Utils\Version_Android.cs" />
     <Compile Include="Utils\WriteInvRecordsToExportFile.cs" />
     <Compile Include="Utils\WriteMovementRecordsToExportFile.cs" />
+    <Compile Include="Utils\ReadWriteVersion.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\FontAwesome5Brands.otf" />
@@ -136,6 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\bauhof.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\xml\filepaths.xml" />
   </ItemGroup>
   <Import Project="..\BauhofWMS\BauhofWMS.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

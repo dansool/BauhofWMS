@@ -45,7 +45,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="2,-4,0,0">
-                        <Label Text="SISEKOOD" FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="End" />
+                        <Label Text="KAUBAKOOD" FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="End" />
                     </Grid>
                     <Grid Grid.Column="2" Grid.Row="0" Margin="2,-4,0,0">
                         <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="Start" />

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="BauhofWMS.x1.x0.x1.x0" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="2.0" package="BauhofWMS.BauhofWMS" android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -10,5 +10,12 @@
 	<uses-permission android:name="android.permission.INSTANT_APP_FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 	<uses-permission android:name="android.permission.VIBRATE" />
-	<application android:label="BauhofWMS.Android"></application>
+	<application android:label="BauhofWMS.Android">
+		<!--<provider android:name="androidx.core.content.FileProvider" android:authorities="BauhofWMS.Android.fileproviders" android:exported="false" android:grantUriPermissions="true">
+      <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/filepaths" />
+    </provider>-->
+		<provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.fileprovider" android:exported="false" android:grantUriPermissions="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/filepaths"></meta-data>
+		</provider>
+	</application>
 </manifest>

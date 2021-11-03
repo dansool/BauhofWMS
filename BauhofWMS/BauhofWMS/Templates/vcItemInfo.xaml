@@ -43,7 +43,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0">
-                        <Label Text="SISEKOOD" FontAttributes="Bold" FontSize="16" TextColor="LightBlue" VerticalOptions="End" />
+                        <Label Text="KAUBAKOOD" FontAttributes="Bold" FontSize="16" TextColor="LightBlue" VerticalOptions="End" />
                     </Grid>
                     <Grid Grid.Column="2" Grid.Row="0">
                         <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="16" TextColor="LightBlue" VerticalOptions="Start" />
@@ -67,7 +67,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20"/>
                             <RowDefinition Height="20"/>
-                            <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
                             <Label Text="SALDO" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
@@ -82,12 +81,6 @@
                                     </FormattedString>
                                 </Label.FormattedText>
                             </Label>
-                        </Grid>
-                        <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
-                            <Label Text="SORTIMENT" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
-                        </Grid>
-                        <Grid Grid.Column="4" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
-                            <Label  Text="{Binding sortiment}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
                         </Grid>
 
 
