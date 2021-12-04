@@ -89,7 +89,6 @@ namespace BauhofWMS
         public bool transferManualSelection = false;
         public string transfereANCode = "";
         public bool progressBarActive = false;
-        string tempString = "";
 
         public int invRecordID = 0;
         public int transferRecordID = 0;
@@ -103,6 +102,8 @@ namespace BauhofWMS
         public List<ListOfdbRecords> lstInternalRecordDB = new List<ListOfdbRecords>();
         public List<ListOfInvRecords> lstInternalInvDB = new List<ListOfInvRecords>();
         public List<ListOfInvToExport> lstInvToExport = new List<ListOfInvToExport>();
+
+        public List<ListOfdbRecords> lstStockTakeInfo = new List<ListOfdbRecords>();
 
         public List<ListOfMovementRecords> lstInternalMovementDB = new List<ListOfMovementRecords>();
         public List<ListOfdbRecords> lstTransferInfo = new List<ListOfdbRecords>();
@@ -293,7 +294,7 @@ namespace BauhofWMS
             }
         }
 
-        public async void UWP()
+        public void UWP()
         {
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "exception", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { DisplayAlert("VIGA", arg, "OK"); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "scannerInitStatus", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { Debug.WriteLine("Scanner initialization is complete " + arg); }); });
@@ -307,7 +308,7 @@ namespace BauhofWMS
 
         }
 
-        public async void Android()
+        public void Android()
         {
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "exception", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { DisplayAlert("VIGA", arg, "OK"); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "scannerInitStatus", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { Debug.WriteLine("Scanner initialization is complete"); }); });
@@ -939,7 +940,10 @@ namespace BauhofWMS
             {
                 DisplaySuccessMessage("SALVESTATUD!");
                 obj.pEnv = pEnv;
-                BackKeyPress.Press(this);
+                obj.deviceSerial = null;
+                ShowKeyBoard.Hide(this);
+                StartMainPage();
+                //BackKeyPress.Press(this);
             }
             else
             {
@@ -1105,7 +1109,7 @@ namespace BauhofWMS
         #region stkStockTake
         public async void PrepareStockTake()
         {
-
+            
             CollapseAllStackPanels.Collapse(this);
             stkStockTake.IsVisible = true;
             obj.mainOperation = "";
@@ -1124,10 +1128,15 @@ namespace BauhofWMS
             focusedEditor = "";
             entStockTakeReadCode.Text = "";
             entStockTakeQuantity.Text = "";
-            lblStockTakeBarCodeValue.Text = "";
-            lblStockTakeInternalCodeValue.Text = "";
             lblStockTakeQuantityUOM.Text = "";
-            lblStockTakeItemDesc.Text = "";
+
+            frmbtnStockTakeQuantityOK.IsVisible = false;
+            btnStockTakeQuantityOK.IsVisible = false;
+            lblStockTakeQuantityUOM.IsVisible = false;
+            frmentStockTakeQuantity.IsVisible = false;
+            entStockTakeQuantity.IsVisible = false;
+            lblStockTakeQuantity.IsVisible = false;
+
 
             var resultReadInvRecords = await ReadInvRecords.Read(this);
             if (resultReadInvRecords.Item1)
@@ -1145,6 +1154,12 @@ namespace BauhofWMS
             {
                 lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
             }
+            lstStockTakeInfo = new List<ListOfdbRecords>();
+            LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+            LstvStockTakeInfo.ItemsSource = null;
+            LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+
+
             focusedEditor = "entStockTakeReadCode";
             entStockTakeReadCode.BackgroundColor = Color.Yellow;
             ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
@@ -1160,7 +1175,7 @@ namespace BauhofWMS
                 {
                     quantity = TryParseDecimal.Parse(entStockTakeQuantity.Text);
                 }
-                if (string.IsNullOrEmpty(lblStockTakeInternalCodeValue.Text))
+                if (string.IsNullOrEmpty(lstStockTakeInfo.First().itemCode))
                 {
                     proceed = false;
                     DisplayFailMessage("KAUPA POLE VALITUD!");
@@ -1193,10 +1208,10 @@ namespace BauhofWMS
                                 lastRecordID = lstInternalInvDB.OrderBy(x => x.recordID).Take(1).First().recordID;
                             }
                             lstInternalInvDB.Add(new ListOfInvRecords
-                            {
-                                barCode = lblStockTakeBarCodeValue.Text,
-                                itemCode = lblStockTakeInternalCodeValue.Text,
-                                itemDesc = lblStockTakeItemDesc.Text,
+                            {   
+                                barCode = lstStockTakeInfo.First().barCode,
+                                itemCode = lstStockTakeInfo.First().itemCode,
+                                itemDesc = lstStockTakeInfo.First().itemDesc,
                                 quantity = quantity,
                                 recordDate = DateTime.Now,
                                 uom = lblStockTakeQuantityUOM.Text,
@@ -1207,7 +1222,6 @@ namespace BauhofWMS
                             string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
 
                             var writeInvDbToFile = await WriteInvRecords.Write(this, data);
-                            //await DisplayAlert("writeInvDbToFile", writeInvDbToFile.Item1 + "  " + writeInvDbToFile.Item2, "OK");
                             if (writeInvDbToFile.Item1)
                             {
                                 DisplaySuccessMessage("SALVESTATUD!");
@@ -1278,7 +1292,7 @@ namespace BauhofWMS
             }
         }
 
-        private async void btnStockTakeReadCode_Clicked(object sender, EventArgs e)
+        private  void btnStockTakeReadCode_Clicked(object sender, EventArgs e)
         {
             SearchEntStockTakeReadCode();
 
@@ -1286,14 +1300,25 @@ namespace BauhofWMS
 
         public async void SearchEntStockTakeReadCode()
         {
+            
             if (!string.IsNullOrEmpty(entStockTakeReadCode.Text))
             {
                 if (entStockTakeReadCode.Text.Length > 4)
                 {
+                    lstStockTakeInfo = new List<ListOfdbRecords>();
+                    LstvStockTakeInfo.ItemsSource = null;
+                    LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+                    frmbtnStockTakeQuantityOK.IsVisible = false;
+                    btnStockTakeQuantityOK.IsVisible = false;
+                    lblStockTakeQuantityUOM.IsVisible = false;
+                    frmentStockTakeQuantity.IsVisible = false;
+                    entStockTakeQuantity.IsVisible = false;
+                    lblStockTakeQuantity.IsVisible = false;
+
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entStockTakeReadCode.Text)
                     || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+                    || x.barCode.Contains(entStockTakeReadCode.Text) && x.SKU == obj.shopLocationCode).ToList();
 
                     if (result.Any())
                     {
@@ -1304,60 +1329,90 @@ namespace BauhofWMS
                                 var s = lstInternalInvDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
                                 if (s.Any())
                                 {
+                                    obj.isScanAllowed = false;
                                     if (await YesNoDialog("INVENTUUR", "KAUP ON JUBA INVENTEERTUD. KAS SOOVID PARANDADA?", false))
                                     {
+                                        obj.isScanAllowed = true;
                                         invRecordID = s.First().recordID;
                                         entStockTakeQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
-                                        lblStockTakeBarCodeValue.Text = result.First().barCode;
-                                        lblStockTakeInternalCodeValue.Text = result.First().itemCode;
-                                        lblStockTakeItemDesc.Text = result.First().itemDesc;
+                                        //lblStockTakeBarCodeValue.Text = result.First().barCode;
+                                        //lblStockTakeInternalCodeValue.Text = result.First().itemCode;
+                                        //lblStockTakeItemDesc.Text = result.First().itemDesc;
                                         lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
 
                                         focusedEditor = "entStockTakeQuantity";
                                         entStockTakeQuantity.BackgroundColor = Color.Yellow;
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                         entStockTakeReadCode.BackgroundColor = Color.White;
+
+                                        frmbtnStockTakeQuantityOK.IsVisible = true;
+                                        btnStockTakeQuantityOK.IsVisible = true;
+                                        lblStockTakeQuantityUOM.IsVisible = true;
+                                        frmentStockTakeQuantity.IsVisible = true;
+                                        entStockTakeQuantity.IsVisible = true;
+                                        lblStockTakeQuantity.IsVisible = true;
+
+                                        lstStockTakeInfo = result;
+                                        LstvStockTakeInfo.ItemsSource = null;
+                                        LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
                                     }
                                     else
                                     {
                                         invRecordID = 0;
                                         entStockTakeReadCode.Text = "";
                                         entStockTakeQuantity.Text = "";
-                                        lblStockTakeBarCodeValue.Text = "";
-                                        lblStockTakeInternalCodeValue.Text = "";
-                                        lblStockTakeItemDesc.Text = "";
                                         lblStockTakeQuantityUOM.Text = "";
                                         focusedEditor = "entStockTakeReadCode";
                                         entStockTakeReadCode.BackgroundColor = Color.Yellow;
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                                         entStockTakeQuantity.BackgroundColor = Color.White;
+
+
                                     }
                                 }
                                 else
                                 {
+                                    Debug.WriteLine("SIIJN");
                                     entStockTakeQuantity.Text = "";
-                                    lblStockTakeBarCodeValue.Text = result.First().barCode;
-                                    lblStockTakeInternalCodeValue.Text = result.First().itemCode;
-                                    lblStockTakeItemDesc.Text = result.First().itemDesc;
                                     lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
                                     focusedEditor = "entStockTakeQuantity";
                                     entStockTakeQuantity.BackgroundColor = Color.Yellow;
                                     ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                     entStockTakeReadCode.BackgroundColor = Color.White;
+
+                                    frmbtnStockTakeQuantityOK.IsVisible = true;
+                                    btnStockTakeQuantityOK.IsVisible = true;
+                                    lblStockTakeQuantityUOM.IsVisible = true;
+                                    frmentStockTakeQuantity.IsVisible = true;
+                                    entStockTakeQuantity.IsVisible = true;
+                                    lblStockTakeQuantity.IsVisible = true;
+
+                                    lstStockTakeInfo = result;
+                                    LstvStockTakeInfo.ItemsSource = null;
+                                    LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
                                 }
                             }
                             else
                             {
-
-                                lblStockTakeBarCodeValue.Text = result.First().barCode;
-                                lblStockTakeInternalCodeValue.Text = result.First().itemCode;
-                                lblStockTakeItemDesc.Text = result.First().itemDesc;
                                 lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
                                 focusedEditor = "entStockTakeQuantity";
                                 entStockTakeQuantity.BackgroundColor = Color.Yellow;
                                 ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                 entStockTakeReadCode.BackgroundColor = Color.White;
+                                frmbtnStockTakeQuantityOK.IsVisible = true;
+                                btnStockTakeQuantityOK.IsVisible = true;
+                                lblStockTakeQuantityUOM.IsVisible = true;
+                                frmentStockTakeQuantity.IsVisible = true;
+                                entStockTakeQuantity.IsVisible = true;
+                                lblStockTakeQuantity.IsVisible = true;
+
+                                lstStockTakeInfo = result;
+                                LstvStockTakeInfo.ItemsSource = null;
+                                LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+
+
                             }
+                            obj.isScanAllowed = true;
                         }
                         else
                         {
@@ -1379,7 +1434,7 @@ namespace BauhofWMS
         }
 
 
-        private async void btnStockTakeAddedRowsView_Clicked(object sender, EventArgs e)
+        private void btnStockTakeAddedRowsView_Clicked(object sender, EventArgs e)
         {
             PrepareStockTakeAddedRowsView();
         }
@@ -1412,6 +1467,13 @@ namespace BauhofWMS
             focusedEditor = "";
             entTransferReadCode.Text = "";
             entTransferQuantity.Text = "";
+
+            lblTransferQuantity.IsVisible = false;
+            frmentTransferQuantity.IsVisible = false;
+            entTransferQuantity.IsVisible = false;
+            lblTransferQuantityUOM.IsVisible = false;
+            frmbtnTransferQuantityOK.IsVisible = false;
+            btnTransferQuantityOK.IsVisible = false;
 
             var resultReadMovementRecords = await ReadMovementRecords.Read(this);
             if (resultReadMovementRecords.Item1)
@@ -1572,20 +1634,20 @@ namespace BauhofWMS
 
         }
 
-        private async void btnTransferReadCode_Clicked(object sender, EventArgs e)
+        private void btnTransferReadCode_Clicked(object sender, EventArgs e)
         {
             SearchEntTransferReadCode();
         }
 
-        private async void btnTransferInternalCode_Clicked(object sender, EventArgs e)
+        private  void btnTransferInternalCode_Clicked(object sender, EventArgs e)
         {
         }
 
-        private async void btnTransferBarCode_Clicked(object sender, EventArgs e)
+        private  void btnTransferBarCode_Clicked(object sender, EventArgs e)
         {
         }
 
-        private async void btnTransferAddedRowsView_Clicked(object sender, EventArgs e)
+        private  void btnTransferAddedRowsView_Clicked(object sender, EventArgs e)
         {
             PrepareTransferAddedRowsView();
         }
@@ -1606,11 +1668,20 @@ namespace BauhofWMS
                         {
                             if (lstInternalMovementDB.Any())
                             {
+                                lblTransferQuantity.IsVisible = false;
+                                frmentTransferQuantity.IsVisible = false;
+                                entTransferQuantity.IsVisible = false;
+                                lblTransferQuantityUOM.IsVisible = false;
+                                frmbtnTransferQuantityOK.IsVisible = false;
+                                btnTransferQuantityOK.IsVisible = false;
+
                                 var s = lstInternalMovementDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
                                 if (s.Any())
                                 {
+                                    obj.isScanAllowed = false;
                                     if (await YesNoDialog("LIIKUMINE", "KAUP ON JUBA LIIGUTATUD. KAS SOOVID PARANDADA?", false))
                                     {
+                                        obj.isScanAllowed = true;
                                         transferRecordID = s.First().recordID;
                                         entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
                                         lstTransferInfo = new List<ListOfdbRecords>();
@@ -1637,6 +1708,13 @@ namespace BauhofWMS
                                         entTransferQuantity.BackgroundColor = Color.Yellow;
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                         entTransferReadCode.BackgroundColor = Color.White;
+
+                                        lblTransferQuantity.IsVisible = true;
+                                        frmentTransferQuantity.IsVisible = true;
+                                        entTransferQuantity.IsVisible = true;
+                                        lblTransferQuantityUOM.IsVisible = true;
+                                        frmbtnTransferQuantityOK.IsVisible = true;
+                                        btnTransferQuantityOK.IsVisible = true;
                                     }
                                     else
                                     {
@@ -1712,6 +1790,7 @@ namespace BauhofWMS
                                 ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                 entTransferReadCode.BackgroundColor = Color.White;
                             }
+                            obj.isScanAllowed = true;
                         }
                         else
                         {
@@ -1740,7 +1819,7 @@ namespace BauhofWMS
 
         #region stkSelectItem
 
-        public async void PrepareSelectItem()
+        public void PrepareSelectItem()
         {
 
             CollapseAllStackPanels.Collapse(this);
@@ -1781,7 +1860,7 @@ namespace BauhofWMS
             }
         }
 
-        private async void LstvSelectItem_ItemTapped(object sender, ItemTappedEventArgs e)
+        private void LstvSelectItem_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             var item = e.Item as ListOfdbRecords;
 
@@ -1805,7 +1884,7 @@ namespace BauhofWMS
             }
         }
 
-        private async void btnSelectItemReadCode_Clicked(object sender, EventArgs e)
+        private void btnSelectItemReadCode_Clicked(object sender, EventArgs e)
         {
             SearchEntSelectItemReadCode();
         }
@@ -1843,7 +1922,7 @@ namespace BauhofWMS
 
         #region stkItemInfo
 
-        public async void PrepareItemInfo(string scannedCode)
+        public void PrepareItemInfo(string scannedCode)
         {
 
             CollapseAllStackPanels.Collapse(this);
@@ -1871,6 +1950,7 @@ namespace BauhofWMS
                 SearchEntItemInfoReadCode();
             }
 
+            
             focusedEditor = "entItemInfoReadCode";
             entItemInfoReadCode.BackgroundColor = Color.Yellow;
             ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
@@ -1878,6 +1958,7 @@ namespace BauhofWMS
 
         private void btnItemInfoReadCode_Clicked(object sender, EventArgs e)
         {
+            entItemInfoReadCode.BackgroundColor = Color.White;
             SearchEntItemInfoReadCode();
         }
 
@@ -1889,30 +1970,59 @@ namespace BauhofWMS
             LstvItemInfo.ItemsSource = null;
             if (!string.IsNullOrEmpty(entItemInfoReadCode.Text))
             {
-                if (entItemInfoReadCode.Text.Length > 5)
+                if (entItemInfoReadCode.Text.Length > 4)
                 {
-                    var result = lstInternalRecordDB.Where(x =>
-                       x.itemCode.Contains(entItemInfoReadCode.Text)
-                    || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
-                    if (result.Any())
+                    if (obj.searchLocalShop)
                     {
-                        LstvItemInfoItems.ItemsSource = result;
-                        if (result.Count == 1)
+                        string localshopCode = obj.shopLocationCode;
+                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text)) && x.SKU == localshopCode).ToList();
+                        if (result.Any())
                         {
-                            lstItemInfo = result;
-                            LstvItemInfo.ItemsSource = lstItemInfo;
+                            LstvItemInfoItems.ItemsSource = result;
+                            if (result.Count == 1)
+                            {
+                                lstItemInfo = result;
+                                LstvItemInfo.ItemsSource = lstItemInfo;
+                            }
+                        }
+                        else
+                        {
+                            DisplayFailMessage("EI LEITUD MIDAGI!");
+                            focusedEditor = "entItemInfoReadCode";
+                            entItemInfoReadCode.BackgroundColor = Color.Yellow;
+                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                         }
                     }
                     else
                     {
-                        DisplayFailMessage("EI LEITUD MIDAGI!");
-
+                        var result2 = lstInternalRecordDB.Where(x =>
+                           x.itemCode.Contains(entItemInfoReadCode.Text)
+                        || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
+                        || x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
+                        if (result2.Any())
+                        {
+                            LstvItemInfoItems.ItemsSource = result2;
+                            if (result2.Count == 1)
+                            {
+                                lstItemInfo = result2;
+                                LstvItemInfo.ItemsSource = lstItemInfo;
+                            }
+                        }
+                        else
+                        {
+                            DisplayFailMessage("EI LEITUD MIDAGI!");
+                            focusedEditor = "entItemInfoReadCode";
+                            entItemInfoReadCode.BackgroundColor = Color.Yellow;
+                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                        }
                     }
                 }
                 else
                 {
                     DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
+                    focusedEditor = "entItemInfoReadCode";
+                    entItemInfoReadCode.BackgroundColor = Color.Yellow;
+                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                 }
             }
         }
@@ -1930,13 +2040,29 @@ namespace BauhofWMS
             entItemInfoReadCode.Text = "";
         }
 
+        private void btnItemInfoOtherLocations_Clicked(object sender, EventArgs e)
+        {
+            if (btnItemInfoOtherLocations.Text == "KÕIGIS LADUDES")
+            {
+                obj.searchLocalShop = false;
+                btnItemInfoOtherLocations.Text = "SELLES LAOS";
+                SearchEntItemInfoReadCode();
+            }
+            else
+            {
+                obj.searchLocalShop = true;
+                btnItemInfoOtherLocations.Text = "KÕIGIS LADUDES";
+                SearchEntItemInfoReadCode();
+            }
+        }
+
         #endregion
 
 
 
         #region stkStockTakeAddedRowsView
 
-        public async void PrepareStockTakeAddedRowsView()
+        public void PrepareStockTakeAddedRowsView()
         {
             ShowKeyBoard.Hide(this);
             CollapseAllStackPanels.Collapse(this);
@@ -1966,7 +2092,7 @@ namespace BauhofWMS
 
         #region stkStockTakeAddedRowsView
 
-        public async void PrepareTransferAddedRowsView()
+        public  void PrepareTransferAddedRowsView()
         {
             ShowKeyBoard.Hide(this);
             CollapseAllStackPanels.Collapse(this);
@@ -1994,8 +2120,9 @@ namespace BauhofWMS
         }
 
 
+
         #endregion
 
-      
+       
     }
 }

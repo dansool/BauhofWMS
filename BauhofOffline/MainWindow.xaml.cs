@@ -34,7 +34,7 @@ namespace BauhofOffline
         {
             txtBkLatestVersionValue.Text = "";
             txtBkScannerVersionValue.Text = "";
-
+            btnUpdate.Visibility = Visibility.Collapsed;
             string DeviceNameAsSeenInMyComputer = "";
             MediaDevice device = null;
             Debug.WriteLine("trying to connect...");
@@ -186,6 +186,25 @@ namespace BauhofOffline
 
                     if (proceed)
                     {
+                        device.Connect();
+                        var DCIMDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
+                        var folders = DCIMDir.EnumerateDirectories("*.*", SearchOption.TopDirectoryOnly);
+                        {
+                            bool exists = false;
+                            foreach (var s in folders)
+                            {
+                                if (s.Name == "Export")
+                                {
+                                    exists = true;
+                                }
+                            }
+                            if (!exists)
+                            {
+
+                                device.CreateDirectory(@"\Internal shared storage\DCIM\Export");
+                            }
+                        }
+
                         Debug.WriteLine("===2");
                         var exportDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
                         var exportFiles = exportDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
@@ -243,7 +262,8 @@ namespace BauhofOffline
 
                 try
                 {
-                    device.Connect();
+                    
+
                     var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
                     var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                     

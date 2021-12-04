@@ -80,6 +80,17 @@ namespace BauhofWMS.Droid.Utils
                         result = result + "\r\n" + "kirjutasin faili";
                     }
                 }
+                if (dir.ListFiles().Count() == 0)
+                {
+                    result = result + "\r\n" + "leidsin, et pole faili";
+                    var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                    using (StreamWriter writer = new StreamWriter(backingFile))
+                    {
+                        writer.Write(data);
+                    }
+                    result = result + "\r\n" + "kirjutasin faili";
+                }
+
                 return result;
             }
             catch(Exception ex)

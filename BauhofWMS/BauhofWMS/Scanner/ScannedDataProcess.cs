@@ -33,63 +33,67 @@ namespace BauhofWMS.Scanner
                 {
                     scannedSymbology = "";
                 }
-                switch (obj.currentLayoutName)
+                if (obj.isScanAllowed)
                 {
-                    case "Password":
-                        {
-                            mp.entPassword.Text = "";
-                            for (int i = 0; i < scannedCode.Length; i++)
-                            {
-                                mp.entPassword.Text = mp.entPassword.Text + "*";
-                            }
-                            Debug.WriteLine(scannedCode + " " + obj.deviceSerial + " " + obj.pEnv);
-                            if (scannedCode == "5555")
-                            {
-                                obj.pin = scannedCode;
-                                mp.entPassword.Text = "";
-                                mp.PrepareSettings();
-                            }
-                            else
+                    switch (obj.currentLayoutName)
+                    {
+                        case "Password":
                             {
                                 mp.entPassword.Text = "";
-                                mp.DisplayFailMessage("VALE PIN!");
+                                for (int i = 0; i < scannedCode.Length; i++)
+                                {
+                                    mp.entPassword.Text = mp.entPassword.Text + "*";
+                                }
+                                Debug.WriteLine(scannedCode + " " + obj.deviceSerial + " " + obj.pEnv);
+                                if (scannedCode == "5555")
+                                {
+                                    obj.pin = scannedCode;
+                                    mp.entPassword.Text = "";
+                                    mp.PrepareSettings();
+                                }
+                                else
+                                {
+                                    mp.entPassword.Text = "";
+                                    mp.DisplayFailMessage("VALE PIN!");
+                                }
                             }
-                        }
-                        break;
-                    case "Settings":
-                        {
-                            mp.ShowKeyBoard.Hide(mp);
-                            mp.ediAddress.Text = scannedCode.StartsWith("\"") ? scannedCode.Replace("\"", "") : mp.ediAddress.Text;
-                            mp.lblScanTestSymbologyData.Text = !string.IsNullOrEmpty(scannedSymbology) ? scannedSymbology : "unknown";
-                            mp.lblScanTestData.Text = scannedCode;
-                        }
-                        break;
-                    case "StockTake":
-                        {
-                            mp.ShowKeyBoard.Hide(mp);
-                            mp.entStockTakeReadCode.Text = scannedCode;
-                            mp.SearchEntStockTakeReadCode();
-                        }
-                        break;
+                            break;
+                        case "Settings":
+                            {
+                                mp.ShowKeyBoard.Hide(mp);
+                                mp.ediAddress.Text = scannedCode.StartsWith("\"") ? scannedCode.Replace("\"", "") : mp.ediAddress.Text;
+                                mp.lblScanTestSymbologyData.Text = !string.IsNullOrEmpty(scannedSymbology) ? scannedSymbology : "unknown";
+                                mp.lblScanTestData.Text = scannedCode;
+                            }
+                            break;
+                        case "StockTake":
+                            {
+                                mp.ShowKeyBoard.Hide(mp);
+                                mp.entStockTakeReadCode.Text = scannedCode;
+                                mp.SearchEntStockTakeReadCode();
 
-                    case "Transfer":
-                        {
-                            mp.ShowKeyBoard.Hide(mp);
-                            mp.entTransferReadCode.Text = scannedCode;
-                            mp.SearchEntTransferReadCode();
-                        }
-                        break;
-                    case "ItemInfo":
-                        {
-                            mp.PrepareItemInfo(scannedCode);
-                        }
-                        break;
-                    case "Operations":
-                        {
-                            mp.PrepareItemInfo(scannedCode);
-                        }
-                        break;
+                            }
+                            break;
 
+                        case "Transfer":
+                            {
+                                mp.ShowKeyBoard.Hide(mp);
+                                mp.entTransferReadCode.Text = scannedCode;
+                                mp.SearchEntTransferReadCode();
+                            }
+                            break;
+                        case "ItemInfo":
+                            {
+                                mp.PrepareItemInfo(scannedCode);
+                            }
+                            break;
+                        case "Operations":
+                            {
+                                mp.PrepareItemInfo(scannedCode);
+                            }
+                            break;
+
+                    }
                 }
             }
             catch (Exception ex)

@@ -19,7 +19,6 @@ using Xamarin.Forms;
 using BauhofWMS.Droid.Scanner;
 using BauhofWMS.Droid.Utils;
 using Android.Content;
-using Android.Views;
 using Android.Views.InputMethods;
 
 

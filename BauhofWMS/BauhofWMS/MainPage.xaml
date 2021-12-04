@@ -265,8 +265,8 @@
                         <Grid.RowDefinitions>
                           <RowDefinition Height="25"/>
                           <RowDefinition Height="55"/>
-                          <RowDefinition Height="25"/>
-                          <RowDefinition Height="100"/>
+                          <!--<RowDefinition Height="25"/>-->
+                          <RowDefinition Height="145"/>
                           <RowDefinition Height="55"/>
                           <RowDefinition Height="55"/>
                         </Grid.RowDefinitions>
@@ -292,31 +292,42 @@
                             <RowDefinition Height="55"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                                    <Frame x:Name="frmbtnStockTakeReadCode" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
                               <Button Text="LOE KOOD" x:Name="btnStockTakeReadCode" x:FieldModifier="public" Clicked="btnStockTakeReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="42"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
                             </Frame>
                           </Grid>
-                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="FillAndExpand" >
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="FillAndExpand" WidthRequest="180" >
                             <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entStockTakeReadCode" x:Name="entStockTakeReadCode"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
                             </Frame>
                           </Grid>
                                 <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
-                                        <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
+                                    <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                        <Grid Grid.Row="2" HorizontalOptions="Start">
+                        <!--<Grid Grid.Row="2" HorizontalOptions="Start">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                           </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
-                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="25"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
                             <Label x:Name="lblStockTakeItemDesc" x:FieldModifier="public" Text="X" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Magenta"  />
                           </Grid>
-                        </Grid>
-                        <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                        </Grid>-->
+                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvStockTakeInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
+                                </Grid>
+                         </Grid>
+                            <!--<Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="5"/>
@@ -340,9 +351,9 @@
                           <Grid Grid.Column="2" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
                             <Label x:Name="lblStockTakeBarCodeValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
                           </Grid>
-                        </Grid>
+                        </Grid>-->
                        
-                        <Grid  Grid.Row="4" HorizontalOptions="CenterAndExpand">
+                        <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="110"/>
@@ -356,7 +367,7 @@
                             <Label x:Name="lblStockTakeQuantity" x:FieldModifier="public" Text="LISA" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
-                            <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                            <Frame x:Name="frmentStockTakeQuantity" BorderColor="Blue" HasShadow="False" x:FieldModifier="public" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entStockTakeQuantity" x:Name="entStockTakeQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
                             </Frame>
                           </Grid>
@@ -364,12 +375,12 @@
                             <Label x:Name="lblStockTakeQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="3" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                            <Frame x:Name="frmbtnStockTakeQuantityOK" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
                               <Button Text="OK" x:Name="btnStockTakeQuantityOK" x:FieldModifier="public" Clicked="btnStockTakeQuantityOK_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Green"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
                             </Frame>
                           </Grid>
                         </Grid>
-                        <Grid Grid.Row="5" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                        <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="200"/>
@@ -451,7 +462,6 @@
                             <ListView x:FieldModifier="public"  x:Name="LstvTransferInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                           </Grid>
                         </Grid>
-                       
                         <Grid Grid.Row="3"  HorizontalOptions="CenterAndExpand">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
@@ -466,7 +476,7 @@
                             <Label x:Name="lblTransferQuantity" x:FieldModifier="public" Text="LISA" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
-                            <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                            <Frame x:Name="frmentTransferQuantity"  x:FieldModifier="public" BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entTransferQuantity" x:Name="entTransferQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
                             </Frame>
                           </Grid>
@@ -474,7 +484,7 @@
                             <Label x:Name="lblTransferQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="3" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                            <Frame x:Name="frmbtnTransferQuantityOK" x:FieldModifier="public" BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
                               <Button Text="OK" x:Name="btnTransferQuantityOK" x:FieldModifier="public" Clicked="btnTransferQuantityOK_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Green"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
                             </Frame>
                           </Grid>
@@ -561,7 +571,7 @@
                         </Grid>
                     </StackLayout>
 
-                    <StackLayout  x:Name="stkItemInfo" x:FieldModifier="public" HorizontalOptions="Fill">
+                    <StackLayout  x:Name="stkItemInfo" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
                         <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -569,7 +579,8 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
                                 <RowDefinition Height="44"/>
-                                <RowDefinition Height="190"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="40"/>
                                 <RowDefinition Height="*"/>
 
                             </Grid.RowDefinitions>
@@ -584,7 +595,7 @@
                                     <Label x:Name="lblItemInfoHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
                                 </Grid>
                             </Grid>
-                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="5"/>
@@ -596,7 +607,7 @@
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
                                     <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
-                                        <Button Text="LOE KOOD" x:Name="btnItemInfoReadCode" x:FieldModifier="public" Clicked="btnItemInfoReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="42"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                        <Button Text="LOE KOOD" x:Name="btnItemInfoReadCode" x:FieldModifier="public" Clicked="btnItemInfoReadCode_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="48"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
                                     </Frame>
                                 </Grid>
                                 <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
@@ -619,7 +630,21 @@
                                     <ListView x:FieldModifier="public"  x:Name="LstvItemInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-30,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="130"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="1">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0" HorizontalOptions="EndAndExpand" WidthRequest="130">
+                                        <Button Text="KÕIGIS LADUDES" x:Name="btnItemInfoOtherLocations" x:FieldModifier="public" Clicked="btnItemInfoOtherLocations_Clicked" BackgroundColor="Blue" HeightRequest="40" WidthRequest="130" FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-30,0,0">
                               <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                               </Grid.ColumnDefinitions>

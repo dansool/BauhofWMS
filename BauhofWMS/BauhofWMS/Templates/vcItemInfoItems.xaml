@@ -9,6 +9,7 @@
             <Frame.Resources>
                 <ResourceDictionary>
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                 </ResourceDictionary>
             </Frame.Resources>
             <Grid Margin="0,0,0,0">
@@ -27,8 +28,18 @@
                     <Label Text="{Binding itemDesc}"  FontAttributes="Bold" FontSize="16" TextColor="Green" VerticalOptions="Start" />
                 </Grid>
                 <Grid Grid.Column="0" Grid.Row="2" Margin="0,-8,0,0">
-                    <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SaddleBrown" VerticalOptions="Start" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="160"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0">
+                        <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SaddleBrown" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0">
+                        <Label Text="{Binding SKU}" FontAttributes="Bold" FontSize="16" TextColor="{Binding SKU, Mode=OneWay, Converter={StaticResource ConvertSKUColor}}" VerticalOptions="Start" />
+                    </Grid>
                 </Grid>
+
             </Grid>
         </Frame>
     </ViewCell.View>

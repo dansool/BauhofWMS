@@ -87,26 +87,26 @@
                         <Grid Grid.Column="0" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
                             <Label Text="HIND" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="1" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="Start">
+                        <Grid Grid.Column="1" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="End">
                             <Label  Text="{Binding price}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="3" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
                             <Label Text="SOODUS" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="4" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="Start">
+                        <Grid Grid.Column="4" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="End">
                             <Label Text="{Binding soodushind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
                         </Grid>
 
-                        <Grid Grid.Column="0" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                        <Grid Grid.Column="0" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0">
                             <Label Text="MEISTRIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="1" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="Start">
+                        <Grid Grid.Column="1" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="End">
                             <Label  Text="{Binding meistriklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="3" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                        <Grid Grid.Column="3" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0">
                             <Label Text="PROFIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="4" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="Start">
+                        <Grid Grid.Column="4" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="End" >
                             <Label  Text="{Binding profiklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
                     </Grid>
