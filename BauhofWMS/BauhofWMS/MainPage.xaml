@@ -1379,6 +1379,31 @@
                     <RowDefinition Height="200"/>
                     <RowDefinition Height="200"/>
                 </Grid.RowDefinitions>
+                <!--<Grid Grid.Row="0">
+                    <fa:ImageAwesome x:Name="prgRing" RenderTransformOrigin="0.5, 0.5" Icon="Spinner" VerticalAlignment="Center" HorizontalAlignment="Center" Height="29" Margin="0,0,0,0" Width="29">
+                        <fa:ImageAwesome.RenderTransform>
+                            <RotateTransform/>
+                        </fa:ImageAwesome.RenderTransform>
+                        <fa:ImageAwesome.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
+                                            From="Red"
+                                            To="Green"              
+                                            Duration="0:0:10.0"
+                                            
+                                            AutoReverse="True"/>
+                                        <DoubleAnimation Storyboard.TargetProperty="(fa:ImageAwesome.RenderTransform).(RotateTransform.Angle)"
+                                             To="360"
+                                             Duration="0:0:5"
+                                             RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </fa:ImageAwesome.Triggers>
+                    </fa:ImageAwesome
+                </Grid>-->
                 <Grid x:Name="grdBar" Grid.Row ="0" x:FieldModifier="public" HorizontalOptions="Fill" VerticalOptions="Start" IsVisible="true">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
@@ -1410,6 +1435,7 @@
                             <Label x:Name="lblDot6" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
                         </Grid>
                     </Grid>
+                
                 <Label Grid.Column="0" Grid.Row="1" x:Name="lblProgressBar" Text="PALUN OOTA! LAEN ANDMEID!" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="40"/>
             </Grid>
         </Grid>

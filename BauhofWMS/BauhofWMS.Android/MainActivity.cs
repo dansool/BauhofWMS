@@ -46,7 +46,6 @@ namespace BauhofWMS.Droid
 
         #endregion
 
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             TabLayoutResource = Resource.Layout.Tabbar;
@@ -62,8 +61,6 @@ namespace BauhofWMS.Droid
             LaunchStart();
 
         }
-
-
 
         public async void LaunchStart()
         {

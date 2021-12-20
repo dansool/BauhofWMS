@@ -180,6 +180,12 @@ namespace BauhofWMS
                             {
                                 JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                 lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
+                                //Debug.WriteLine("START CHECK");
+                                //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
+                                //Debug.WriteLine("STOP CHECK");
+                                //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
+                                Debug.WriteLine("Import done " + lstInternalRecordDB.Count());
                                 progressBarActive = false;
                             }
                         }

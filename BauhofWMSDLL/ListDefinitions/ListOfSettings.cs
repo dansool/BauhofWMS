@@ -11,6 +11,15 @@ namespace BauhofWMSDLL.ListDefinitions
     public class ListOfSettings : INotifyPropertyChanged
     {
         public byte[] byteData { get; set; }
+
+        public string adminEmail { get; set; }
+        public string csvFolder { get; set; }
+        public string jsonFolder { get; set; }
+
+        public string logFolder { get; set; }
+        public int debugLevel { get; set; }
+        
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string wmsAddress { get; set; }
@@ -29,6 +38,8 @@ namespace BauhofWMSDLL.ListDefinitions
         }
 
         public bool m_isVisible;
+
+        
         protected void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = this.PropertyChanged;

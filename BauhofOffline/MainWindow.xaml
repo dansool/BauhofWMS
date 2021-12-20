@@ -3,21 +3,57 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="clr-namespace:FontAwesome.WPF;assembly=FontAwesome.WPF"
         xmlns:local="clr-namespace:BauhofOffline"
         mc:Ignorable="d"
-        Title="BauhofOffline" Height="249.063" Width="612.996"
+        Title="BauhofOffline" Height="249.063" Width="303.996"
         WindowStartupLocation="CenterScreen"
         Background="AliceBlue">
+    <Window.Resources>
+        <Storyboard  x:Key="WaitStoryboard">
+            <DoubleAnimation
+        Storyboard.TargetName="Wait"
+        Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+        From="0"
+        To="360"
+        Duration="0:0:2"
+        RepeatBehavior="Forever" />
+        </Storyboard>
+    </Window.Resources>
     <Grid>
-        <TextBlock x:Name="txtBkStatus" HorizontalAlignment="Center" TextAlignment="Center" Margin="5,10,6,0" Foreground="Red" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="263"/>
-        <Button x:Name="btnDownload" Content="Lae failid skännerist" HorizontalAlignment="Left" Margin="24,51,0,0" VerticalAlignment="Top" Width="206" Click="btnDownload_Click"/>
-        <Button x:Name="btnUpload" Content="Lae failid skännerisse" HorizontalAlignment="Left" Margin="24,86,0,0" VerticalAlignment="Top" Width="206" Click="btnUpload_Click"/>
-        <Button x:Name="btnUpdate" Content="Update" Visibility="Visible" Background="LimeGreen" HorizontalAlignment="Left" Margin="24,153,0,0" VerticalAlignment="Top" Width="206" Click="btnUpdate_Click"/>
+        <TextBlock x:Name="txtBkStatus" HorizontalAlignment="Right" TextAlignment="Center" Margin="0,10,10,0" Foreground="Red" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="247" Height="35"/>
+        <Button x:Name="btnUpload" Content="Lae failid skännerisse" HorizontalAlignment="Left" Margin="24,86,0,0" VerticalAlignment="Top" Width="144" Click="btnUpload_Click"/>
+        <Button x:Name="btnUpdate" Content="Uuenda skänneri tarkvara" Visibility="Visible" Background="LimeGreen" HorizontalAlignment="Left" Margin="24,153,0,0" VerticalAlignment="Top" Width="144" Click="btnUpdate_Click"/>
         <TextBlock x:Name="txtBkScannerVersion" HorizontalAlignment="Left" Margin="22,111,0,0" TextWrapping="Wrap" Text="Skänneril versioon:" VerticalAlignment="Top"/>
         <TextBlock x:Name="txtBkScannerVersionValue" HorizontalAlignment="Left" Margin="135,111,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"/>
         <TextBlock x:Name="txtBkLatestVersion" HorizontalAlignment="Left" Margin="24,132,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Saadaval "/><Run Text="versioon:"/></TextBlock>
         <TextBlock x:Name="txtBkLatestVersionValue" HorizontalAlignment="Left" Margin="135,132,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"></TextBlock>
         <TextBlock x:Name="txtBkDownloadFiles" HorizontalAlignment="Left" Margin="238,47,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
-
+        <ProgressBar x:Name="prgBar" HorizontalAlignment="Left" Height="10" Margin="-833,499,0,-287.5" VerticalAlignment="Top" Width="100"/>
+        <Grid Margin="0,10,0,176.5" HorizontalAlignment="Left" Width="42">
+            <fa:ImageAwesome x:Name="prgRing" RenderTransformOrigin="0.5, 0.5" Icon="Spinner" VerticalAlignment="Center" HorizontalAlignment="Center" Height="29" Margin="0,0,0,0" Width="29">
+                <fa:ImageAwesome.RenderTransform>
+                    <RotateTransform/>
+                </fa:ImageAwesome.RenderTransform>
+                <fa:ImageAwesome.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
+                                            From="Red"
+                                            To="Green"              
+                                            Duration="0:0:10.0"
+                                            
+                                            AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(fa:ImageAwesome.RenderTransform).(RotateTransform.Angle)"
+                                             To="360"
+                                             Duration="0:0:5"
+                                             RepeatBehavior="Forever"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </fa:ImageAwesome.Triggers>
+            </fa:ImageAwesome>
+        </Grid>
     </Grid>
 </Window>

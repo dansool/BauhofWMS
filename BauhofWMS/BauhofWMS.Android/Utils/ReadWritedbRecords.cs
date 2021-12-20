@@ -27,7 +27,7 @@ namespace BauhofWMS.Droid.Utils
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
             foreach (var r in dir.ListFiles())
             {
-                if (r.Name.ToUpper().StartsWith("DBRECORDS") && r.Name.ToUpper().EndsWith(".TXT"))
+                if (r.Name.ToUpper().Contains("03_PDA_PRODUCTS") && r.Name.ToUpper().EndsWith(".TXT"))
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
