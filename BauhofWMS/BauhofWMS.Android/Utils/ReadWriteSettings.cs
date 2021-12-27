@@ -25,6 +25,7 @@ namespace BauhofWMS.Droid.Utils
         {
             try
             {
+                Console.WriteLine("line settings: " + settings);
                 var backingFile = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "BauhofWMSSettings.txt");
                 using (var writer = File.CreateText(backingFile))
                 {
@@ -42,6 +43,7 @@ namespace BauhofWMS.Droid.Utils
         public async Task<string> ReadSettingsAsync()
         {
             var result = "";
+            Console.WriteLine("line start: ");
             var backingFile = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "BauhofWMSSettings.txt");
 
             if (backingFile == null || !File.Exists(backingFile))
@@ -55,6 +57,7 @@ namespace BauhofWMS.Droid.Utils
                 string line;
                 while ((line = await reader.ReadLineAsync()) != null)
                 {
+                    Console.WriteLine("line: " + line);
                     result = line;
                 }
             }

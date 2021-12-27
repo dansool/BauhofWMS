@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IDownloader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadShopRelationRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsAndroid.cs" />
@@ -82,7 +83,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Parsers\TryParseDateTime.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Parsers\TryParseDecimal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ParseVersionToList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ProgressStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReaddbRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReaddbShopRelationRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />

@@ -31,6 +31,7 @@ namespace BauhofWMS
         public ReadSettings ReadSettings = new ReadSettings();
         public ReaddbRecords ReaddbRecords = new ReaddbRecords();
         public ReadInvRecords ReadInvRecords = new ReadInvRecords();
+        public ReaddbShopRelationRecords ReaddbShopRelationRecords = new ReaddbShopRelationRecords();
         public VersionCheck VersionCheck = new VersionCheck();
         public CharacterReceived CharacterReceived = new CharacterReceived();
         public VirtualKeyboardTypes VirtualKeyboardTypes = new VirtualKeyboardTypes();
@@ -111,6 +112,8 @@ namespace BauhofWMS
 
         public List<ListOfdbRecords> lstItemInfo = new List<ListOfdbRecords>();
 
+        List<ListOfShopRelations> lstShopRelations = new List<ListOfShopRelations>();
+
 
         #endregion
 
@@ -140,92 +143,18 @@ namespace BauhofWMS
 
                     Device.SetFlags(new string[] { "RadioButton_Experimental" });
                     grdMain.IsVisible = true;
-                    grdProgressBar.IsVisible = true;
-                    progressBarActive = true;
+                  
                     if (Device.RuntimePlatform == Device.UWP) { obj.operatingSystem = "UWP"; UWP(); }
                     if (Device.RuntimePlatform == Device.Android) { obj.operatingSystem = "Android"; Android(); }
 
                     ScannedValueReceive();
-
-
-                    if (Device.RuntimePlatform == Device.UWP)
-                    {
-                        var resultReaddbRecords = await ReaddbRecords.Read(this);
-                        if (resultReaddbRecords.Item1)
-                        {
-                            if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
-                            {
-                                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-                                progressBarActive = false;
-                                Debug.WriteLine("lstInternalRecordDB2 meistriklubihind " + lstInternalRecordDB.First().meistriklubihind);
-                            }
-                        }
-                        else
-                        {
-                            Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
-                        }
-
-                        grdProgressBar.IsVisible = false;
-                        progressBarActive = false;
-
-                    }
-
-                    if (Device.RuntimePlatform == Device.Android)
-                    {
-                        var resultReaddbRecords = await ReaddbRecords.Read(this);
-                        if (resultReaddbRecords.Item1)
-                        {
-                            if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
-                            {
-                                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-                                //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
-                                //Debug.WriteLine("START CHECK");
-                                //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
-                                //Debug.WriteLine("STOP CHECK");
-                                //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
-                                Debug.WriteLine("Import done " + lstInternalRecordDB.Count());
-                                progressBarActive = false;
-                            }
-                        }
-                        grdProgressBar.IsVisible = false;
-                        progressBarActive = false;
-
-
-                    }
-
-                    var resultReadInvRecords = await ReadInvRecords.Read(this);
-                    if (resultReadInvRecords.Item1)
-                    {
-                        if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
-                        {
-                            Debug.WriteLine(resultReadInvRecords.Item2);
-                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                            lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
-                            progressBarActive = false;
-                        }
-                    }
-
-                    var resultReadMovementRecords = await ReadMovementRecords.Read(this);
-                    if (resultReadMovementRecords.Item1)
-                    {
-                        if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
-                        {
-                            Debug.WriteLine(resultReadMovementRecords.Item2);
-                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                            lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
-                            progressBarActive = false;
-                        }
-                    }
-
-                    Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
-
                     var resultSettings = await ReadSettings.Read(this);
 
                     if (resultSettings.Item1)
                     {
                         lstSettings = resultSettings.Item3;
+                        lstSettings.First().shopLocationCode = lstSettings.First().shopLocationCode.Replace("\"", "");
+                       
                         obj.wcfAddress = lstSettings.First().wmsAddress;
                         obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
 
@@ -266,31 +195,164 @@ namespace BauhofWMS
                         grdMain.IsVisible = true;
                         PrepareSettings();
                     }
-                    if (proceed)
-                    {
-                        grdMain.IsVisible = true;
-                        var version = await GetCurrentVersion.Get();
-                        
-                        if (!string.IsNullOrEmpty(version))
-                        {
-                            if (lstSettings.Any())
-                            {
-                                lstSettings.First().currentVersion = version;
-                                lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
-                            }
-                            else
-                            {
-                                lstSettings = new List<ListOfSettings>();
-                                lstSettings.Add(new ListOfSettings { currentVersion = version });
-                                lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
-                            }
-                        }
-                        else
-                        {
-                            Debug.WriteLine("VERSIOONI EI SAADUD!");
-                        }
-                        PrepareOperations();
 
+                    if (lstSettings.Any())
+                    {
+                        if (!string.IsNullOrEmpty(lstSettings.First().shopLocationCode))
+                        {
+                            grdProgressBar.IsVisible = true;
+                            progressBarActive = true;
+                            if (Device.RuntimePlatform == Device.UWP)
+                            {
+                                var resultReaddbRecords = await ReaddbRecords.Read(this, "");
+                                if (resultReaddbRecords.Item1)
+                                {
+                                    if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
+                                    {
+                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                        lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                        progressBarActive = false;
+                                        Debug.WriteLine("lstInternalRecordDB2 meistriklubihind " + lstInternalRecordDB.First().meistriklubihind);
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
+                                }
+
+                                grdProgressBar.IsVisible = false;
+                                progressBarActive = false;
+
+                            }
+
+                            if (Device.RuntimePlatform == Device.Android)
+                            {
+                                string prefix = "";
+                                var resultShoprelations = await ReaddbShopRelationRecords.Read(this);
+                                if (resultShoprelations.Item1)
+                                {
+                                    if (!string.IsNullOrEmpty(resultShoprelations.Item2))
+                                    {
+                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                        lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
+                                        Debug.WriteLine("Import done " + lstShopRelations.Count());
+                                        progressBarActive = false;
+                                    }
+                                }
+
+                                if (lstShopRelations.Any())
+                                {
+                                    if (lstSettings.Any())
+                                    {
+                                        DisplayAlert("prefix", lstShopRelations.First().shopName, "OK");
+                                        DisplayAlert("prefix", lstSettings.First().shopLocationCode, "OK");
+                                        var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
+                                        if (r.Any())
+                                        {
+                                            prefix = r.First().shopID;
+                                            
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DisplayAlert("VIGA", "KAUPLUSE NIMI ON SEADISTAMATA!", "OK");
+                                        grdProgressBar.IsVisible = false;
+                                        progressBarActive = false;
+                                        PrepareOperations();
+                                    }
+                                }
+
+                                Debug.WriteLine("SHOP: " + prefix);
+
+
+                                if (!string.IsNullOrEmpty(prefix))
+                                {
+                                    var resultReaddbRecords = await ReaddbRecords.Read(this, prefix);
+                                    if (resultReaddbRecords.Item1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
+                                        {
+                                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                            lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                            //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
+                                            //Debug.WriteLine("START CHECK");
+                                            //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
+
+                                            //string data = JsonConvert.SerializeObject(lstInternalRecordDBImport, jSONsettings);
+                                            //lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(data, jSONsettings);
+
+                                            //Debug.WriteLine("STOP CHECK");
+                                            //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
+                                            Debug.WriteLine("Import done " + lstInternalRecordDB.Count());
+                                            progressBarActive = false;
+                                        }
+                                    }
+
+                                }
+                                grdProgressBar.IsVisible = false;
+                                progressBarActive = false;
+
+
+                            }
+
+                            var resultReadInvRecords = await ReadInvRecords.Read(this);
+                            if (resultReadInvRecords.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
+                                {
+                                    Debug.WriteLine(resultReadInvRecords.Item2);
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            var resultReadMovementRecords = await ReadMovementRecords.Read(this);
+                            if (resultReadMovementRecords.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
+                                {
+                                    Debug.WriteLine(resultReadMovementRecords.Item2);
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
+
+                           
+                            if (proceed)
+                            {
+                                grdMain.IsVisible = true;
+                                var version = await GetCurrentVersion.Get();
+
+                                if (!string.IsNullOrEmpty(version))
+                                {
+                                    if (lstSettings.Any())
+                                    {
+                                        lstSettings.First().currentVersion = version;
+                                        lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
+                                    }
+                                    else
+                                    {
+                                        lstSettings = new List<ListOfSettings>();
+                                        lstSettings.Add(new ListOfSettings { currentVersion = version });
+                                        lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("VERSIOONI EI SAADUD!");
+                                }
+                                PrepareOperations();
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        PrepareSettings();
                     }
                 }
             }
@@ -326,9 +388,6 @@ namespace BauhofWMS
 
 
         }
-
-
-
 
         public async void DisplaySuccessMessage(string message)
         {
@@ -948,7 +1007,7 @@ namespace BauhofWMS
                 obj.pEnv = pEnv;
                 obj.deviceSerial = null;
                 ShowKeyBoard.Hide(this);
-                StartMainPage();
+                //StartMainPage();
                 //BackKeyPress.Press(this);
             }
             else

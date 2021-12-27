@@ -93,20 +93,31 @@ namespace BauhofOffline
 
         public async void WriteLog(string message, int logLevel)
         {
-            if (lstSettings.Any())
+            try
             {
-                if (logLevel >= lstSettings.First().debugLevel)
+                if (lstSettings.Any())
                 {
-                    string logToWrite = "" + "\r\n" +
-                    String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
-                    "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
-                    "" + "\r\n" +
-                    message;
+                    if (logLevel >= lstSettings.First().debugLevel)
+                    {
+                        string logToWrite = "" + "\r\n" +
+                        String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
+                        "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
+                        "" + "\r\n" +
+                        message;
 
-                    var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Log.txt", true);
-                    str.WriteLine(logToWrite);
-                    str.Close();
+                        if (!Directory.Exists(lstSettings.First().logFolder))
+                        {
+                            Directory.CreateDirectory(lstSettings.First().logFolder);
+                        }
+                        var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Log.txt", true);
+                        str.WriteLine(logToWrite);
+                        str.Close();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("WriteLog " + lstSettings.First().logFolder + " " + "\r\n"  + ex.Message);
             }
         }
 
@@ -170,11 +181,9 @@ namespace BauhofOffline
                         WriteLog("CheckVersion " + txtBkStatus.Text, 2);
                         MessageBox.Show("LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!");
                     }
-
                 }
                 else
                 {
-                   
                     txtBkStatus.Text = "VÄLIST SEADET EI LEITUD!";
                     WriteLog("CheckVersion " + txtBkStatus.Text, 2);
                     MessageBox.Show("VÄLIST SEADET EI LEITUD!");
@@ -707,6 +716,13 @@ namespace BauhofOffline
                 {
                     File.WriteAllText(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
                     List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+
+                    values.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
+                    values.Where(x => string.IsNullOrEmpty(x.profiklubihind)).ToList().ForEach(x => x.profiklubihind = "0");
+                    values.Where(x => string.IsNullOrEmpty(x.price)).ToList().ForEach(x => x.price = "0");
+                    values.Where(x => string.IsNullOrEmpty(x.meistriklubihind)).ToList().ForEach(x => x.meistriklubihind = "0");
+                    values.Where(x => string.IsNullOrEmpty(x.soodushind)).ToList().ForEach(x => x.soodushind = "0");
+
                     string outputFile = inputFileName.Replace(".csv", ".txt");
                     string json = JsonConvert.SerializeObject(values);
                     File.WriteAllText(lstSettings.First().jsonFolder + outputFile, json);
@@ -766,6 +782,11 @@ namespace BauhofOffline
                     Directory.CreateDirectory(jsonArchiveFolder);
                 }
                 string relationFileName = "ShopRelations.csv";
+                if (!Directory.Exists(csvFolderPath))
+                {
+                    Directory.CreateDirectory(csvFolderPath);
+                }
+
                 if (File.Exists(csvFolderPath + relationFileName))
                 {
                     lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Skip(1).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
@@ -820,21 +841,21 @@ namespace BauhofOffline
                     }
                     else
                     {
-                        MessageBox.Show("csv faile ei leitud kataloogist " + csvFolderPath);
+                        MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
                     }
                     
                 }
                 else
                 {
-                    MessageBox.Show("ShopRelations.csv nimeline fail puudub csv kataloogist " + csvFolderPath + "!");
+                    MessageBox.Show("bw_DoWork_ConvertFiles: ShopRelations.csv nimeline fail puudub csv kataloogist " + csvFolderPath + "!");
                 }
 
               
             }
             catch (Exception ex)
             {
-                WriteError("bw_DoWork_ConvertFiles " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("bw_DoWork_ConvertFiles  " + ex.Message);
+                WriteError("bw_DoWork_ConvertFiles: " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                MessageBox.Show("bw_DoWork_ConvertFiles: " + ex.Message);
             }
         }
 
@@ -887,6 +908,7 @@ namespace BauhofOffline
                 return lst;
             }
         }
+
         public static ListOfdbRecordsImport FromCsv(string csvLine, string fileName, DateTime fileDate, string logFolder, string adminEmail)
         {
             ListOfdbRecordsImport lst = new ListOfdbRecordsImport();
@@ -908,6 +930,8 @@ namespace BauhofOffline
                 
                 lst.SKUBin = values[12];
                 lst.barCode = values[13];
+
+                
                 return lst;
             }
             catch (Exception ex)
