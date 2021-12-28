@@ -46,6 +46,7 @@
     <Compile Include="ListDefinitions\ListOfOperationsRecords.cs" />
     <Compile Include="ListDefinitions\ListOfSettings.cs" />
     <Compile Include="ListDefinitions\ListOfShopRelations.cs" />
+    <Compile Include="ListDefinitions\ListOfSKU.cs" />
     <Compile Include="ListDefinitions\ListOfUser.cs" />
     <Compile Include="ListDefinitions\ListOfVersion.cs" />
     <Compile Include="ListDefinitions\ListOfdbRecordsImport.cs" />

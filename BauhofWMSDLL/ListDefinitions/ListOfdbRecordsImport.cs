@@ -15,13 +15,13 @@ namespace BauhofWMSDLL.ListDefinitions
         public string itemDesc { get; set; }
         public string itemMagnitude { get; set; }
         public string SKU { get; set; }
-        public string SKUqty { get; set; }
+        public decimal SKUqty { get; set; }
         public string SKUBin { get; set; }
-        public string price { get; set; }
-        public string meistriklubihind { get; set; }
-        public string profiklubihind { get; set; }
+        public decimal price { get; set; }
+        public decimal meistriklubihind { get; set; }
+        public decimal profiklubihind { get; set; }
         public string sortiment { get; set; }
-        public string soodushind { get; set; }
+        public decimal soodushind { get; set; }
 
     }
 }

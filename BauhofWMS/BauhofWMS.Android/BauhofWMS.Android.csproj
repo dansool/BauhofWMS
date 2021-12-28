@@ -21,7 +21,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <AndroidKeyStore>true</AndroidKeyStore>
-    <AndroidSigningKeyStore>C:\Users\dansool\source\repos\BauhofWMS\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>C:\Users\administrator\source\repos\bauhofwms\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>Dr0p0ff.</AndroidSigningStorePass>
     <AndroidSigningKeyPass>Dr0p0ff.</AndroidSigningKeyPass>
     <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
@@ -39,6 +39,9 @@
     <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidSupportedAbis />
+    <AotAssemblies>false</AotAssemblies>
+    <EnableLLVM>false</EnableLLVM>
+    <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -244,13 +244,40 @@ namespace BauhofWMS
                                 {
                                     if (lstSettings.Any())
                                     {
-                                        DisplayAlert("prefix", lstShopRelations.First().shopName, "OK");
-                                        DisplayAlert("prefix", lstSettings.First().shopLocationCode, "OK");
+                                        //DisplayAlert("prefix", lstShopRelations.First().shopName, "OK");
+                                        //DisplayAlert("prefix", lstSettings.First().shopLocationCode, "OK");
                                         var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
                                         if (r.Any())
                                         {
                                             prefix = r.First().shopID;
+                                            DisplayAlert("prefix", prefix, "OK");
                                             
+                                            if (prefix.Length == 2)
+                                            {
+                                                DisplayAlert("read start ", prefix, "ok");
+                                                var resultReaddbRecords = await ReaddbRecords.Read(this, prefix);
+                                                if (resultReaddbRecords.Item1)
+                                                {
+                                                    Debug.WriteLine("Length  " + resultReaddbRecords.Item2.Length.ToString());
+                                                    if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
+                                                    {
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                                        //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
+                                                        //Debug.WriteLine("START CHECK");
+                                                        //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
+
+                                                        //string data = JsonConvert.SerializeObject(lstInternalRecordDBImport, jSONsettings);
+                                                        //lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(data, jSONsettings);
+
+                                                        //Debug.WriteLine("STOP CHECK");
+                                                        //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
+                                                        DisplayAlert("Import done ", lstInternalRecordDB.Count().ToString(), "ok");
+
+                                                        progressBarActive = false;
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     else
@@ -265,30 +292,7 @@ namespace BauhofWMS
                                 Debug.WriteLine("SHOP: " + prefix);
 
 
-                                if (!string.IsNullOrEmpty(prefix))
-                                {
-                                    var resultReaddbRecords = await ReaddbRecords.Read(this, prefix);
-                                    if (resultReaddbRecords.Item1)
-                                    {
-                                        if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
-                                        {
-                                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                            lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-                                            //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
-                                            //Debug.WriteLine("START CHECK");
-                                            //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
-
-                                            //string data = JsonConvert.SerializeObject(lstInternalRecordDBImport, jSONsettings);
-                                            //lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(data, jSONsettings);
-
-                                            //Debug.WriteLine("STOP CHECK");
-                                            //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
-                                            Debug.WriteLine("Import done " + lstInternalRecordDB.Count());
-                                            progressBarActive = false;
-                                        }
-                                    }
-
-                                }
+                                
                                 grdProgressBar.IsVisible = false;
                                 progressBarActive = false;
 
@@ -2191,3 +2195,4 @@ namespace BauhofWMS
        
     }
 }
+    
