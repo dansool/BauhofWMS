@@ -968,7 +968,9 @@ namespace BauhofOffline
 
         private void bw_DoWork_ConvertFiles(object sender, DoWorkEventArgs e)
         {
+            bool proceed = true;
             string csvFolderPath = "";
+            IEnumerable<ListOfdbRecordsImport> dbconcat = null;
             try
             {
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
@@ -990,328 +992,371 @@ namespace BauhofOffline
                     Directory.CreateDirectory(csvFolderPath);
                 }
 
-                if (File.Exists(csvFolderPath + relationFileName))
+               
+                if (proceed)
                 {
-                    lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Skip(1).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
-                    string[] dirs = Directory.GetFiles(csvFolderPath);
-                    int fileCounter = 0;
-                    if (dirs.Any())
+                    if (File.Exists(csvFolderPath + relationFileName))
                     {
-                        bool proceed = true;
-                        foreach (string str in dirs)
+                        lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Skip(1).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                        string[] dirs = Directory.GetFiles(csvFolderPath);
+                        int fileCounter = 0;
+                        if (dirs.Any())
                         {
-                            string sourceFileName = str;
-                            int index = str.LastIndexOf("\\");
-                            string fileName = str.Substring(index + 1);
-                            if (fileName.EndsWith(".lock"))
+                            foreach (string str in dirs)
                             {
-                                proceed = false;
-                            }
-                        }
-                        if (proceed)
-                        {
-                            var file = new StreamWriter(csvFolderPath + Environment.MachineName + ".lock", true);
-                            file.WriteLine("");
-                            file.Close();
-                            {
-                                foreach (string str in dirs)
+                                string sourceFileName = str;
+                                int index = str.LastIndexOf("\\");
+                                string fileName = str.Substring(index + 1);
+                                if (fileName.EndsWith(".lock"))
                                 {
-                                    fileCounter = fileCounter + 1;
-                                    string sourceFileName = str;
-                                    int index = str.LastIndexOf("\\");
-                                    string fileName = str.Substring(index + 1);
-                                    if (fileName.EndsWith(".lock"))
+                                    proceed = false;
+                                }
+                            }
+                            
+                            if (proceed)
+                            {
+
+                                var file = new StreamWriter(csvFolderPath + Environment.MachineName + ".lock", true);
+                                file.WriteLine("");
+                                file.Close();
+                                {
+                                    foreach (string str in dirs)
                                     {
-                                        proceed = false;
-                                    }
-                                    if (fileName.EndsWith(".csv"))
-                                    {
-                                        if (fileName.ToUpper() == relationFileName.ToUpper())
+
+                                        fileCounter = fileCounter + 1;
+                                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                                         {
-                                            string json = JsonConvert.SerializeObject(lstShopRelations);
-                                            File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
+                                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
+                                        }));
+                                        string sourceFileName = str;
+                                        int index = str.LastIndexOf("\\");
+                                        string fileName = str.Substring(index + 1);
+                                        if (fileName.EndsWith(".lock"))
+                                        {
+                                            proceed = false;
                                         }
-                                        else
+                                        
+                                        if (proceed)
                                         {
-                                            var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
-                                            var prefixToSearch = fileNameSplitPrefix[0];
-                                            Debug.WriteLine("Prefix is " + prefixToSearch);
-                                            string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
-                                            foreach (string str2 in dirsPrefixSearch)
+                                            if (fileName.EndsWith(".csv"))
                                             {
-                                                Debug.WriteLine("fileName is " + str2);
-                                                int index2 = str2.LastIndexOf("\\");
-                                                string fileName2 = str2.Substring(index2 + 1);
-                                                if (fileName2.StartsWith(prefixToSearch))
+                                                if (fileName.ToUpper() == relationFileName.ToUpper())
                                                 {
-                                                    Debug.WriteLine("fileName is " + fileName);
-                                                    Debug.WriteLine("fileName2 is " + fileName2);
-                                                    if (fileName2 != fileName)
+                                                    string json = JsonConvert.SerializeObject(lstShopRelations);
+                                                    File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
+                                                }
+                                                else
+                                                {
+                                                    var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
+                                                    var prefixToSearch = fileNameSplitPrefix[0];
+                                                    Debug.WriteLine("Prefix is " + prefixToSearch);
+                                                    string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
+                                                    foreach (string str2 in dirsPrefixSearch)
                                                     {
-                                                        File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                        Debug.WriteLine("fileName is " + str2);
+                                                        int index2 = str2.LastIndexOf("\\");
+                                                        string fileName2 = str2.Substring(index2 + 1);
+                                                        if (fileName2.StartsWith(prefixToSearch))
+                                                        {
+                                                            if (fileName2 != fileName)
+                                                            {
+                                                                File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                            }
+                                                        }
+                                                    }
+                                                    if (!File.Exists(jsonFolderPath + fileName))
+                                                    {
+                                                        var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
+                                                        string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
+                                                        string formatstring = "yyyyMMddHHmmss";
+                                                        DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
+
+                                                        ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
+
                                                     }
                                                 }
-                                            }
-
-                                            if (!File.Exists(jsonFolderPath + fileName))
-                                            {
-                                                var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
-                                                string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
-                                                string formatstring = "yyyyMMddHHmmss";
-                                                DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
-
-                                                ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
-                                               
                                             }
                                         }
                                     }
                                 }
                             }
+                            fileCounter = fileCounter + 1;
                         }
-                        fileCounter = fileCounter + 1;
+                        else
+                        {
+                            MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
-                    }                    
+                        MessageBox.Show("bw_DoWork_ConvertFiles: ShopRelations.csv nimeline fail puudub csv kataloogist " + csvFolderPath + "!");
+                    }
                 }
-                else
+                if (proceed)
                 {
-                    MessageBox.Show("bw_DoWork_ConvertFiles: ShopRelations.csv nimeline fail puudub csv kataloogist " + csvFolderPath + "!");
+                    Debug.WriteLine("started concat");
+                    if (lstDB01.Any())
+                    {
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
+                        }));
+
+                        Debug.WriteLine("started concat 1");
+                       
+                        Debug.WriteLine("started concat 2");
+                        if (lstDB02.Any())
+                        {
+                            Debug.WriteLine("started concat 3");
+                            Debug.Write("started lstDB02");
+                            var d1 = lstDB01.Concat(lstDB02);
+                            dbconcat = d1;
+                            Debug.WriteLine("CONCAT1 " + d1.Count());
+                        }
+                        if (lstDB03.Any())
+                        {
+                            var d2 = dbconcat.Concat(lstDB03);
+                            dbconcat = d2;
+                            Debug.WriteLine("CONCAT2 " + d2.Count());
+                        }
+
+                        if (lstDB04.Any())
+                        {
+                            var d3 = dbconcat.Concat(lstDB04);
+                            dbconcat = d3;
+                            Debug.WriteLine("CONCAT3 " + d3.Count());
+                        }
+
+                        if (lstDB05.Any())
+                        {
+                            var d4 = dbconcat.Concat(lstDB05);
+                            dbconcat = d4;
+                            Debug.WriteLine("CONCAT4 " + d4.Count());
+                        }
+
+                        if (lstDB06.Any())
+                        {
+                            var d5 = dbconcat.Concat(lstDB06);
+                            dbconcat = d5;
+                            Debug.WriteLine("CONCAT5 " + d5.Count());
+                        }
+
+                        if (lstDB07.Any())
+                        {
+                            var d6 = dbconcat.Concat(lstDB07);
+                            dbconcat = d6;
+                            Debug.WriteLine("CONCAT6 " + d6.Count());
+                        }
+
+                        if (lstDB08.Any())
+                        {
+                            var d7 = dbconcat.Concat(lstDB08);
+                            dbconcat = d7;
+                            Debug.WriteLine("CONCAT7 " + d7.Count());
+                        }
+
+                        if (lstDB09.Any())
+                        {
+                            var d8 = dbconcat.Concat(lstDB09);
+                            dbconcat = d8;
+                            Debug.WriteLine("CONCAT8 " + d8.Count());
+                        }
+
+                        if (lstDB10.Any())
+                        {
+                            var d9 = dbconcat.Concat(lstDB10);
+                            dbconcat = d9;
+                            Debug.WriteLine("CONCAT9 " + d9.Count());
+                        }
+
+                        if (lstDB11.Any())
+                        {
+                            var d10 = dbconcat.Concat(lstDB11);
+                            dbconcat = d10;
+                            Debug.WriteLine("CONCAT10 " + d10.Count());
+                        }
+
+                        if (lstDB12.Any())
+                        {
+                            var d11 = dbconcat.Concat(lstDB12);
+                            dbconcat = d11;
+                            Debug.WriteLine("CONCAT11 " + d11.Count());
+                        }
+
+                        if (lstDB13.Any())
+                        {
+                            var d12 = dbconcat.Concat(lstDB13);
+                            dbconcat = d12;
+                            Debug.WriteLine("CONCAT12 " + d12.Count());
+                        }
+
+                        if (lstDB14.Any())
+                        {
+                            var d13 = dbconcat.Concat(lstDB14);
+                            dbconcat = d13;
+                            Debug.WriteLine("CONCAT13 " + d13.Count());
+                        }
+
+                        if (lstDB15.Any())
+                        {
+                            var d14 = dbconcat.Concat(lstDB15);
+                            dbconcat = d14;
+                            Debug.WriteLine("CONCAT14 " + d14.Count());
+                        }
+
+                        if (lstDB16.Any())
+                        {
+                            var d15 = dbconcat.Concat(lstDB16);
+                            dbconcat = d15;
+                            Debug.WriteLine("CONCAT15 " + d15.Count());
+                        }
+
+                        if (lstDB17.Any())
+                        {
+                            var d16 = dbconcat.Concat(lstDB17);
+                            dbconcat = d16;
+                            Debug.WriteLine("CONCAT16 " + d16.Count());
+                        }
+
+                        if (lstDB18.Any())
+                        {
+                            var d17 = dbconcat.Concat(lstDB18);
+                            dbconcat = d17;
+                            Debug.WriteLine("CONCAT17 " + d17.Count());
+                        }
+
+                        if (lstDB19.Any())
+                        {
+                            var d18 = dbconcat.Concat(lstDB19);
+                            dbconcat = d18;
+                            Debug.WriteLine("CONCAT18 " + d18.Count());
+                        }
+
+                        if (lstDB20.Any())
+                        {
+                            var d19 = dbconcat.Concat(lstDB20);
+                            dbconcat = d19;
+                            Debug.WriteLine("CONCAT19 " + d19.Count());
+                        }
+
+
+                        if (lstDB21.Any())
+                        {
+                            var d20 = dbconcat.Concat(lstDB21);
+                            dbconcat = d20;
+                            Debug.WriteLine("CONCAT20 " + d20.Count());
+                        }
+
+                        if (lstDB22.Any())
+                        {
+                            var d21 = dbconcat.Concat(lstDB22);
+                            dbconcat = d21;
+                            Debug.WriteLine("CONCAT21 " + d21.Count());
+                        }
+
+                        if (lstDB23.Any())
+                        {
+                            var d22 = dbconcat.Concat(lstDB23);
+                            dbconcat = d22;
+                            Debug.WriteLine("CONCAT22 " + d22.Count());
+                        }
+
+                        if (lstDB24.Any())
+                        {
+                            var d23 = dbconcat.Concat(lstDB24);
+                            dbconcat = d23;
+                            Debug.WriteLine("CONCAT23 " + d23.Count());
+                        }
+
+                        if (lstDB25.Any())
+                        {
+                            var d24 = dbconcat.Concat(lstDB25);
+                            dbconcat = d24;
+                            Debug.WriteLine("CONCAT24 " + d24.Count());
+                        }
+
+                        if (lstDB26.Any())
+                        {
+                            var d25 = dbconcat.Concat(lstDB26);
+                            dbconcat = d25;
+                            Debug.WriteLine("CONCAT25 " + d25.Count());
+                        }
+
+                        if (lstDB27.Any())
+                        {
+                            var d26 = dbconcat.Concat(lstDB27);
+                            dbconcat = d26;
+                            Debug.WriteLine("CONCAT26 " + d26.Count());
+                        }
+
+                        if (lstDB28.Any())
+                        {
+                            var d27 = dbconcat.Concat(lstDB28);
+                            dbconcat = d27;
+                            Debug.WriteLine("CONCAT27 " + d27.Count());
+                        }
+
+                        if (lstDB29.Any())
+                        {
+                            var d28 = dbconcat.Concat(lstDB29);
+                            dbconcat = d28;
+                            Debug.WriteLine("CONCAT28 " + d28.Count());
+                        }
+
+                        if (lstDB30.Any())
+                        {
+                            var d29 = dbconcat.Concat(lstDB30);
+                            dbconcat = d29;
+                            Debug.WriteLine("CONCAT29 " + d29.Count());
+                        }
+
+                        
+                        
+                    }
                 }
-                Debug.WriteLine("started concat");
-                if (lstDB01.Any())
+                if (proceed)
                 {
-                    IEnumerable<ListOfdbRecordsImport> dbconcat = null;
-                    if (lstDB02.Any())
-                    {
-                        Debug.Write("started lstDB02");
-                        var d1 = lstDB01.Concat(lstDB02);
-                        dbconcat = d1;
-                        Debug.WriteLine("CONCAT1 " + d1.Count());
-                    }
-                    if (lstDB03.Any())
-                    {
-                        var d2 = dbconcat.Concat(lstDB03);
-                        dbconcat = d2;
-                        Debug.WriteLine("CONCAT2 " + d2.Count());
-                    }
-
-                    if (lstDB04.Any())
-                    {
-                        var d3 = dbconcat.Concat(lstDB04);
-                        dbconcat = d3;
-                        Debug.WriteLine("CONCAT3 " + d3.Count());
-                    }
-
-                    if (lstDB05.Any())
-                    {
-                        var d4 = dbconcat.Concat(lstDB05);
-                        dbconcat = d4;
-                        Debug.WriteLine("CONCAT4 " + d4.Count());
-                    }
-
-                    if (lstDB06.Any())
-                    {
-                        var d5 = dbconcat.Concat(lstDB06);
-                        dbconcat = d5;
-                        Debug.WriteLine("CONCAT5 " + d5.Count());
-                    }
-
-                    if (lstDB07.Any())
-                    {
-                        var d6 = dbconcat.Concat(lstDB07);
-                        dbconcat = d6;
-                        Debug.WriteLine("CONCAT6 " + d6.Count());
-                    }
-
-                    if (lstDB08.Any())
-                    {
-                        var d7 = dbconcat.Concat(lstDB08);
-                        dbconcat = d7;
-                        Debug.WriteLine("CONCAT7 " + d7.Count());
-                    }
-
-                    if (lstDB09.Any())
-                    {
-                        var d8 = dbconcat.Concat(lstDB09);
-                        dbconcat = d8;
-                        Debug.WriteLine("CONCAT8 " + d8.Count());
-                    }
-
-                    if (lstDB10.Any())
-                    {
-                        var d9 = dbconcat.Concat(lstDB10);
-                        dbconcat = d9;
-                        Debug.WriteLine("CONCAT9 " + d9.Count());
-                    }
-
-                    if (lstDB11.Any())
-                    {
-                        var d10 = dbconcat.Concat(lstDB11);
-                        dbconcat = d10;
-                        Debug.WriteLine("CONCAT10 " + d10.Count());
-                    }
-
-                    if (lstDB12.Any())
-                    {
-                        var d11 = dbconcat.Concat(lstDB12);
-                        dbconcat = d11;
-                        Debug.WriteLine("CONCAT11 " + d11.Count());
-                    }
-
-                    if (lstDB13.Any())
-                    {
-                        var d12 = dbconcat.Concat(lstDB13);
-                        dbconcat = d12;
-                        Debug.WriteLine("CONCAT12 " + d12.Count());
-                    }
-
-                    if (lstDB14.Any())
-                    {
-                        var d13 = dbconcat.Concat(lstDB14);
-                        dbconcat = d13;
-                        Debug.WriteLine("CONCAT13 " + d13.Count());
-                    }
-
-                    if (lstDB15.Any())
-                    {
-                        var d14 = dbconcat.Concat(lstDB15);
-                        dbconcat = d14;
-                        Debug.WriteLine("CONCAT14 " + d14.Count());
-                    }
-
-                    if (lstDB16.Any())
-                    {
-                        var d15 = dbconcat.Concat(lstDB16);
-                        dbconcat = d15;
-                        Debug.WriteLine("CONCAT15 " + d15.Count());
-                    }
-
-                    if (lstDB17.Any())
-                    {
-                        var d16 = dbconcat.Concat(lstDB17);
-                        dbconcat = d16;
-                        Debug.WriteLine("CONCAT16 " + d16.Count());
-                    }
-
-                    if (lstDB18.Any())
-                    {
-                        var d17 = dbconcat.Concat(lstDB18);
-                        dbconcat = d17;
-                        Debug.WriteLine("CONCAT17 " + d17.Count());
-                    }
-
-                    if (lstDB19.Any())
-                    {
-                        var d18 = dbconcat.Concat(lstDB19);
-                        dbconcat = d18;
-                        Debug.WriteLine("CONCAT18 " + d18.Count());
-                    }
-
-                    if (lstDB20.Any())
-                    {
-                        var d19 = dbconcat.Concat(lstDB20);
-                        dbconcat = d19;
-                        Debug.WriteLine("CONCAT19 " + d19.Count());
-                    }
-
-
-                    if (lstDB21.Any())
-                    {
-                        var d20 = dbconcat.Concat(lstDB21);
-                        dbconcat = d20;
-                        Debug.WriteLine("CONCAT20 " + d20.Count());
-                    }
-
-                    if (lstDB22.Any())
-                    {
-                        var d21 = dbconcat.Concat(lstDB22);
-                        dbconcat = d21;
-                        Debug.WriteLine("CONCAT21 " + d21.Count());
-                    }
-
-                    if (lstDB23.Any())
-                    {
-                        var d22 = dbconcat.Concat(lstDB23);
-                        dbconcat = d22;
-                        Debug.WriteLine("CONCAT22 " + d22.Count());
-                    }
-
-                    if (lstDB24.Any())
-                    {
-                        var d23 = dbconcat.Concat(lstDB24);
-                        dbconcat = d23;
-                        Debug.WriteLine("CONCAT23 " + d23.Count());
-                    }
-
-                    if (lstDB25.Any())
-                    {
-                        var d24 = dbconcat.Concat(lstDB25);
-                        dbconcat = d24;
-                        Debug.WriteLine("CONCAT24 " + d24.Count());
-                    }
-
-                    if (lstDB26.Any())
-                    {
-                        var d25 = dbconcat.Concat(lstDB26);
-                        dbconcat = d25;
-                        Debug.WriteLine("CONCAT25 " + d25.Count());
-                    }
-
-                    if (lstDB27.Any())
-                    {
-                        var d26 = dbconcat.Concat(lstDB27);
-                        dbconcat = d26;
-                        Debug.WriteLine("CONCAT26 " + d26.Count());
-                    }
-
-                    if (lstDB28.Any())
-                    {
-                        var d27 = dbconcat.Concat(lstDB28);
-                        dbconcat = d27;
-                        Debug.WriteLine("CONCAT27 " + d27.Count());
-                    }
-
-                    if (lstDB29.Any())
-                    {
-                        var d28 = dbconcat.Concat(lstDB29);
-                        dbconcat = d28;
-                        Debug.WriteLine("CONCAT28 " + d28.Count());
-                    }
-
-                    if (lstDB30.Any())
-                    {
-                        var d29 = dbconcat.Concat(lstDB30);
-                        dbconcat = d29;
-                        Debug.WriteLine("CONCAT29 " + d29.Count());
-                    }
-
                     sKUCounter = 0;
-
-                    var y = dbconcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                     {
-                        itemCode = s.First().itemCode,
-                        SKU = GetSKUString(s),
-                        barCode = s.First().barCode,
-                        itemDesc = s.First().itemDesc,
-                        itemMagnitude = s.First().itemMagnitude,
-                        meistriklubihind = s.First().meistriklubihind,
-                        price = s.First().price,
-                        profiklubihind = s.First().profiklubihind,
-                        soodushind = s.First().soodushind,
-                        sortiment = s.First().sortiment,
-                    });
+                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
+                    }));
+                    var countOfConcat = dbconcat.GroupBy(x => x.itemCode).ToList().Count();
 
+                    if (proceed)
+                    {
+                        var finalDB = dbconcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                        {
+                            itemCode = s.First().itemCode,
+                            SKU = GetSKUString(s, countOfConcat),
+                            barCode = s.First().barCode,
+                            itemDesc = s.First().itemDesc,
+                            itemMagnitude = s.First().itemMagnitude,
+                            meistriklubihind = s.First().meistriklubihind,
+                            price = s.First().price,
+                            profiklubihind = s.First().profiklubihind,
+                            soodushind = s.First().soodushind,
+                            sortiment = s.First().sortiment,
+                        });
 
-                    Debug.WriteLine(y.Count());
+                        Debug.WriteLine(finalDB.Count());
 
-                    string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
-                    Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
-                    string jsonFinal = JsonConvert.SerializeObject(y);
-                    File.WriteAllText(lstSettings.First().jsonFolder + outputFile, jsonFinal);
-                    Debug.WriteLine("CONCAT final " + dbconcat.Count());
-                    File.Delete(csvFolderPath + Environment.MachineName + ".lock");
+                        string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
+                        Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
+
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Kirjutan impordifaili";
+                        }));
+                        string jsonFinal = JsonConvert.SerializeObject(finalDB);
+                        File.WriteAllText(lstSettings.First().jsonFolder + outputFile, jsonFinal);
+                        Debug.WriteLine("CONCAT final " + dbconcat.Count());
+                        File.Delete(csvFolderPath + Environment.MachineName + ".lock");
+                        dbconcat = null;
+                        finalDB = null;
+                        proceed = false;
+                    }
+                    proceed = false;
                 }
             }
             catch (Exception ex)
@@ -1323,17 +1368,22 @@ namespace BauhofOffline
             
         }
 
-        public string GetSKUString(IGrouping<string, ListOfdbRecordsImport> s)
+        public string GetSKUString(IGrouping<string, ListOfdbRecordsImport> s, int countOfConcat)
         {
             sKUCounter = sKUCounter + 1;
+            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+            {
+                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
+            }));
             var f = s.ToList();
             var re = "";
             foreach (var o in f)
             {
-                re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###"))  + "%%%";
+                re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "%%%";
             }
             Debug.WriteLine(sKUCounter + "Ree: " + re);
             return re;
+           
         }
 
         private void bw_RunWorkerCompleted_ConvertFiles(object sender, RunWorkerCompletedEventArgs e)

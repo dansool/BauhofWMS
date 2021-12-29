@@ -6,7 +6,7 @@
         xmlns:fa="clr-namespace:FontAwesome.WPF;assembly=FontAwesome.WPF"
         xmlns:local="clr-namespace:BauhofOffline"
         mc:Ignorable="d"
-        Title="BauhofOffline" Height="249.063" Width="303.996"
+        Title="BauhofOffline" Height="279.491" Width="188.136"
         WindowStartupLocation="CenterScreen"
         Background="AliceBlue">
     <Window.Resources>
@@ -21,17 +21,16 @@
         </Storyboard>
     </Window.Resources>
     <Grid>
-        <TextBlock x:Name="txtBkStatus" HorizontalAlignment="Right" TextAlignment="Center" Margin="0,10,10,0" Foreground="Red" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="247" Height="35"/>
-        <Button x:Name="btnUpload" Content="Lae failid skännerisse" HorizontalAlignment="Left" Margin="24,86,0,0" VerticalAlignment="Top" Width="144" Click="btnUpload_Click"/>
-        <Button x:Name="btnUpdate" Content="Uuenda skänneri tarkvara" Visibility="Visible" Background="LimeGreen" HorizontalAlignment="Left" Margin="24,153,0,0" VerticalAlignment="Top" Width="144" Click="btnUpdate_Click"/>
-        <TextBlock x:Name="txtBkScannerVersion" HorizontalAlignment="Left" Margin="22,111,0,0" TextWrapping="Wrap" Text="Skänneril versioon:" VerticalAlignment="Top"/>
-        <TextBlock x:Name="txtBkScannerVersionValue" HorizontalAlignment="Left" Margin="135,111,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"/>
-        <TextBlock x:Name="txtBkLatestVersion" HorizontalAlignment="Left" Margin="24,132,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Saadaval "/><Run Text="versioon:"/></TextBlock>
-        <TextBlock x:Name="txtBkLatestVersionValue" HorizontalAlignment="Left" Margin="135,132,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"></TextBlock>
+        <TextBlock x:Name="txtBkStatus" HorizontalAlignment="Right" TextAlignment="Center" Margin="0,10,0,0" Foreground="Red" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" Height="90"/>
+        <Button x:Name="btnUpload" Content="Lae failid skännerisse" HorizontalAlignment="Left" Margin="18,151,0,0" VerticalAlignment="Top" Width="144" Click="btnUpload_Click"/>
+        <Button x:Name="btnUpdate" Content="Uuenda skänneri tarkvara" Visibility="Visible" Background="LimeGreen" HorizontalAlignment="Left" Margin="18,218,0,0" VerticalAlignment="Top" Width="144" Click="btnUpdate_Click"/>
+        <TextBlock x:Name="txtBkScannerVersion" HorizontalAlignment="Left" Margin="16,176,0,0" TextWrapping="Wrap" Text="Skänneril versioon:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="txtBkScannerVersionValue" HorizontalAlignment="Left" Margin="129,176,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"/>
+        <TextBlock x:Name="txtBkLatestVersion" HorizontalAlignment="Left" Margin="18,197,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Saadaval "/><Run Text="versioon:"/></TextBlock>
+        <TextBlock x:Name="txtBkLatestVersionValue" HorizontalAlignment="Left" Margin="129,197,0,0" TextWrapping="Wrap" Text="xxxx" VerticalAlignment="Top"></TextBlock>
         <TextBlock x:Name="txtBkDownloadFiles" HorizontalAlignment="Left" Margin="238,47,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
-        <ProgressBar x:Name="prgBar" HorizontalAlignment="Left" Height="10" Margin="-833,499,0,-287.5" VerticalAlignment="Top" Width="100"/>
-        <Grid Margin="0,10,0,176.5" HorizontalAlignment="Left" Width="42">
-            <fa:ImageAwesome x:Name="prgRing" RenderTransformOrigin="0.5, 0.5" Icon="Spinner" VerticalAlignment="Center" HorizontalAlignment="Center" Height="29" Margin="0,0,0,0" Width="29">
+        <Grid Margin="59,82,0,102" HorizontalAlignment="Left" Width="69">
+            <fa:ImageAwesome x:Name="prgRing" RenderTransformOrigin="0.5, 0.5" Icon="Spinner" VerticalAlignment="Center" HorizontalAlignment="Center" Height="53" Margin="6,4,10,7" Width="56">
                 <fa:ImageAwesome.RenderTransform>
                     <RotateTransform/>
                 </fa:ImageAwesome.RenderTransform>
