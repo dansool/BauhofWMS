@@ -65,7 +65,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="24"/>
                             <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
@@ -75,7 +75,7 @@
                             <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
                                 <Label.FormattedText>
                                     <FormattedString>
-                                        <Span Text="{Binding SKUqty, Mode=TwoWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="18" TextColor="White"  />
+                                        <Span Text="{Binding SKUqty}" FontAttributes="Bold" FontSize="18" TextColor="White"  />
                                         <Span Text=" " FontAttributes="Bold" FontSize="16" TextColor="White"  />
                                         <Span Text="{Binding itemMagnitude}" FontAttributes="Bold" FontSize="14" TextColor="White" />
                                     </FormattedString>
@@ -88,26 +88,26 @@
                             <Label Text="HIND" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="1" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="End">
-                            <Label  Text="{Binding price}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                            <Label  Text="{Binding price, Mode=OneWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="3" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
                             <Label Text="SOODUS" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="4" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="End">
-                            <Label Text="{Binding soodushind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
+                            <Label Text="{Binding soodushind, Mode=OneWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="18" TextColor="White"  />
                         </Grid>
 
                         <Grid Grid.Column="0" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0">
                             <Label Text="MEISTRIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="1" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="End">
-                            <Label  Text="{Binding meistriklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                            <Label  Text="{Binding meistriklubihind, Mode=OneWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="3" Grid.Row="2"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0">
                             <Label Text="PROFIK." FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="13" TextColor="White"  />
                         </Grid>
                         <Grid Grid.Column="4" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="End" >
-                            <Label  Text="{Binding profiklubihind}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
+                            <Label  Text="{Binding profiklubihind, Mode=OneWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
                     </Grid>
                 </Grid>

@@ -26,6 +26,7 @@ namespace BauhofWMS
         public string pin;
         public bool isScanAllowed = true;
         public bool searchLocalShop = true;
+        public string shopLocationID = "";
         public App()
         {
             InitializeComponent();

@@ -8,6 +8,6 @@ namespace BauhofWMS
 {
     public interface IReadWritedbRecordsAndroid
     {
-        Task<string> ReaddbRecordsAsync(string prefix);
+        Task<string> ReaddbRecordsAsync();
     }
 }

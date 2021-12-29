@@ -21,7 +21,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <AndroidKeyStore>true</AndroidKeyStore>
-    <AndroidSigningKeyStore>C:\Users\administrator\source\repos\bauhofwms\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>C:\Users\dansool\source\repos\bauhofwms\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>Dr0p0ff.</AndroidSigningStorePass>
     <AndroidSigningKeyPass>Dr0p0ff.</AndroidSigningKeyPass>
     <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>

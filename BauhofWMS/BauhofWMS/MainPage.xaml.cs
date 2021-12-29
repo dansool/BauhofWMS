@@ -140,7 +140,6 @@ namespace BauhofWMS
                     obj.previousLayoutName = "";
                     CollapseAllStackPanels.Collapse(this);
                     grdMain.IsVisible = false;
-
                     Device.SetFlags(new string[] { "RadioButton_Experimental" });
                     grdMain.IsVisible = true;
                   
@@ -157,7 +156,7 @@ namespace BauhofWMS
                        
                         obj.wcfAddress = lstSettings.First().wmsAddress;
                         obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
-
+                        
                         obj.pEnv = lstSettings.First().pEnv;
                         obj.companyName = null;
                         if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
@@ -177,12 +176,6 @@ namespace BauhofWMS
                             EnvironmentColorChange(testColor);
                         }
 
-                        //if (string.IsNullOrEmpty(obj.wcfAddress))
-                        //{
-                        //    proceed = false;
-                        //    grdMain.IsVisible = true;
-                        //    PrepareSettings();
-                        //}
                         if (!string.IsNullOrEmpty(obj.shopLocationCode))
                         {
                             shopLocationCode.Text = obj.shopLocationCode;
@@ -198,13 +191,14 @@ namespace BauhofWMS
 
                     if (lstSettings.Any())
                     {
+                        Debug.WriteLine("SHOPLOCATION: " + lstSettings.First().shopLocationCode);
                         if (!string.IsNullOrEmpty(lstSettings.First().shopLocationCode))
                         {
                             grdProgressBar.IsVisible = true;
                             progressBarActive = true;
                             if (Device.RuntimePlatform == Device.UWP)
                             {
-                                var resultReaddbRecords = await ReaddbRecords.Read(this, "");
+                                var resultReaddbRecords = await ReaddbRecords.Read(this);
                                 if (resultReaddbRecords.Item1)
                                 {
                                     if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
@@ -236,26 +230,35 @@ namespace BauhofWMS
                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                         lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
                                         Debug.WriteLine("Import done " + lstShopRelations.Count());
-                                        progressBarActive = false;
+                                        foreach (var r in lstShopRelations)
+                                        {
+                                            r.shopID = r.shopID.Replace("\"", "");
+                                            r.shopName = r.shopName.Replace("\"", "");
+                                        }
                                     }
                                 }
-
+                                Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
                                 if (lstShopRelations.Any())
                                 {
+                                    Debug.WriteLine("lstShopRelations1");
                                     if (lstSettings.Any())
                                     {
-                                        //DisplayAlert("prefix", lstShopRelations.First().shopName, "OK");
-                                        //DisplayAlert("prefix", lstSettings.First().shopLocationCode, "OK");
+                                        foreach(var a in lstShopRelations)
+                                        {
+                                            Debug.WriteLine(a.shopID + "  " +a.shopName);
+                                        }
+                                        Debug.WriteLine("lstShopRelations2 " + lstSettings.First().shopLocationCode.ToUpper());
                                         var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
                                         if (r.Any())
                                         {
+                                            Debug.WriteLine("lstShopRelations3");
                                             prefix = r.First().shopID;
-                                            DisplayAlert("prefix", prefix, "OK");
-                                            
+                                            obj.shopLocationID = prefix;
+                                            Debug.WriteLine("prefix: " + prefix);
                                             if (prefix.Length == 2)
                                             {
-                                                DisplayAlert("read start ", prefix, "ok");
-                                                var resultReaddbRecords = await ReaddbRecords.Read(this, prefix);
+                                                Debug.WriteLine("prefix2: " + prefix);
+                                                var resultReaddbRecords = await ReaddbRecords.Read(this);
                                                 if (resultReaddbRecords.Item1)
                                                 {
                                                     Debug.WriteLine("Length  " + resultReaddbRecords.Item2.Length.ToString());
@@ -263,15 +266,6 @@ namespace BauhofWMS
                                                     {
                                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                                         lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-                                                        //var lstInternalRecordDBImport = JsonConvert.DeserializeObject<List<ListOfdbRecordsImport>>(resultReaddbRecords.Item2, jSONsettings);
-                                                        //Debug.WriteLine("START CHECK");
-                                                        //lstInternalRecordDBImport.Where(x => string.IsNullOrEmpty(x.SKUqty)).ToList().ForEach(x => x.SKUqty = "0");
-
-                                                        //string data = JsonConvert.SerializeObject(lstInternalRecordDBImport, jSONsettings);
-                                                        //lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(data, jSONsettings);
-
-                                                        //Debug.WriteLine("STOP CHECK");
-                                                        //Debug.WriteLine("Import done " + resultReaddbRecords.Item2.Length);
                                                         DisplayAlert("Import done ", lstInternalRecordDB.Count().ToString(), "ok");
 
                                                         progressBarActive = false;
@@ -1002,22 +996,34 @@ namespace BauhofWMS
 
             bool pEnv = rbtnProduction.IsChecked ? true : false;
             //obj.wcfAddress = ediAddress.Text;
-            obj.shopLocationCode = shopLocationCode.Text;
-            //obj.companyName = obj.wcfAddress.Contains("/") ? obj.wcfAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
-            var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, this);
-            if (result.Item1)
+            
+            var p = lstShopRelations.Where(x => x.shopName == shopLocationCode.Text);
+            if (p.Any())
             {
-                DisplaySuccessMessage("SALVESTATUD!");
-                obj.pEnv = pEnv;
-                obj.deviceSerial = null;
-                ShowKeyBoard.Hide(this);
-                //StartMainPage();
-                //BackKeyPress.Press(this);
+                obj.shopLocationCode = shopLocationCode.Text;
+                obj.shopLocationID = p.First().shopID;
+
+                //obj.companyName = obj.wcfAddress.Contains("/") ? obj.wcfAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
+                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, this);
+                if (result.Item1)
+                {
+                    DisplaySuccessMessage("SALVESTATUD!");
+                    obj.pEnv = pEnv;
+                    obj.deviceSerial = null;
+                    ShowKeyBoard.Hide(this);
+                    //StartMainPage();
+                    //BackKeyPress.Press(this);
+                }
+                else
+                {
+                    DisplayFailMessage(result.Item2);
+                }
             }
             else
             {
-                DisplayFailMessage(result.Item2);
+                DisplayAlert("VIGANE KAUPLUSE NIMI", shopLocationCode.Text + " EI LEITUD KAUPLUSTE NIMEKIRJAST!", "OK");
             }
+            
         }
 
         void LstvSettings_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -2043,14 +2049,46 @@ namespace BauhofWMS
                 {
                     if (obj.searchLocalShop)
                     {
-                        string localshopCode = obj.shopLocationCode;
-                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text)) && x.SKU == localshopCode).ToList();
+                        List<ListOfdbRecords> lstResult = new List<ListOfdbRecords>();
+                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text)) && x.SKU.Contains(obj.shopLocationID)).ToList();
                         if (result.Any())
                         {
-                            LstvItemInfoItems.ItemsSource = result;
-                            if (result.Count == 1)
+                            foreach (var p in result)
                             {
-                                lstItemInfo = result;
+                                var parseSKU = p.SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                if (parseSKU.Any())
+                                {
+                                    foreach (var s in parseSKU)
+                                    {
+                                        var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
+                                        if (uniqueSKU.Any())
+                                        {
+                                            Debug.WriteLine(uniqueSKU[0] + "  " + obj.shopLocationID);
+                                            if (uniqueSKU[0] == obj.shopLocationID)
+                                            {
+                                                lstResult.Add(new ListOfdbRecords
+                                                {
+                                                    itemCode = result.First().itemCode,
+                                                    itemDesc = result.First().itemDesc,
+                                                    itemMagnitude = result.First().itemMagnitude,
+                                                    barCode = result.First().barCode,
+                                                    SKU = uniqueSKU[0],
+                                                    SKUBin = uniqueSKU[1],
+                                                    SKUqty = Convert.ToDecimal(uniqueSKU[2]),
+                                                    meistriklubihind = result.First().meistriklubihind,
+                                                    price = result.First().price,
+                                                    profiklubihind = result.First().profiklubihind,
+                                                    soodushind = result.First().soodushind,
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            LstvItemInfoItems.ItemsSource = lstResult;
+                            if (lstResult.Count == 1)
+                            {
+                                lstItemInfo = lstResult;
                                 LstvItemInfo.ItemsSource = lstItemInfo;
                             }
                         }
@@ -2064,13 +2102,46 @@ namespace BauhofWMS
                     }
                     else
                     {
+                        List<ListOfdbRecords> lstResult = new List<ListOfdbRecords>();
                         var result2 = lstInternalRecordDB.Where(x =>
                            x.itemCode.Contains(entItemInfoReadCode.Text)
                         || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
                         || x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
                         if (result2.Any())
                         {
-                            LstvItemInfoItems.ItemsSource = result2;
+                            foreach (var p in result2)
+                            {
+                                var parseSKU = p.SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                if (parseSKU.Any())
+                                {
+                                    foreach (var s in parseSKU)
+                                    {
+                                        var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
+                                        if (uniqueSKU.Any())
+                                        {
+                                            if (!string.IsNullOrEmpty(uniqueSKU[0]))
+                                            {
+                                                Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
+                                                lstResult.Add(new ListOfdbRecords
+                                                {
+                                                    itemCode = result2.First().itemCode,
+                                                    itemDesc = result2.First().itemDesc,
+                                                    itemMagnitude = result2.First().itemMagnitude,
+                                                    barCode = result2.First().barCode,
+                                                    SKU = uniqueSKU[0],
+                                                    SKUBin = uniqueSKU[1],
+                                                    SKUqty = Convert.ToDecimal(uniqueSKU[2]),
+                                                    meistriklubihind = result2.First().meistriklubihind,
+                                                    price = result2.First().price,
+                                                    profiklubihind = result2.First().profiklubihind,
+                                                    soodushind = result2.First().soodushind,
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            LstvItemInfoItems.ItemsSource = lstResult;
                             if (result2.Count == 1)
                             {
                                 lstItemInfo = result2;

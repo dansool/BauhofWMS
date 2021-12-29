@@ -33,7 +33,7 @@
                         <ColumnDefinition Width="160"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0">
-                        <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SaddleBrown" VerticalOptions="Start" />
+                        <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="10" TextColor="SaddleBrown" VerticalOptions="Start" />
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="0">
                         <Label Text="{Binding SKU}" FontAttributes="Bold" FontSize="16" TextColor="{Binding SKU, Mode=OneWay, Converter={StaticResource ConvertSKUColor}}" VerticalOptions="Start" />
