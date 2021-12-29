@@ -77,7 +77,7 @@ namespace BauhofOffline
             prgRing.Visibility = Visibility.Hidden;
             GetConfiguration();
             CheckVersion();
-            ConvertFilesStart();
+            ConvertFilesStart();            
         }
 
         private void GetConfiguration()
@@ -111,6 +111,12 @@ namespace BauhofOffline
                     row.logFolder = confCollection["logFolder"].Value.ToString();
                     WriteLog("GetConfiguration logFolder = " + row.logFolder, 2);
                 }
+                if (confCollection["exportFolder"] != null)
+                {
+                    row.exportFolder = confCollection["exportFolder"].Value.ToString();
+                    WriteLog("GetConfiguration exportFolder = " + row.exportFolder, 2);
+                }
+                
                 if (confCollection["debugLevel"] != null)
                 {
                     row.debugLevel = Convert.ToInt32(confCollection["debugLevel"].Value.ToString());
@@ -436,14 +442,19 @@ namespace BauhofOffline
             {
                 WriteLog(@"btnDownload_Click started", 2);
                 string DeviceNameAsSeenInMyComputer = "";
+                Debug.WriteLine("1");
                 MediaDevice device = null;
                 var devices = MediaDevice.GetDevices();
                 if (devices.Any())
                 {
+                    Debug.WriteLine("2");
                     if (devices.Count() == 1)
                     {
+                        Debug.WriteLine("3");
                         device = devices.First();
+
                         DeviceNameAsSeenInMyComputer = devices.First().Description;
+                        Debug.WriteLine(DeviceNameAsSeenInMyComputer);
                         WriteLog(@"btnDownload_Click DeviceNameAsSeenInMyComputer:" + DeviceNameAsSeenInMyComputer, 2);
                     }
                     else
@@ -458,6 +469,7 @@ namespace BauhofOffline
                     WriteLog(@"btnDownload_Click VÄLIST SEADET EI LEITUD!", 2);
                     MessageBox.Show("VÄLIST SEADET EI LEITUD!");
                 }
+
                 if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                 {
                     bool proceed = true;
@@ -465,15 +477,14 @@ namespace BauhofOffline
 
                     try
                     {
-
-
+                        device.Connect();
                         var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
+                        Debug.WriteLine("5");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
-
                         foreach (var file in files)
                         {
                             count = count + 1;
-                            string destinationFileName = lstSettings.First().jsonFolder + file.Name;
+                            string destinationFileName = lstSettings.First().exportFolder + file.Name;
                             if (!File.Exists(destinationFileName))
                             {
                                 using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
@@ -548,7 +559,7 @@ namespace BauhofOffline
                 WriteLog(@"bw_DoWork_UploadFiles started", 2);
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                 {
-                    txtBkStatus.Text = "Kopeerin faile skännerisse!";
+                    txtBkStatus.Text = "Kopeerin faili skännerisse!";
                     prgRing.Visibility = Visibility.Visible;
                 }));
 
@@ -581,14 +592,23 @@ namespace BauhofOffline
                         device.Connect();
 
                         var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
+                        var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+
+                        foreach (var file in files)
+                        {
+                            if (file.Name.ToUpper().StartsWith("DBRECORD") && file.Name.ToUpper().EndsWith(".TXT"))
+                            {
+                                device.DeleteFile(photoDir.FullName + @"\" + file.Name);
+                            }
+                        }
+
                         string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
                         foreach (string str in dirs)
                         {
-
                             string sourceFileName = str;
                             int index = str.LastIndexOf("\\");
                             string fileName = str.Substring(index + 1);
-                            if (fileName.EndsWith(".txt"))
+                            if (fileName.ToUpper().StartsWith("DBRECORD") && fileName.ToUpper().EndsWith(".TXT"))
                             {
                                 try
                                 {
@@ -966,8 +986,35 @@ namespace BauhofOffline
             }
         }
 
+        public void GetLatestDBFile()
+        {
+            string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
+            if (dirs.Any())
+            {
+                foreach (string str in dirs)
+                {
+                    
+                    string sourceFileName = str;
+                    int index = str.LastIndexOf("\\");
+                    string fileName = str.Substring(index + 1);
+                    Debug.WriteLine(fileName);
+                    if (fileName.ToUpper().StartsWith("DBRECORDS_") && fileName.ToUpper().EndsWith(".TXT"))
+                    {
+                        string fileVersionFull = fileName.Replace("DBRECORDS_", "").Replace(".TXT", "");
+                        string fileVersion = fileVersionFull.Substring(6, 2) + "." + fileVersionFull.Substring(4, 2) + "." + fileVersionFull.Substring(0, 4) + " " + fileVersionFull.Substring(9, 2) + ":" + fileVersionFull.Substring(11, 2) + ":" + fileVersionFull.Substring(13, 2);
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            txtBkLatestFile.Text = "ANDMEBAASI VERSIOON: " + fileVersion;
+                        }));
+                    }
+                }
+            }
+            
+        }
+
         private void bw_DoWork_ConvertFiles(object sender, DoWorkEventArgs e)
         {
+            GetLatestDBFile();
             bool proceed = true;
             string csvFolderPath = "";
             IEnumerable<ListOfdbRecordsImport> dbconcat = null;
@@ -1002,6 +1049,7 @@ namespace BauhofOffline
                         int fileCounter = 0;
                         if (dirs.Any())
                         {
+                            bool dbfilesExist = false;
                             foreach (string str in dirs)
                             {
                                 string sourceFileName = str;
@@ -1011,73 +1059,84 @@ namespace BauhofOffline
                                 {
                                     proceed = false;
                                 }
+                                if (fileName.EndsWith(".csv") && fileName.Contains("_PDA_Products"))
+                                {
+                                    dbfilesExist = true;
+                                }
                             }
                             
                             if (proceed)
                             {
-
-                                var file = new StreamWriter(csvFolderPath + Environment.MachineName + ".lock", true);
-                                file.WriteLine("");
-                                file.Close();
+                                if (dbfilesExist)
                                 {
-                                    foreach (string str in dirs)
+                                    Debug.WriteLine("A1");
+                                    var file = new StreamWriter(csvFolderPath + Environment.MachineName + ".lock", true);
+                                    Debug.WriteLine("A2");
+                                    file.WriteLine("");
+                                    file.Close();
                                     {
-
-                                        fileCounter = fileCounter + 1;
-                                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                                        foreach (string str in dirs)
                                         {
-                                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
-                                        }));
-                                        string sourceFileName = str;
-                                        int index = str.LastIndexOf("\\");
-                                        string fileName = str.Substring(index + 1);
-                                        if (fileName.EndsWith(".lock"))
-                                        {
-                                            proceed = false;
-                                        }
-                                        
-                                        if (proceed)
-                                        {
-                                            if (fileName.EndsWith(".csv"))
+                                            fileCounter = fileCounter + 1;
+                                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                                             {
-                                                if (fileName.ToUpper() == relationFileName.ToUpper())
+                                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
+                                            }));
+                                            string sourceFileName = str;
+                                            int index = str.LastIndexOf("\\");
+                                            string fileName = str.Substring(index + 1);
+                                            if (fileName.EndsWith(".lock"))
+                                            {
+                                                proceed = false;
+                                            }
+
+                                            if (proceed)
+                                            {
+                                                if (fileName.EndsWith(".csv"))
                                                 {
-                                                    string json = JsonConvert.SerializeObject(lstShopRelations);
-                                                    File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
-                                                }
-                                                else
-                                                {
-                                                    var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
-                                                    var prefixToSearch = fileNameSplitPrefix[0];
-                                                    Debug.WriteLine("Prefix is " + prefixToSearch);
-                                                    string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
-                                                    foreach (string str2 in dirsPrefixSearch)
+                                                    if (fileName.ToUpper() == relationFileName.ToUpper())
                                                     {
-                                                        Debug.WriteLine("fileName is " + str2);
-                                                        int index2 = str2.LastIndexOf("\\");
-                                                        string fileName2 = str2.Substring(index2 + 1);
-                                                        if (fileName2.StartsWith(prefixToSearch))
+                                                        string json = JsonConvert.SerializeObject(lstShopRelations);
+                                                        File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
+                                                    }
+                                                    else
+                                                    {
+                                                        var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
+                                                        var prefixToSearch = fileNameSplitPrefix[0];
+                                                        Debug.WriteLine("Prefix is " + prefixToSearch);
+                                                        string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
+                                                        foreach (string str2 in dirsPrefixSearch)
                                                         {
-                                                            if (fileName2 != fileName)
+                                                            Debug.WriteLine("fileName is " + str2);
+                                                            int index2 = str2.LastIndexOf("\\");
+                                                            string fileName2 = str2.Substring(index2 + 1);
+                                                            if (fileName2.StartsWith(prefixToSearch))
                                                             {
-                                                                File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                                if (fileName2 != fileName)
+                                                                {
+                                                                    File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    if (!File.Exists(jsonFolderPath + fileName))
-                                                    {
-                                                        var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
-                                                        string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
-                                                        string formatstring = "yyyyMMddHHmmss";
-                                                        DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
+                                                        if (!File.Exists(jsonFolderPath + fileName))
+                                                        {
+                                                            var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
+                                                            string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
+                                                            string formatstring = "yyyyMMddHHmmss";
+                                                            DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
 
-                                                        ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
+                                                            ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
 
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    proceed = false;
                                 }
                             }
                             fileCounter = fileCounter + 1;
@@ -1316,56 +1375,81 @@ namespace BauhofOffline
                 }
                 if (proceed)
                 {
+                    var lstOfConcat = dbconcat.ToList();
+                    List<ListOfdbRecords> finalDB = null;
                     sKUCounter = 0;
                     Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                     {
                         txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
                     }));
-                    var countOfConcat = dbconcat.GroupBy(x => x.itemCode).ToList().Count();
+                    var countOfConcat = lstOfConcat.GroupBy(x => x.itemCode).ToList().Count();
+                        
+                    finalDB = FillSKUData(lstOfConcat, countOfConcat);
 
-                    if (proceed)
+                    string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
+                    Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
+                        
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                     {
-                        var finalDB = dbconcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Kirjutan impordifaili";
+                    }));
+                    string jsonFinal = JsonConvert.SerializeObject(finalDB);
+                    string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
+                    if (dirs.Any())
+                    {
+                        foreach (string str in dirs)
                         {
-                            itemCode = s.First().itemCode,
-                            SKU = GetSKUString(s, countOfConcat),
-                            barCode = s.First().barCode,
-                            itemDesc = s.First().itemDesc,
-                            itemMagnitude = s.First().itemMagnitude,
-                            meistriklubihind = s.First().meistriklubihind,
-                            price = s.First().price,
-                            profiklubihind = s.First().profiklubihind,
-                            soodushind = s.First().soodushind,
-                            sortiment = s.First().sortiment,
-                        });
-
-                        Debug.WriteLine(finalDB.Count());
-
-                        string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
-                        Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
-
-                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                        {
-                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Kirjutan impordifaili";
-                        }));
-                        string jsonFinal = JsonConvert.SerializeObject(finalDB);
-                        File.WriteAllText(lstSettings.First().jsonFolder + outputFile, jsonFinal);
-                        Debug.WriteLine("CONCAT final " + dbconcat.Count());
-                        File.Delete(csvFolderPath + Environment.MachineName + ".lock");
-                        dbconcat = null;
-                        finalDB = null;
-                        proceed = false;
+                            string sourceFileName = str;
+                            int index = str.LastIndexOf("\\");
+                            string fileName = str.Substring(index + 1);
+                            if (fileName.ToUpper().StartsWith("DBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
+                            {
+                                if (!Directory.Exists(lstSettings.First().jsonFolder + @"\Archive\"))
+                                {
+                                    Directory.CreateDirectory(lstSettings.First().jsonFolder + @"\Archive\");
+                                }
+                                File.Move(lstSettings.First().jsonFolder + @"\" + fileName, lstSettings.First().jsonFolder + @"\Archive\" + fileName);
+                            }
+                        }
                     }
-                    proceed = false;
+
+
+                    File.WriteAllText(lstSettings.First().jsonFolder + outputFile.ToUpper(), jsonFinal);
+                    Debug.WriteLine("CONCAT final " + dbconcat.Count() + " "  + csvFolderPath);
+                    File.Delete(csvFolderPath + Environment.MachineName + ".lock");
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    {
+                        DisplayPostedMessage("ANDMEBAAS VALMIS!");
+                    }));
+
+
+
                 }
             }
             catch (Exception ex)
             {
-                File.Delete(csvFolderPath + Environment.MachineName + ".lock");
                 WriteError("bw_DoWork_ConvertFiles: " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
                 MessageBox.Show("bw_DoWork_ConvertFiles: " + ex.Message);
             }
             
+        }
+
+        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecordsImport> lstOfConcat, int countOfConcat)
+        {
+            var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+            {
+                itemCode = s.First().itemCode,
+                SKU = GetSKUString(s, countOfConcat),
+                barCode = s.First().barCode,
+                itemDesc = s.First().itemDesc,
+                itemMagnitude = s.First().itemMagnitude,
+                meistriklubihind = s.First().meistriklubihind,
+                price = s.First().price,
+                profiklubihind = s.First().profiklubihind,
+                soodushind = s.First().soodushind,
+                sortiment = s.First().sortiment,
+            }).ToList();
+            return finalDB;
         }
 
         public string GetSKUString(IGrouping<string, ListOfdbRecordsImport> s, int countOfConcat)
@@ -1392,6 +1476,8 @@ namespace BauhofOffline
             {
                 txtBkStatus.Text = "";
                 prgRing.Visibility = Visibility.Hidden;
+                GetLatestDBFile();
+                //DisplayPostedMessage("ANDMEBAAS VALMIS!");
             }));
         }
 
@@ -1523,7 +1609,43 @@ namespace BauhofOffline
             }
         }
 
+        private async Task DisplayPostedMessage(string message)
+        {
+            try
+            {
+               
 
+                    grdMessagePosted.Visibility = Visibility.Visible;
+                    txtbkMessagePosted.Text = message;
+                    grdMessagePosted.Opacity = 1.0;
+                    for (double opacity = 1.0; opacity >= 0.0; opacity = opacity - .03)
+                    {
+                        if (opacity >= 0.1)
+                        {
+                            await Task.Delay(40);
+                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            {
+                                grdMessagePosted.Opacity = opacity;
+                            }));
+                        }
+                        else
+                        {
+                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            {
+                                grdMessagePosted.Opacity = 0;
+                                grdMessagePosted.Visibility = Visibility.Collapsed;
+                                txtbkMessagePosted.Text = "";
+                            }));
+                            break;
+                        }
+                    }
+                
+            }
+            catch (Exception ex)
+            {
+                //SendDebugErrorMessage(this.GetType().Name, "DisplayPostedMessage", ex);
+            }
+        }
 
     }
 }

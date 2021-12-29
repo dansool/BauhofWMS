@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="True"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcItemInfoBinsView">
+    <ViewCell.View>
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+            <Grid Margin="4,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="322" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                    <Label Text="{Binding SKU}" FontAttributes="Bold" FontSize="18" TextColor="Magenta" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="0" Grid.Row="1" Margin="0,-4,0,0">
+                    <Label Text="{Binding SKUBin}"  FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="0" Grid.Row="2" Margin="0,-8,0,0">
+                    <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding SKUqty}" FontAttributes="Bold" FontSize="22" TextColor="Navy"  />
+                                <Span Text=" " FontAttributes="Bold" FontSize="22" TextColor="Navy"  />
+                                <Span Text="{Binding itemMagnitude}" FontAttributes="Bold" FontSize="22" TextColor="Navy" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Grid>
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

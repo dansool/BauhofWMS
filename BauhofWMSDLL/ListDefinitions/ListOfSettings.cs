@@ -17,6 +17,8 @@ namespace BauhofWMSDLL.ListDefinitions
         public string jsonFolder { get; set; }
 
         public string logFolder { get; set; }
+        public string exportFolder { get; set; }
+        
         public int debugLevel { get; set; }
         
 

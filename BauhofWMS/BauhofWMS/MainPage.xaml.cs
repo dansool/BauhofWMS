@@ -17,7 +17,6 @@ using BauhofWMS.Keyboard;
 using BauhofWMS.Scanner;
 using BauhofWMS.Utils.Parsers;
 
-
 namespace BauhofWMS
 {
     public partial class MainPage : ContentPage
@@ -112,7 +111,11 @@ namespace BauhofWMS
 
         public List<ListOfdbRecords> lstItemInfo = new List<ListOfdbRecords>();
 
-        List<ListOfShopRelations> lstShopRelations = new List<ListOfShopRelations>();
+        public List<ListOfShopRelations> lstShopRelations = new List<ListOfShopRelations>();
+
+        public List<ListOfSKU> lstBins = new List<ListOfSKU>();
+
+        public List<ListOfdbRecords> lstResultItemInfo = new List<ListOfdbRecords>();
 
 
         #endregion
@@ -353,6 +356,7 @@ namespace BauhofWMS
                         PrepareSettings();
                     }
                 }
+                
             }
             catch (Exception ex)
             {
@@ -1393,7 +1397,7 @@ namespace BauhofWMS
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entStockTakeReadCode.Text)
                     || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entStockTakeReadCode.Text) && x.SKU == obj.shopLocationCode).ToList();
+                    || x.barCode.Contains(entStockTakeReadCode.Text) && x.SKU.Contains(obj.shopLocationID)).ToList();
 
                     if (result.Any())
                     {
@@ -1736,7 +1740,7 @@ namespace BauhofWMS
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entTransferReadCode.Text)
                     || x.itemDesc.ToUpper().Contains(entTransferReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entTransferReadCode.Text)).ToList();
+                    || x.barCode.Contains(entTransferReadCode.Text) && x.SKU.Contains(obj.shopLocationID)).ToList();
                     if (result.Any())
                     {
                         if (result.Count() == 1)
@@ -1834,6 +1838,13 @@ namespace BauhofWMS
                                     entTransferQuantity.BackgroundColor = Color.Yellow;
                                     ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                     entTransferReadCode.BackgroundColor = Color.White;
+
+                                    lblTransferQuantity.IsVisible = true;
+                                    frmentTransferQuantity.IsVisible = true;
+                                    entTransferQuantity.IsVisible = true;
+                                    lblTransferQuantityUOM.IsVisible = true;
+                                    frmbtnTransferQuantityOK.IsVisible = true;
+                                    btnTransferQuantityOK.IsVisible = true;
                                 }
                             }
                             else
@@ -1864,6 +1875,13 @@ namespace BauhofWMS
                                 entTransferQuantity.BackgroundColor = Color.Yellow;
                                 ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                 entTransferReadCode.BackgroundColor = Color.White;
+
+                                lblTransferQuantity.IsVisible = true;
+                                frmentTransferQuantity.IsVisible = true;
+                                entTransferQuantity.IsVisible = true;
+                                lblTransferQuantityUOM.IsVisible = true;
+                                frmbtnTransferQuantityOK.IsVisible = true;
+                                btnTransferQuantityOK.IsVisible = true;
                             }
                             obj.isScanAllowed = true;
                         }
@@ -2049,7 +2067,7 @@ namespace BauhofWMS
                 {
                     if (obj.searchLocalShop)
                     {
-                        List<ListOfdbRecords> lstResult = new List<ListOfdbRecords>();
+                        lstResultItemInfo = new List<ListOfdbRecords>();
                         var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text)) && x.SKU.Contains(obj.shopLocationID)).ToList();
                         if (result.Any())
                         {
@@ -2066,29 +2084,29 @@ namespace BauhofWMS
                                             Debug.WriteLine(uniqueSKU[0] + "  " + obj.shopLocationID);
                                             if (uniqueSKU[0] == obj.shopLocationID)
                                             {
-                                                lstResult.Add(new ListOfdbRecords
+                                                lstResultItemInfo.Add(new ListOfdbRecords
                                                 {
-                                                    itemCode = result.First().itemCode,
-                                                    itemDesc = result.First().itemDesc,
-                                                    itemMagnitude = result.First().itemMagnitude,
+                                                    itemCode = p.itemCode,
+                                                    itemDesc = p.itemDesc,
+                                                    itemMagnitude = p.itemMagnitude,
                                                     barCode = result.First().barCode,
                                                     SKU = uniqueSKU[0],
                                                     SKUBin = uniqueSKU[1],
                                                     SKUqty = Convert.ToDecimal(uniqueSKU[2]),
-                                                    meistriklubihind = result.First().meistriklubihind,
-                                                    price = result.First().price,
-                                                    profiklubihind = result.First().profiklubihind,
-                                                    soodushind = result.First().soodushind,
+                                                    meistriklubihind = p.meistriklubihind,
+                                                    price = p.price,
+                                                    profiklubihind = p.profiklubihind,
+                                                    soodushind = p.soodushind,
                                                 });
                                             }
                                         }
                                     }
                                 }
                             }
-                            LstvItemInfoItems.ItemsSource = lstResult;
-                            if (lstResult.Count == 1)
+                            LstvItemInfoItems.ItemsSource = lstResultItemInfo;
+                            if (lstResultItemInfo.Count == 1)
                             {
-                                lstItemInfo = lstResult;
+                                lstItemInfo = lstResultItemInfo;
                                 LstvItemInfo.ItemsSource = lstItemInfo;
                             }
                         }
@@ -2102,7 +2120,7 @@ namespace BauhofWMS
                     }
                     else
                     {
-                        List<ListOfdbRecords> lstResult = new List<ListOfdbRecords>();
+                        lstResultItemInfo = new List<ListOfdbRecords>();
                         var result2 = lstInternalRecordDB.Where(x =>
                            x.itemCode.Contains(entItemInfoReadCode.Text)
                         || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
@@ -2122,26 +2140,26 @@ namespace BauhofWMS
                                             if (!string.IsNullOrEmpty(uniqueSKU[0]))
                                             {
                                                 Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
-                                                lstResult.Add(new ListOfdbRecords
+                                                lstResultItemInfo.Add(new ListOfdbRecords
                                                 {
-                                                    itemCode = result2.First().itemCode,
-                                                    itemDesc = result2.First().itemDesc,
-                                                    itemMagnitude = result2.First().itemMagnitude,
-                                                    barCode = result2.First().barCode,
+                                                    itemCode = p.itemCode,
+                                                    itemDesc = p.itemDesc,
+                                                    itemMagnitude = p.itemMagnitude,
+                                                    barCode = p.barCode,
                                                     SKU = uniqueSKU[0],
                                                     SKUBin = uniqueSKU[1],
                                                     SKUqty = Convert.ToDecimal(uniqueSKU[2]),
-                                                    meistriklubihind = result2.First().meistriklubihind,
-                                                    price = result2.First().price,
-                                                    profiklubihind = result2.First().profiklubihind,
-                                                    soodushind = result2.First().soodushind,
+                                                    meistriklubihind = p.meistriklubihind,
+                                                    price = p.price,
+                                                    profiklubihind = p.profiklubihind,
+                                                    soodushind = p.soodushind,
                                                 });
                                             }
                                         }
                                     }
                                 }
                             }
-                            LstvItemInfoItems.ItemsSource = lstResult;
+                            LstvItemInfoItems.ItemsSource = lstResultItemInfo;
                             if (result2.Count == 1)
                             {
                                 lstItemInfo = result2;
@@ -2196,9 +2214,62 @@ namespace BauhofWMS
             }
         }
 
+        private void btnItemInfoBins_Clicked(object sender, EventArgs e)
+        {
+            lstBins = new List<ListOfSKU>();
+            if (lstItemInfo.Any())
+            {
+                var searchItemLines = lstResultItemInfo.Where(x => x.itemCode == lstItemInfo.First().itemCode);
+                foreach (var p in searchItemLines)
+                {
+                    lstBins.Add(new ListOfSKU
+                    {
+                        SKU = GetShopName(p.SKU),
+                        SKUBin = SplitBins(p.SKUBin),
+                        SKUqty = p.SKUqty,
+                        itemMagnitude = p.itemMagnitude
+                    });
+                }
+                PrepareItemInfoBinsView();
+            }
+            else
+            {
+                DisplayFailMessage("VALI NIMEKIRJAST KAUP!");
+            }
+        }
+
         #endregion
+        public string GetShopName(string sku)
+        {
+            string result = "";
+            var shopNameLine = lstShopRelations.Where(x => x.shopID == sku);
+            if (shopNameLine.Any())
+            {
+                result = sku + "  " + shopNameLine.First().shopName;
+            }
+            return result;
+        }
 
-
+        public string SplitBins(string bin)
+        {
+            string result = "";
+            var parseSKU = bin.Split(new[] { ";" }, StringSplitOptions.None);
+            if (parseSKU.Any())
+            {
+                foreach (var p in parseSKU)
+                {
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        result = p;
+                    }
+                    else
+                    {
+                        result = result + "\r\n" + p;
+                    }
+                }
+            }
+            return result;
+        }
 
         #region stkStockTakeAddedRowsView
 
@@ -2261,9 +2332,42 @@ namespace BauhofWMS
 
 
 
+
+
+
         #endregion
 
-       
+        #region stkItemInfoBinsView
+        public void PrepareItemInfoBinsView()
+        {
+            ShowKeyBoard.Hide(this);
+            CollapseAllStackPanels.Collapse(this);
+            stkItemInfoBinsView.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "ItemInfoBinsView";
+            lblItemInfoBinsViewHeader.Text = "RIIULID";
+            LstvItemInfoBinsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoBinsView)) : new DataTemplate(typeof(vcItemInfoBinsView));
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvItemInfoBinsView.ItemsSource = null;
+            LstvItemInfoBinsView.ItemsSource = lstBins;
+        }
+        private async void LstvItemInfoBinsView_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+
+        }
+        #endregion
+        
+
+
     }
 }
     

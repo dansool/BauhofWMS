@@ -632,15 +632,20 @@
                             </Grid>
                             <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-30,0,0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="180"/>
-                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="165"/>
+                                    <ColumnDefinition Width="165"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="40"/>
                                 </Grid.RowDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0" HorizontalOptions="StartAndExpand" WidthRequest="150">
+                                        <Button Text="RIIULID" x:Name="btnItemInfoBins" x:FieldModifier="public" Clicked="btnItemInfoBins_Clicked" BackgroundColor="Blue" HeightRequest="40" WidthRequest="130" FontSize="14"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
                                 <Grid Grid.Column="1">
-                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0" HorizontalOptions="EndAndExpand" WidthRequest="130">
-                                        <Button Text="KÕIGIS LADUDES" x:Name="btnItemInfoOtherLocations" x:FieldModifier="public" Clicked="btnItemInfoOtherLocations_Clicked" BackgroundColor="Blue" HeightRequest="40" WidthRequest="130" FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0" HorizontalOptions="EndAndExpand" WidthRequest="150">
+                                        <Button Text="KÕIGIS LADUDES" x:Name="btnItemInfoOtherLocations" x:FieldModifier="public" Clicked="btnItemInfoOtherLocations_Clicked" BackgroundColor="Blue" HeightRequest="40" WidthRequest="130" FontSize="14"  TextColor="White"  FontAttributes="Bold" />
                                     </Frame>
                                 </Grid>
                             </Grid>
@@ -659,42 +664,80 @@
                         </Grid>
                     </StackLayout>
 
+                    <StackLayout  x:Name="stkItemInfoBinsView" x:FieldModifier="public" HorizontalOptions="Fill">
+                        <Grid HorizontalOptions="CenterAndExpand"  WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblItemInfoBinsViewHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+
+
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvItemInfoBinsView" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </StackLayout>
+                      
                     <StackLayout  x:Name="stkStockTakeAddedRowsView" x:FieldModifier="public" HorizontalOptions="Fill">
                         <Grid HorizontalOptions="CenterAndExpand"  WidthRequest="350">
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                          <RowDefinition Height="25"/>
-                          <RowDefinition Height="*"/>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="*"/>
 
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="25"/>
-                          </Grid.RowDefinitions>
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakeAddedRowsViewHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
-                          </Grid>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblStockTakeAddedRowsViewHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+
+
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvStockTakeAddedRowsView" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvStockTakeAddedRowsView_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
                         </Grid>
-                       
-
-                        <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                          </Grid.RowDefinitions>
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
-                            <ListView x:FieldModifier="public"  x:Name="LstvStockTakeAddedRowsView" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvStockTakeAddedRowsView_ItemTapped" HasUnevenRows="True"/>
-                          </Grid>
-                        </Grid>
-
-                      </Grid>
                     </StackLayout>
 
                     <StackLayout  x:Name="stkTransferAddedRowsView" x:FieldModifier="public" HorizontalOptions="Fill">

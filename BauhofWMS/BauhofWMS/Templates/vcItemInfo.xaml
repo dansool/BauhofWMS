@@ -69,10 +69,10 @@
                             <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
-                            <Label Text="SALDO" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
+                            <Label Text="SALDO" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="14" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
-                            <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                        <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End" Margin="0,3,0,0">
+                            <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="End" >
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="{Binding SKUqty}" FontAttributes="Bold" FontSize="18" TextColor="White"  />
@@ -109,21 +109,6 @@
                         <Grid Grid.Column="4" Grid.Row="2"  HorizontalOptions="Start" VerticalOptions="End" >
                             <Label  Text="{Binding profiklubihind, Mode=OneWay, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="White"  />
                         </Grid>
-                    </Grid>
-                </Grid>
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="18"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="52"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0" Grid.Row="0">
-                        <Label Text="ASUB" FontAttributes="Bold" FontSize="16" TextColor="Lime" VerticalOptions="End" />
-                    </Grid>
-                    <Grid Grid.Column="1" Grid.Row="0">
-                        <Label Text="{Binding SKUBin}" FontAttributes="Bold" FontSize="16" TextColor="Lime" VerticalOptions="Start" />
                     </Grid>
                 </Grid>
             </Grid>

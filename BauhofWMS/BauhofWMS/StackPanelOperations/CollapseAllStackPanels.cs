@@ -19,6 +19,7 @@ namespace BauhofWMS.StackPanelOperations
             mp.stkItemInfo.IsVisible = false;
             mp.stkStockTakeAddedRowsView.IsVisible = false;
             mp.stkTransferAddedRowsView.IsVisible = false;
+            mp.stkItemInfoBinsView.IsVisible = false;
         }
     }
 }

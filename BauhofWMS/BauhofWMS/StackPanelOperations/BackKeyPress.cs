@@ -86,8 +86,15 @@ namespace BauhofWMS.StackPanelOperations
                         mp.stkTransfer.IsVisible = true;
                     }
                     break;
+                case "ItemInfoBinsView":
+                    {
+                        obj.previousLayoutName = "";
+                        obj.currentLayoutName = "ItemInfo";
+                        mp.CollapseAllStackPanels.Collapse(mp);
+                        mp.stkItemInfo.IsVisible = true;
+                    }
+                    break;
                     
-
             }
         }
     }

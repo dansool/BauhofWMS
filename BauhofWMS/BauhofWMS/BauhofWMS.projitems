@@ -56,6 +56,10 @@
       <DependentUpon>vcItemInfo.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoBinsView.xaml.cs">
+      <DependentUpon>vcItemInfoBinsView.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoItems.xaml.cs">
       <DependentUpon>vcItemInfoItems.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -139,6 +143,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoStockTake.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoBinsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
