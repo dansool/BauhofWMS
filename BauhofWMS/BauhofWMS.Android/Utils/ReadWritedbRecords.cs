@@ -39,8 +39,10 @@ namespace BauhofWMS.Droid.Utils
                         return null;
                     }
 
-
-                    using (var reader = new StreamReader(backingFile, true))
+                    int i = 0;
+                    Stopwatch sw = Stopwatch.StartNew();
+                    const Int32 BufferSize = 81920;
+                    using (var reader = new StreamReader(backingFile, Encoding.UTF8, true, BufferSize))
                     {
                         string line;
                         while ((line = await reader.ReadLineAsync()) != null)
@@ -48,6 +50,8 @@ namespace BauhofWMS.Droid.Utils
                             result = result + line;
                         }
                     }
+                    sw.Stop();
+                    System.Diagnostics.Debug.WriteLine("Time elapsed : " + sw.Elapsed.TotalMilliseconds.ToString() + " ms.");
                 }
             }
             return result;

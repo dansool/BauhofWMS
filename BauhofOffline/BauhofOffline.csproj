@@ -175,5 +175,8 @@
   <ItemGroup>
     <Resource Include="logo_gpQ_icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Emey87-Trainee-Folder.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

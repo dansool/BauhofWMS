@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:BauhofWMS"
              xmlns:entry="clr-namespace:CustomizedControl"
              xmlns:input="clr-namespace:Plugin.InputKit.Shared.Controls;assembly=Plugin.InputKit"
+             xmlns:control="clr-namespace:ProgressRingControl.Forms.Plugin;assembly=ProgressRing.Forms.Plugin"             
              BackgroundColor="#FF0C154F"
              xmlns:converters="clr-namespace:AptusWMS.Converters"
              x:Class="BauhofWMS.MainPage">
@@ -11,6 +12,7 @@
     <ContentPage.Resources>
     </ContentPage.Resources>
     <ContentPage.Content>
+        
         <Grid x:FieldModifier="public" x:Name="grdMain" HorizontalOptions="Fill">
             <Grid x:Name="grdMainFirst" x:FieldModifier="public" HorizontalOptions="Fill">
                 <Grid.ColumnDefinitions>
@@ -1447,38 +1449,17 @@
                         </fa:ImageAwesome.Triggers>
                     </fa:ImageAwesome
                 </Grid>-->
-                <Grid x:Name="grdBar" Grid.Row ="0" x:FieldModifier="public" HorizontalOptions="Fill" VerticalOptions="Start" IsVisible="true">
+                <Grid x:Name="grdBar" Grid.Row ="0" x:FieldModifier="public" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" IsVisible="true">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="200"/>
                     </Grid.RowDefinitions>
-                        <Grid Grid.Column="0">
-                            <Label x:Name="lblDot1" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
-                        <Grid Grid.Column="1">
-                            <Label x:Name="lblDot2" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
-                        <Grid Grid.Column="2">
-                            <Label x:Name="lblDot3" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
-                        <Grid Grid.Column="3">
-                            <Label x:Name="lblDot4" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
-                        <Grid Grid.Column="4">
-                            <Label x:Name="lblDot5" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
-                        <Grid Grid.Column="5">
-                            <Label x:Name="lblDot6" x:FieldModifier="public" Text="." HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="100"/>
-                        </Grid>
+                    <Grid Grid.Column="0">
+                        <control:ProgressRing x:Name="prgRing" x:FieldModifier="public" Progress="0" RingThickness="20"/>
                     </Grid>
-                
+                </Grid>
                 <Label Grid.Column="0" Grid.Row="1" x:Name="lblProgressBar" Text="PALUN OOTA! LAEN ANDMEID!" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="40"/>
             </Grid>
         </Grid>

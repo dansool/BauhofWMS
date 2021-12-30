@@ -658,6 +658,8 @@ namespace BauhofOffline
 
                             }
                             var dcimDownload = device.GetDirectoryInfo(@"\IPSM card\Download");
+                           
+
                             var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                             foreach (var file in files)
                             {
@@ -674,6 +676,25 @@ namespace BauhofOffline
                                 }
                             }
                             device.UploadFile(destinationFile, dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
+                           
+
+                            var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download\");
+                            var files2 = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                            foreach (var file in files)
+                            {
+                                if (file.Name.ToUpper().EndsWith(".APK"))
+                                {
+                                    try
+                                    {
+                                        device.DeleteFile(dcimDownload.FullName + @"\" + file.Name);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("SKÄNNERIL EI ÕNNESTUNUD KUSTUTADA FAILI:" + "\r\n" + dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk" + "\r\n" + ex.Message);
+                                    }
+                                }
+                            }
+                            device.UploadFile(destinationFile, photoDir.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
                             device.Disconnect();
                             btnUpdate.Visibility = Visibility.Collapsed;
                             txtBkStatus.Text = "";
@@ -869,13 +890,15 @@ namespace BauhofOffline
             try
             {
                 string filename = folderPath + inputFileName;
-               
-                File.WriteAllText(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
                 List<ListOfShopRelations> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromShopRelationCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
                 lstShopRelations = values;
                 Debug.WriteLine("lstShopRelations.Count() " + lstShopRelations.Count());
                 string outputFile = inputFileName.Replace(".csv", ".txt").ToUpper();
                 string json = JsonConvert.SerializeObject(values);
+                if (File.Exists(lstSettings.First().jsonFolder + outputFile))
+                {
+                    File.Delete(lstSettings.First().jsonFolder + outputFile);
+                }
                 File.WriteAllText(lstSettings.First().jsonFolder + outputFile, json);
                 return "";
             }
@@ -1357,6 +1380,16 @@ namespace BauhofOffline
 
         public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecordsImport> lstOfConcat, int countOfConcat)
         {
+            //foreach (var r in lstOfConcat)
+            //{
+            //    if (r.itemCode == "701222")
+            //    {
+            //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
+            //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
+            //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
+            //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
+            //    }
+            //}
             var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
             {
                 itemCode = s.First().itemCode,
@@ -1370,6 +1403,17 @@ namespace BauhofOffline
                 soodushind = s.First().soodushind,
                 sortiment = s.First().sortiment,
             }).ToList();
+
+            //foreach (var r in finalDB)
+            //{
+            //    if (r.itemCode == "701222")
+            //    {
+            //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
+            //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
+            //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
+            //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
+            //    }
+            //}
             return finalDB;
         }
 
@@ -1460,7 +1504,7 @@ namespace BauhofOffline
                 lst.itemDesc = values[1].Replace("\"", "");
                 lst.itemMagnitude = values[2].Replace("\"", "");
 
-                values[3] = string.IsNullOrEmpty(values[3]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                values[3] = string.IsNullOrEmpty(values[3]) ? "0" : values[3].Replace(",", ".").Replace("\"", "");
                 lst.price = Decimal.TryParse(values[3], out temp) ? Convert.ToDecimal(values[3]) : 0;
 
                 lst.SKU = values[4].Replace("\"", "");
@@ -1468,20 +1512,20 @@ namespace BauhofOffline
                 values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
                 lst.SKUqty = Decimal.TryParse(values[6], out temp) ? Convert.ToDecimal(values[6]) : 0;
 
-                values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
                 lst.meistriklubihind = Decimal.TryParse(values[7], out temp) ? Convert.ToDecimal(values[7]) : 0;
 
-                values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
                 lst.soodushind = Decimal.TryParse(values[8], out temp) ? Convert.ToDecimal(values[8]) : 0;
 
-                values[9] = string.IsNullOrEmpty(values[9]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                values[9] = string.IsNullOrEmpty(values[9]) ? "0" : values[9].Replace(",", ".").Replace("\"", "");
                 lst.profiklubihind = Decimal.TryParse(values[9], out temp) ? Convert.ToDecimal(values[9]) : 0;
 
                 lst.sortiment = values[10].Replace("\"", "");
                 lst.SKUBin = values[12].Replace("\"", "");
                 lst.barCode = values[13].Replace("\"", "");
 
-                //if (values[0].Contains("000181"))
+                //if (values[0].Contains("701222"))
                 //{
                 //    Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
                 //    Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
@@ -1498,8 +1542,8 @@ namespace BauhofOffline
                 //    Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
                 //    Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
 
-                    
-                //}
+
+                //    }
                 return lst;
             }
             catch (Exception ex)
@@ -1686,5 +1730,14 @@ namespace BauhofOffline
             }
         }
 
+        private void BtnOpenUpload_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(lstSettings.First().jsonFolder);
+        }
+
+        private void BtnOpenDownload_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(lstSettings.First().exportFolder);
+        }
     }
 }

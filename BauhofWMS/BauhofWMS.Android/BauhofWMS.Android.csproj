@@ -21,7 +21,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <AndroidKeyStore>true</AndroidKeyStore>
-    <AndroidSigningKeyStore>C:\Users\administrator\source\repos\bauhofwms\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>C:\Users\dansool\source\repos\bauhofwms\BauhofWMS\BauhofWMS.Android\BauhofWMS.keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>Dr0p0ff.</AndroidSigningStorePass>
     <AndroidSigningKeyPass>Dr0p0ff.</AndroidSigningKeyPass>
     <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
@@ -76,6 +76,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xam.Plugins.Forms.ProgressRing">
+      <Version>0.1.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Essentials">
       <Version>1.6.0</Version>

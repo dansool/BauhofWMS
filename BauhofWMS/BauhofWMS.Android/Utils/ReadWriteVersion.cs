@@ -14,6 +14,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using BauhofWMS.Droid.Utils;
+
+
 [assembly: Dependency(typeof(ReadWriteVersion))]
 
 
@@ -24,6 +26,8 @@ namespace BauhofWMS.Droid.Utils
         public async Task<string> ReadVersionAsync()
         {
             var result = "";
+            string DownloadsPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, Android.OS.Environment.DirectoryDownloads);
+
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             foreach (var r in dir.ListFiles())
             {

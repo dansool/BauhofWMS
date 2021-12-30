@@ -16,6 +16,8 @@ using BauhofWMSDLL.Utils;
 using BauhofWMS.Keyboard;
 using BauhofWMS.Scanner;
 using BauhofWMS.Utils.Parsers;
+using ProgressRingControl.Forms.Plugin;
+using Newtonsoft.Json.Linq;
 
 namespace BauhofWMS
 {
@@ -92,7 +94,7 @@ namespace BauhofWMS
 
         public int invRecordID = 0;
         public int transferRecordID = 0;
-
+        public bool complete;
 
         #endregion
         #region lists
@@ -127,13 +129,46 @@ namespace BauhofWMS
         {
             InitializeComponent();
             obj.mp = this;
+            grdProgressBar.IsVisible = true;
+           
             StartMainPage();
         }
 
+     
+        public async Task startRing()
+        {
+            double i = 0.0;
+            while (true)
+            {
+                if (!complete)
+                {
+                    i = i + 0.05;
+                    if (i > 1)
+                    {
+                        prgRing.Progress = 0;
+                        i = 0.0;
+                    }
+                    else
+                    {
+                        Debug.WriteLine(i);
+                        prgRing.Progress = i;
+                    }
+                    await Task.Delay(70);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+
+        }
         public async void StartMainPage()
         {
             try
             {
+
+                
                 if (string.IsNullOrEmpty(obj.deviceSerial))
                 {
                     bool proceed = true;
@@ -203,6 +238,7 @@ namespace BauhofWMS
                         if (!string.IsNullOrEmpty(lstSettings.First().shopLocationCode))
                         {
                             grdProgressBar.IsVisible = true;
+                            //prgRing = new  ProgressRing { RingThickness = 20, Progress = 0.5f };
                             progressBarActive = true;
                             if (Device.RuntimePlatform == Device.UWP)
                             {
@@ -229,6 +265,8 @@ namespace BauhofWMS
 
                             if (Device.RuntimePlatform == Device.Android)
                             {
+
+                                await GetShopRelations();
                                 string prefix = "";
                                 Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
                                 if (lstShopRelations.Any())
@@ -251,6 +289,11 @@ namespace BauhofWMS
                                             if (prefix.Length == 2)
                                             {
                                                 Debug.WriteLine("prefix2: " + prefix);
+
+                                                Device.BeginInvokeOnMainThread(() =>
+                                                {
+                                                    startRing();
+                                                });
                                                 var resultReaddbRecords = await ReaddbRecords.Read(this);
                                                 if (resultReaddbRecords.Item1)
                                                 {
@@ -260,6 +303,7 @@ namespace BauhofWMS
                                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                                         lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
                                                         progressBarActive = false;
+                                                        complete = true;
                                                     }
                                                 }
                                             }
@@ -362,9 +406,8 @@ namespace BauhofWMS
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "isDeviceHandheld", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { obj.isDeviceHandheld = Convert.ToBoolean(arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "backPressed", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { BackKeyPress.Press(this); }); });
             MessagingCenter.Subscribe<App, string>(this, "KeyboardListener", (sender, args) => { CharacterReceived.Receive(null, args, this); });
-
-
-
+           
+            
         }
 
         public void Android()
@@ -376,6 +419,7 @@ namespace BauhofWMS
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "isDeviceHandheld", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { obj.isDeviceHandheld = Convert.ToBoolean(arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "deviceSerial", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { lblDeviceSerial.Text = arg; Debug.WriteLine(arg); obj.deviceSerial = (arg.Length > 20 ? arg.Take(19).ToString() : arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "backPressed", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { BackKeyPress.Press(this); }); });
+
 
 
         }
@@ -1063,7 +1107,7 @@ namespace BauhofWMS
 
         public async void PrepareOperations()
         {
-
+            
             CollapseAllStackPanels.Collapse(this);
             stkOperations.IsVisible = true;
             obj.mainOperation = "";
