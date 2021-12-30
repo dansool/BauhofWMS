@@ -353,6 +353,22 @@ namespace BauhofWMS
                     }
                     else
                     {
+                        string prefix = "";
+                        var resultShoprelations = await ReaddbShopRelationRecords.Read(this);
+                        if (resultShoprelations.Item1)
+                        {
+                            if (!string.IsNullOrEmpty(resultShoprelations.Item2))
+                            {
+                                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
+                                Debug.WriteLine("Import done " + lstShopRelations.Count());
+                                foreach (var r in lstShopRelations)
+                                {
+                                    r.shopID = r.shopID.Replace("\"", "");
+                                    r.shopName = r.shopName.Replace("\"", "");
+                                }
+                            }
+                        }
                         PrepareSettings();
                     }
                 }
