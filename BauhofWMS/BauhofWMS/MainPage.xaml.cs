@@ -151,6 +151,10 @@ namespace BauhofWMS
 
                     ScannedValueReceive();
                     var resultSettings = await ReadSettings.Read(this);
+                    if (Device.RuntimePlatform == Device.Android)
+                    {
+                        GetShopRelations();
+                    }
 
                     if (resultSettings.Item1)
                     {
@@ -186,9 +190,10 @@ namespace BauhofWMS
                     }
                     else
                     {
-
                         proceed = false;
                         grdMain.IsVisible = true;
+
+                        string prefix = "";
                         PrepareSettings();
                     }
 
@@ -225,21 +230,6 @@ namespace BauhofWMS
                             if (Device.RuntimePlatform == Device.Android)
                             {
                                 string prefix = "";
-                                var resultShoprelations = await ReaddbShopRelationRecords.Read(this);
-                                if (resultShoprelations.Item1)
-                                {
-                                    if (!string.IsNullOrEmpty(resultShoprelations.Item2))
-                                    {
-                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                        lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
-                                        Debug.WriteLine("Import done " + lstShopRelations.Count());
-                                        foreach (var r in lstShopRelations)
-                                        {
-                                            r.shopID = r.shopID.Replace("\"", "");
-                                            r.shopName = r.shopName.Replace("\"", "");
-                                        }
-                                    }
-                                }
                                 Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
                                 if (lstShopRelations.Any())
                                 {
@@ -269,8 +259,6 @@ namespace BauhofWMS
                                                     {
                                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                                         lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-                                                        DisplayAlert("Import done ", lstInternalRecordDB.Count().ToString(), "ok");
-
                                                         progressBarActive = false;
                                                     }
                                                 }
@@ -354,21 +342,6 @@ namespace BauhofWMS
                     else
                     {
                         string prefix = "";
-                        var resultShoprelations = await ReaddbShopRelationRecords.Read(this);
-                        if (resultShoprelations.Item1)
-                        {
-                            if (!string.IsNullOrEmpty(resultShoprelations.Item2))
-                            {
-                                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
-                                Debug.WriteLine("Import done " + lstShopRelations.Count());
-                                foreach (var r in lstShopRelations)
-                                {
-                                    r.shopID = r.shopID.Replace("\"", "");
-                                    r.shopName = r.shopName.Replace("\"", "");
-                                }
-                            }
-                        }
                         PrepareSettings();
                     }
                 }
@@ -405,6 +378,28 @@ namespace BauhofWMS
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "backPressed", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { BackKeyPress.Press(this); }); });
 
 
+        }
+
+        public async Task GetShopRelations()
+        {
+            Debug.WriteLine("Import alusta1");
+            var resultShoprelations = await ReaddbShopRelationRecords.Read(this);
+            if (resultShoprelations.Item1)
+            {
+                Debug.WriteLine("Import alusta2");
+                if (!string.IsNullOrEmpty(resultShoprelations.Item2))
+                {
+                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                    lstShopRelations = JsonConvert.DeserializeObject<List<ListOfShopRelations>>(resultShoprelations.Item2, jSONsettings);
+                    Debug.WriteLine("Import done " + lstShopRelations.Count());
+                    foreach (var r in lstShopRelations)
+                    {
+                        r.shopID = r.shopID.Replace("\"", "");
+                        r.shopName = r.shopName.Replace("\"", "");
+                    }
+                }
+            }
+            Debug.WriteLine("Import alusta3 " + lstShopRelations.Count());
         }
 
         public async void DisplaySuccessMessage(string message)
@@ -984,11 +979,15 @@ namespace BauhofWMS
 
         public void PrepareSettings()
         {
+            
             CollapseAllStackPanels.Collapse(this);
             stkSettings.IsVisible = true;
             obj.mainOperation = "";
             obj.currentLayoutName = "Settings";
             //ediAddress.Text = "http://scanner.aptus.ee/AptusWMS";
+
+           
+            DisplayAlert("dd", lstShopRelations.Count().ToString(), "");
         }
 
 
@@ -1013,17 +1012,23 @@ namespace BauhofWMS
 
         private async void btnSettingsOK_Clicked(object sender, EventArgs e)
         {
-
-            bool pEnv = rbtnProduction.IsChecked ? true : false;
-            //obj.wcfAddress = ediAddress.Text;
-            
+            await GetShopRelations();
+            bool pEnv = false;
+            if (rbtnProduction.IsChecked == false && rbtnTest.IsChecked == false)
+            {
+                rbtnProduction.IsChecked = true;
+                pEnv = true;
+            }
+            else
+            {
+                pEnv = rbtnProduction.IsChecked ? true : false;
+            }
             var p = lstShopRelations.Where(x => x.shopName == shopLocationCode.Text);
             if (p.Any())
             {
                 obj.shopLocationCode = shopLocationCode.Text;
                 obj.shopLocationID = p.First().shopID;
 
-                //obj.companyName = obj.wcfAddress.Contains("/") ? obj.wcfAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
                 var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, this);
                 if (result.Item1)
                 {
@@ -1031,7 +1036,7 @@ namespace BauhofWMS
                     obj.pEnv = pEnv;
                     obj.deviceSerial = null;
                     ShowKeyBoard.Hide(this);
-                    //StartMainPage();
+                    StartMainPage();
                     //BackKeyPress.Press(this);
                 }
                 else

@@ -36,29 +36,17 @@ namespace BauhofWMS.Droid.Utils
                         return null;
                     }
 
-                    var test = File.OpenRead(backingFile);
-
-                    var pStream = new ProgressStream(test);
-                    pStream.BytesRead += new ProgressStreamReportDelegate(pStream_BytesRead);
-
-                    int bSize = 4320000;
-                    byte[] buffer = new byte[bSize];
-                    Stream s = new MemoryStream();
-                    int n;
-                    while ((n = pStream.Read(buffer, 0, bSize)) > 0)
+                    using (var reader = new StreamReader(backingFile, true))
                     {
-                        result = result + (Encoding.UTF8.GetString(buffer, 0, n));
+                        string line;
+                        while ((line = await reader.ReadLineAsync()) != null)
+                        {
+                            result = result + line;
+                        }
                     }
                 }
             }
             return result;
-        }
-
-        static void pStream_BytesRead(object sender, ProgressStreamReportEventArgs args)
-        {
-            var PercentProgress = Convert.ToInt32((args.StreamPosition * 100) / args.StreamLength);
-
-            Console.WriteLine(PercentProgress);
         }
     }
 }

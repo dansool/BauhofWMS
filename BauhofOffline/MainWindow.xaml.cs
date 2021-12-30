@@ -80,121 +80,7 @@ namespace BauhofOffline
             ConvertFilesStart();            
         }
 
-        private void GetConfiguration()
-        {
-            try
-            {
-                WriteLog("GetConfiguration started", 1);
-                lstSettings = new List<ListOfSettings>();
-                var row = new ListOfSettings();
-
-                Configuration configManager = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                KeyValueConfigurationCollection confCollection = configManager.AppSettings.Settings;
-                WriteLog("GetConfiguration iterating through configuration", 2);
-                if (confCollection["adminEmail"] != null)
-                {
-                    row.adminEmail = confCollection["adminEmail"].Value.ToString();
-                    WriteLog("GetConfiguration adminEmail = " + row.adminEmail, 2);
-                }
-                if (confCollection["csvFolder"] != null)
-                {
-                    row.csvFolder = confCollection["csvFolder"].Value.ToString();
-                    WriteLog("GetConfiguration csvFolder = " + row.csvFolder, 2);
-                }
-                if (confCollection["jsonFolder"] != null)
-                {
-                    row.jsonFolder = confCollection["jsonFolder"].Value.ToString();
-                    WriteLog("GetConfiguration jsonFolder = " + row.jsonFolder, 2);
-                }
-                if (confCollection["logFolder"] != null)
-                {
-                    row.logFolder = confCollection["logFolder"].Value.ToString();
-                    WriteLog("GetConfiguration logFolder = " + row.logFolder, 2);
-                }
-                if (confCollection["exportFolder"] != null)
-                {
-                    row.exportFolder = confCollection["exportFolder"].Value.ToString();
-                    WriteLog("GetConfiguration exportFolder = " + row.exportFolder, 2);
-                }
-                
-                if (confCollection["debugLevel"] != null)
-                {
-                    row.debugLevel = Convert.ToInt32(confCollection["debugLevel"].Value.ToString());
-                    WriteLog("GetConfiguration debugLevel = " + row.debugLevel, 2);
-                }
-                lstSettings.Add(row);
-                WriteLog("GetConfiguration complete", 1);
-                WriteError("GetConfiguration " + "TEST" + " " + "test2");
-            }
-            catch (Exception ex)
-            {
-                WriteError("GetConfiguration " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("GetConfiguration  " + ex.Message);
-            }
-        }
-
-        public async void WriteLog(string message, int logLevel)
-        {
-            try
-            {
-                if (lstSettings.Any())
-                {
-                    if (logLevel >= lstSettings.First().debugLevel)
-                    {
-                        string logToWrite = "" + "\r\n" +
-                        String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
-                        "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
-                        "" + "\r\n" +
-                        message;
-
-                        if (!Directory.Exists(lstSettings.First().logFolder))
-                        {
-                            Directory.CreateDirectory(lstSettings.First().logFolder);
-                        }
-                        var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Log.txt", true);
-                        str.WriteLine(logToWrite);
-                        str.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("WriteLog " + lstSettings.First().logFolder + " " + "\r\n"  + ex.Message);
-            }
-        }
-
-        public async void WriteError(string message)
-        {
-            try
-            {
-                string errroToWrite = "" + "\r\n" +
-                    String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
-                    "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
-                    "" + "\r\n" +
-                    message + "\r\n" +
-                    "================"; 
-
-                var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Error.txt", true);
-                str.WriteLine(errroToWrite);
-                str.Close();
-
-                if (!string.IsNullOrEmpty(lstSettings.First().adminEmail))
-                {
-                    var mail = new MailMessage();
-                    var SmtpServer = new SmtpClient("mail.neti.ee");
-                    mail.From = new MailAddress("bauhofoffline@bauhof.ee");
-                    mail.To.Add(lstSettings.First().adminEmail);
-
-                    mail.Subject = "BauhofOffline error from " + Environment.MachineName;
-                    mail.Body = errroToWrite;
-                    //SmtpServer.Send(mail);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-        }
+     
 
         private void CheckVersion()
         {
@@ -237,15 +123,16 @@ namespace BauhofOffline
                     int count = 0;
                     try
                     {
+                        bool fileExists = false;
                         device.Connect();
                         WriteLog("CheckVersion device connected", 2);
                         var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                         foreach (var file in files)
                         {
-                           
-                            if (file.Name.ToUpper() == "VERSION.TXT")
-                            {
+                           if (file.Name.ToUpper() == "VERSION.TXT")
+                           {
+                                fileExists = true;
                                 WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
                                 count = count + 1;
                                 string destinationFileName = $@"c:\windows\temp\{file.Name}";
@@ -294,7 +181,11 @@ namespace BauhofOffline
                                         MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
                                     }
                                 }
-                            }
+                            }                           
+                        }
+                        if (!fileExists)
+                        {
+                            txtBkScannerVersionValue.Text = "PUUDUB";
                         }
 
                         if (proceed)
@@ -359,19 +250,29 @@ namespace BauhofOffline
                         if (proceed)
                         {
                             Debug.WriteLine(txtBkLatestVersionValue.Text + "  " + txtBkScannerVersionValue.Text);
-                            if (!string.IsNullOrEmpty(txtBkLatestVersionValue.Text) && !string.IsNullOrEmpty(txtBkScannerVersionValue.Text))
+                            if (txtBkScannerVersionValue.Text == "PUUDUB")
                             {
-                                var splitversionValueLatest = txtBkLatestVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
-                                var versionValueLatest = Convert.ToInt32(splitversionValueLatest[2]);
-
-                                var splitversionValueScanner = txtBkScannerVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
-                                var versionValueScanner = Convert.ToInt32(splitversionValueScanner[2]);
-
-                                if (versionValueLatest > versionValueScanner)
+                                if (MessageBox.Show("NÄIB, ET SKÄNNERIL EI OLE VEEL TARKVARA INSALLEERITUD. KAS KOPEERIN INSTALLATSIOONIFAILI " + txtBkLatestVersionValue.Text + " SKÄNNERISSE ? ", "SKÄNNERITARKVARA", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                 {
-                                    btnUpdate.Visibility = Visibility.Visible;
-                                    txtBkStatus.Text = "LEITI UUS VERSIOON!";
-                                    WriteLog(@"CheckVersion " + txtBkStatus.Text, 2);
+                                    DownloadAPK();
+                                }
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(txtBkLatestVersionValue.Text) && !string.IsNullOrEmpty(txtBkScannerVersionValue.Text))
+                                {
+                                    var splitversionValueLatest = txtBkLatestVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                    var versionValueLatest = Convert.ToInt32(splitversionValueLatest[2]);
+
+                                    var splitversionValueScanner = txtBkScannerVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                    var versionValueScanner = Convert.ToInt32(splitversionValueScanner[2]);
+
+                                    if (versionValueLatest > versionValueScanner)
+                                    {
+                                        btnUpdate.Visibility = Visibility.Visible;
+                                        txtBkStatus.Text = "LEITI UUS VERSIOON!";
+                                        WriteLog(@"CheckVersion " + txtBkStatus.Text, 2);
+                                    }
                                 }
                             }
                         }
@@ -600,6 +501,11 @@ namespace BauhofOffline
                             {
                                 device.DeleteFile(photoDir.FullName + @"\" + file.Name);
                             }
+
+                            if (file.Name.ToUpper().StartsWith("SHOPRELATIONS") && file.Name.ToUpper().EndsWith(".TXT"))
+                            {
+                                device.DeleteFile(photoDir.FullName + @"\" + file.Name);
+                            }
                         }
 
                         string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
@@ -620,6 +526,22 @@ namespace BauhofOffline
                                 }
                                 count = count + 1;
                                 device.UploadFile(sourceFileName, photoDir.FullName + @"\" + fileName);
+                            }
+                            else
+                            {
+                                if (fileName.ToUpper().StartsWith("SHOPRELATIONS") && fileName.ToUpper().EndsWith(".TXT"))
+                                {
+                                    try
+                                    {
+                                        device.DeleteFile(photoDir.FullName + @"\" + fileName);
+                                    }
+                                    catch (Exception es)
+                                    {
+
+                                    }
+                                    count = count + 1;
+                                    device.UploadFile(sourceFileName, photoDir.FullName + @"\" + fileName);
+                                }
                             }
                         }
 
@@ -664,6 +586,12 @@ namespace BauhofOffline
         }
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+
+            DownloadAPK();
+        }
+
+        private void DownloadAPK()
         {
             try
             {
@@ -721,7 +649,15 @@ namespace BauhofOffline
                         if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                         {
                             device.Connect();
-                            var dcimDownload = device.GetDirectoryInfo(@"\Internal shared storage\Download");
+                            try
+                            {
+                                device.CreateDirectory(@"\IPSM card\Download");
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                            var dcimDownload = device.GetDirectoryInfo(@"\IPSM card\Download");
                             var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                             foreach (var file in files)
                             {
@@ -755,7 +691,6 @@ namespace BauhofOffline
                 WriteError("btnUpdate_Click " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
                 MessageBox.Show("btnUpdate_Click  " + ex.Message);
             }
-           
         }
 
         public string ConvertCsvFileToJsonObjectToLarge(string folderPath, string inputFileName, DateTime inputFileDate, int fileCounter)
@@ -933,29 +868,15 @@ namespace BauhofOffline
         {
             try
             {
-                Debug.WriteLine(folderPath);
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
                 string filename = folderPath + inputFileName;
-                if (!Directory.Exists(folderPath + @"\Archive\"))
-                {
-                    Directory.CreateDirectory(folderPath + @"\Archive\");
-                }
-                if (!File.Exists(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert")))
-                {
-                    File.WriteAllText(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
-                    List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
-
-                    string outputFile = inputFileName.Replace(".csv", ".txt");
-                    string json = JsonConvert.SerializeObject(values);
-                    File.WriteAllText(lstSettings.First().jsonFolder + outputFile, json);
-                    stopWatch.Stop();
-                    TimeSpan ts = stopWatch.Elapsed;
-                    string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                    Debug.WriteLine("elapsed: " + elapsedTime + " rows:" + values.Count());
-                    File.Move(filename, folderPath + @"\Archive\" + inputFileName);
-                }
-
+               
+                File.WriteAllText(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
+                List<ListOfShopRelations> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromShopRelationCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                lstShopRelations = values;
+                Debug.WriteLine("lstShopRelations.Count() " + lstShopRelations.Count());
+                string outputFile = inputFileName.Replace(".csv", ".txt").ToUpper();
+                string json = JsonConvert.SerializeObject(values);
+                File.WriteAllText(lstSettings.First().jsonFolder + outputFile, json);
                 return "";
             }
             catch (Exception ex)
@@ -1039,12 +960,13 @@ namespace BauhofOffline
                     Directory.CreateDirectory(csvFolderPath);
                 }
 
-               
+                
                 if (proceed)
                 {
                     if (File.Exists(csvFolderPath + relationFileName))
                     {
-                        lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Skip(1).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                        var l = ConvertCsvFileToJsonObject(csvFolderPath, relationFileName, DateTime.Now);
+                        //lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
                         string[] dirs = Directory.GetFiles(csvFolderPath);
                         int fileCounter = 0;
                         if (dirs.Any())
@@ -1126,7 +1048,6 @@ namespace BauhofOffline
                                                             DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
 
                                                             ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
-
                                                         }
                                                     }
                                                 }
@@ -1486,8 +1407,10 @@ namespace BauhofOffline
             ListOfShopRelations lst = new ListOfShopRelations();
             try
             {
+                
                 string[] values = csvLine.Split(',');
-                lst.shopID = values[0];
+                string val = values[0].Replace("\"", "");
+                lst.shopID = val.Length  == 1 ? ("0" + val.ToString()) : val;
                 lst.shopName = values[1];
                 return lst;
             }
@@ -1644,6 +1567,122 @@ namespace BauhofOffline
             catch (Exception ex)
             {
                 //SendDebugErrorMessage(this.GetType().Name, "DisplayPostedMessage", ex);
+            }
+        }
+
+        private void GetConfiguration()
+        {
+            try
+            {
+                WriteLog("GetConfiguration started", 1);
+                lstSettings = new List<ListOfSettings>();
+                var row = new ListOfSettings();
+
+                Configuration configManager = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                KeyValueConfigurationCollection confCollection = configManager.AppSettings.Settings;
+                WriteLog("GetConfiguration iterating through configuration", 2);
+                if (confCollection["adminEmail"] != null)
+                {
+                    row.adminEmail = confCollection["adminEmail"].Value.ToString();
+                    WriteLog("GetConfiguration adminEmail = " + row.adminEmail, 2);
+                }
+                if (confCollection["csvFolder"] != null)
+                {
+                    row.csvFolder = confCollection["csvFolder"].Value.ToString();
+                    WriteLog("GetConfiguration csvFolder = " + row.csvFolder, 2);
+                }
+                if (confCollection["jsonFolder"] != null)
+                {
+                    row.jsonFolder = confCollection["jsonFolder"].Value.ToString();
+                    WriteLog("GetConfiguration jsonFolder = " + row.jsonFolder, 2);
+                }
+                if (confCollection["logFolder"] != null)
+                {
+                    row.logFolder = confCollection["logFolder"].Value.ToString();
+                    WriteLog("GetConfiguration logFolder = " + row.logFolder, 2);
+                }
+                if (confCollection["exportFolder"] != null)
+                {
+                    row.exportFolder = confCollection["exportFolder"].Value.ToString();
+                    WriteLog("GetConfiguration exportFolder = " + row.exportFolder, 2);
+                }
+
+                if (confCollection["debugLevel"] != null)
+                {
+                    row.debugLevel = Convert.ToInt32(confCollection["debugLevel"].Value.ToString());
+                    WriteLog("GetConfiguration debugLevel = " + row.debugLevel, 2);
+                }
+                lstSettings.Add(row);
+                WriteLog("GetConfiguration complete", 1);
+                WriteError("GetConfiguration " + "TEST" + " " + "test2");
+            }
+            catch (Exception ex)
+            {
+                WriteError("GetConfiguration " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                MessageBox.Show("GetConfiguration  " + ex.Message);
+            }
+        }
+
+        public async void WriteLog(string message, int logLevel)
+        {
+            try
+            {
+                if (lstSettings.Any())
+                {
+                    if (logLevel >= lstSettings.First().debugLevel)
+                    {
+                        string logToWrite = "" + "\r\n" +
+                        String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
+                        "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
+                        "" + "\r\n" +
+                        message;
+
+                        if (!Directory.Exists(lstSettings.First().logFolder))
+                        {
+                            Directory.CreateDirectory(lstSettings.First().logFolder);
+                        }
+                        var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Log.txt", true);
+                        str.WriteLine(logToWrite);
+                        str.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("WriteLog " + lstSettings.First().logFolder + " " + "\r\n" + ex.Message);
+            }
+        }
+
+        public async void WriteError(string message)
+        {
+            try
+            {
+                string errroToWrite = "" + "\r\n" +
+                    String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
+                    "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
+                    "" + "\r\n" +
+                    message + "\r\n" +
+                    "================";
+
+                var str = new StreamWriter(lstSettings.First().logFolder + Environment.MachineName + "_Error.txt", true);
+                str.WriteLine(errroToWrite);
+                str.Close();
+
+                if (!string.IsNullOrEmpty(lstSettings.First().adminEmail))
+                {
+                    var mail = new MailMessage();
+                    var SmtpServer = new SmtpClient("mail.neti.ee");
+                    mail.From = new MailAddress("bauhofoffline@bauhof.ee");
+                    mail.To.Add(lstSettings.First().adminEmail);
+
+                    mail.Subject = "BauhofOffline error from " + Environment.MachineName;
+                    mail.Body = errroToWrite;
+                    //SmtpServer.Send(mail);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
