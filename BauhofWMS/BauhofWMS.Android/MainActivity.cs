@@ -23,6 +23,7 @@ using Android.Content;
 using Android.Views.InputMethods;
 using Android.Support.V4.Content;
 using Android.Support.V4.App;
+using System.IO;
 
 
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.Droid.Utils.PlatformDetailsAndroid))]
@@ -79,21 +80,69 @@ namespace BauhofWMS.Droid
             //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 0); }
         }
 
-        public void savePrivate()
+        public async void savePrivate()
         {
             try
             {
                 String info = "Written";
-                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-                var backingFile = System.IO.Path.Combine(dir.AbsolutePath, "VERSION.TXT");
-                using (System.IO.StreamWriter writer = new System.IO.StreamWriter(backingFile))
+
+                string directory = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, Android.OS.Environment.DirectoryDownloads);
+                string file = Path.Combine(directory, "yourfile.txt");
+
+
+                var dir = this.FilesDir;
+                var backingFile = System.IO.Path.Combine(dir.AbsolutePath + "/Download", "VERSION2.TXT");
+                using (System.IO.StreamWriter writer = new System.IO.StreamWriter(file))
                 {
-                    writer.Write("wewew");
+                    writer.Write("ahhhaaa wewew");
+                    MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", "DONE");
                 }
             }
             catch (Exception ex)
             {
                 MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", ex.Message);
+            }
+
+            
+            var dir2 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+            foreach (var r in dir2.ListFiles())
+            {
+                if (r.Name.ToUpper().StartsWith("VERSION2.TXT"))
+                {
+                    var backingFile = System.IO.Path.Combine(dir2.AbsolutePath, r.Name);
+
+                    if (backingFile == null || !System.IO.File.Exists(backingFile))
+                    {
+                        Console.WriteLine("DOOONE");
+                    }
+                    using (var reader = new System.IO.StreamReader(backingFile, true))
+                    {
+                        string line;
+                        while ((line = await reader.ReadLineAsync()) != null)
+                        {
+                            Console.WriteLine("LINE " +  line);
+                            Console.WriteLine(dir2.AbsolutePath);
+                            MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", "LINE " + line);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CheckAppPermissions()
+        {
+            if ((int)Build.VERSION.SdkInt < 23)
+            {
+                return;
+            }
+            else
+            {
+                if (PackageManager.CheckPermission(Manifest.Permission.ReadExternalStorage, PackageName) != Permission.Granted
+                    && PackageManager.CheckPermission(Manifest.Permission.WriteExternalStorage, PackageName) != Permission.Granted)
+                {
+                    var permissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
+                    RequestPermissions(permissions, 1);
+                }
             }
         }
         public async void LaunchStart()
