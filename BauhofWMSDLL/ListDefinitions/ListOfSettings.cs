@@ -29,6 +29,8 @@ namespace BauhofWMSDLL.ListDefinitions
         
         public bool pEnv { get; set; }
         public string currentVersion { get; set; }
+
+        public bool showInvQty { get; set; }
         public bool isSelected
         {
             get { return m_isVisible; }

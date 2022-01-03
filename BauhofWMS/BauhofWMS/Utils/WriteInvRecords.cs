@@ -23,11 +23,14 @@ namespace BauhofWMS.Utils
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
+                    
                     var settingsRead = await DependencyService.Get<IReadWriteInvRecordsAndroid>().WriteInvRecordsAsync(data);
                     if (string.IsNullOrEmpty(settingsRead))
                     {
+                        Debug.WriteLine("settingsRead " + settingsRead);
                         return new Tuple<bool, string>(true, settingsRead);
                     }
+                    Debug.WriteLine("false settingsRead " + settingsRead);
                     return new Tuple<bool, string>(false, settingsRead);
                 }
 

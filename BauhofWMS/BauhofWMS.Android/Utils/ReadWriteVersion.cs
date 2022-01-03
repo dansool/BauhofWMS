@@ -57,17 +57,16 @@ namespace BauhofWMS.Droid.Utils
             try
             {
                 var result = "";
+
                 var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
                 result = "leidsin dir " +  dir.ListFiles().Count();
                 foreach (var r in dir.ListFiles())
                 {
-                    
+                    result = result +"\r\n" + r.Name;
                     if (r.Name.ToUpper().StartsWith("VERSION.TXT"))
                     {
                         var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-
-                        File.Delete(backingFile);
-
+                        //File.Delete(backingFile);
                         using (StreamWriter writer = new StreamWriter(backingFile))
                         {
                             writer.Write(data);
@@ -77,6 +76,7 @@ namespace BauhofWMS.Droid.Utils
                     {
                         result = result +  "\r\n" + "leidsin, et pole faili";
                         var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                        result = result + backingFile;
                         using (StreamWriter writer = new StreamWriter(backingFile))
                         {
                             writer.Write(data);
@@ -99,7 +99,7 @@ namespace BauhofWMS.Droid.Utils
             }
             catch(Exception ex)
             {
-                return ex.Message;
+                return "WriteVersionAsync " + ex.Message;
             }
         }
     }

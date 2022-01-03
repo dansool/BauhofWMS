@@ -22,7 +22,8 @@ namespace BauhofWMSDLL.ListDefinitions
         public decimal profiklubihind { get; set; }
         public string sortiment { get; set; }
         public decimal soodushind { get; set; }
+        public bool showInvQty { get; set; }
 
-       
+
     }
 }

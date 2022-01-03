@@ -55,7 +55,7 @@
                         <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SandyBrown" VerticalOptions="Start" />
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="2" IsVisible="{Binding showInvQty}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="65"/>

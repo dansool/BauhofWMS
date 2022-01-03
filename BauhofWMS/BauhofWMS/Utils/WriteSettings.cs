@@ -17,7 +17,7 @@ namespace BauhofWMS.Utils
     public class WriteSettings
     {
         private App obj = App.Current as App;
-        public async Task<Tuple<bool, string>> Write(bool pEnv, string address, string shopLocationCode, MainPage mp)
+        public async Task<Tuple<bool, string>> Write(bool pEnv, string address, string shopLocationCode, bool showInvQty, MainPage mp)
         {
             try
             {
@@ -28,6 +28,7 @@ namespace BauhofWMS.Utils
                     wmsAddress = address,
                     shopLocationCode = shopLocationCode,
                     currentVersion = obj.currentVersion,
+                    showInvQty = showInvQty
                 };
                 mp.lstSettings.Add(row);
                 var settings = new JsonSerializerSettings() { DateFormatHandling = DateFormatHandling.MicrosoftDateFormat };

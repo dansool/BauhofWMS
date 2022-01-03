@@ -163,6 +163,7 @@ namespace BauhofWMS
             
 
         }
+
         public async void StartMainPage()
         {
             try
@@ -198,9 +199,10 @@ namespace BauhofWMS
                        
                         obj.wcfAddress = lstSettings.First().wmsAddress;
                         obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
-                        
+                        obj.showInvQty = lstSettings.First().showInvQty; 
                         obj.pEnv = lstSettings.First().pEnv;
                         obj.companyName = null;
+                        obj.showInvQty = lstSettings.First().showInvQty;
                         if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
                         {
                             obj.companyName = lstSettings.First().wmsAddress.Contains("/") ? lstSettings.First().wmsAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
@@ -216,6 +218,15 @@ namespace BauhofWMS
                         {
                             rbtnTest.IsChecked = true;
                             EnvironmentColorChange(testColor);
+                        }
+
+                        if (obj.showInvQty)
+                        {
+                            rbtnInvQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnInvQtyNo.IsChecked = true;
                         }
 
                         if (!string.IsNullOrEmpty(obj.shopLocationCode))
@@ -419,8 +430,8 @@ namespace BauhofWMS
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "isDeviceHandheld", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { obj.isDeviceHandheld = Convert.ToBoolean(arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "deviceSerial", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { lblDeviceSerial.Text = arg; Debug.WriteLine(arg); obj.deviceSerial = (arg.Length > 20 ? arg.Take(19).ToString() : arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "backPressed", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { BackKeyPress.Press(this); }); });
-
-
+            MessagingCenter.Subscribe<App, string>((App)Application.Current, "erro", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { DisplayAlert("err", arg, "OK"); }); });
+            
 
         }
 
@@ -545,6 +556,17 @@ namespace BauhofWMS
         private void BackButton_Clicked(object sender, EventArgs e)
         {
             BackKeyPress.Press(this);
+        }
+
+        public string GetShopName(string sku)
+        {
+            string result = "";
+            var shopNameLine = lstShopRelations.Where(x => x.shopID == sku);
+            if (shopNameLine.Any())
+            {
+                result = sku + "  " + shopNameLine.First().shopName;
+            }
+            return result;
         }
         #endregion
 
@@ -1028,10 +1050,6 @@ namespace BauhofWMS
             stkSettings.IsVisible = true;
             obj.mainOperation = "";
             obj.currentLayoutName = "Settings";
-            //ediAddress.Text = "http://scanner.aptus.ee/AptusWMS";
-
-           
-            DisplayAlert("dd", lstShopRelations.Count().ToString(), "");
         }
 
 
@@ -1048,6 +1066,17 @@ namespace BauhofWMS
         }
 
 
+        private void rbtnInvQtyYes_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnInvQtyNo.IsChecked = false;
+            obj.showInvQty = true;
+        }
+
+        private void rbtnInvQtyNo_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnInvQtyYes.IsChecked = false;
+            obj.showInvQty = false;
+        }
         private void EnvironmentColorChange(Color environmentColor)
         {
             grdMain.BackgroundColor = environmentColor;
@@ -1071,9 +1100,10 @@ namespace BauhofWMS
             if (p.Any())
             {
                 obj.shopLocationCode = shopLocationCode.Text;
-                obj.shopLocationID = p.First().shopID;
+                obj.shopLocationID = p.First().shopID;                
 
-                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, this);
+
+                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, this);
                 if (result.Item1)
                 {
                     DisplaySuccessMessage("SALVESTATUD!");
@@ -1300,6 +1330,10 @@ namespace BauhofWMS
             }
             lstStockTakeInfo = new List<ListOfdbRecords>();
             LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+            if (lstStockTakeInfo.Any())
+            {
+                lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+            }
             LstvStockTakeInfo.ItemsSource = null;
             LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
 
@@ -1368,7 +1402,7 @@ namespace BauhofWMS
                             var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                             if (writeInvDbToFile.Item1)
                             {
-                                DisplaySuccessMessage("SALVESTATUD!");
+                                DisplaySuccessMessage("SALVESTATUD1!");
                                 PrepareStockTake();
                             }
                             else
@@ -1390,7 +1424,7 @@ namespace BauhofWMS
                                     var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                                     if (writeInvDbToFile.Item1)
                                     {
-                                        DisplaySuccessMessage("SALVESTATUD!");
+                                        DisplaySuccessMessage("SALVESTATUD2!");
                                         PrepareStockTake();
                                     }
                                     else
@@ -1413,7 +1447,7 @@ namespace BauhofWMS
                                     var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                                     if (writeInvDbToFile.Item1)
                                     {
-                                        DisplaySuccessMessage("SALVESTATUD!");
+                                        DisplaySuccessMessage("SALVESTATUD3!");
                                         PrepareStockTake();
                                     }
                                     else
@@ -1497,6 +1531,10 @@ namespace BauhofWMS
                                         lblStockTakeQuantity.IsVisible = true;
 
                                         lstStockTakeInfo = result;
+                                        if (lstStockTakeInfo.Any())
+                                        {
+                                            lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+                                        }
                                         LstvStockTakeInfo.ItemsSource = null;
                                         LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
                                     }
@@ -1532,6 +1570,10 @@ namespace BauhofWMS
                                     lblStockTakeQuantity.IsVisible = true;
 
                                     lstStockTakeInfo = result;
+                                    if (lstStockTakeInfo.Any())
+                                    {
+                                        lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+                                    }
                                     LstvStockTakeInfo.ItemsSource = null;
                                     LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
                                 }
@@ -1551,6 +1593,10 @@ namespace BauhofWMS
                                 lblStockTakeQuantity.IsVisible = true;
 
                                 lstStockTakeInfo = result;
+                                if (lstStockTakeInfo.Any())
+                                {
+                                    lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+                                }
                                 LstvStockTakeInfo.ItemsSource = null;
                                 LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
 
@@ -2304,37 +2350,6 @@ namespace BauhofWMS
         }
 
         #endregion
-        public string GetShopName(string sku)
-        {
-            string result = "";
-            var shopNameLine = lstShopRelations.Where(x => x.shopID == sku);
-            if (shopNameLine.Any())
-            {
-                result = sku + "  " + shopNameLine.First().shopName;
-            }
-            return result;
-        }
-
-        public string SplitBins(string bin)
-        {
-            string result = "";
-            var parseSKU = bin.Split(new[] { ";" }, StringSplitOptions.None);
-            if (parseSKU.Any())
-            {
-                foreach (var p in parseSKU)
-                {
-                    if (string.IsNullOrEmpty(result))
-                    {
-                        result = p;
-                    }
-                    else
-                    {
-                        result = result + "\r\n" + p;
-                    }
-                }
-            }
-            return result;
-        }
 
         #region stkStockTakeAddedRowsView
 
@@ -2429,9 +2444,30 @@ namespace BauhofWMS
         {
 
         }
-        #endregion
-        
 
+        public string SplitBins(string bin)
+        {
+            string result = "";
+            var parseSKU = bin.Split(new[] { ";" }, StringSplitOptions.None);
+            if (parseSKU.Any())
+            {
+                foreach (var p in parseSKU)
+                {
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        result = p;
+                    }
+                    else
+                    {
+                        result = result + "\r\n" + p;
+                    }
+                }
+            }
+            return result;
+        }
+
+
+        #endregion
 
     }
 }

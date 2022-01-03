@@ -54,10 +54,12 @@
                               <Grid.RowDefinitions>
                                   <RowDefinition Height="5"/>
                                   <RowDefinition Height="25"/>
-                                  <RowDefinition Height="50"/>
+                                  <RowDefinition Height="40"/>
                                   <RowDefinition Height="45"/>
-                                  <RowDefinition Height="25"/>
-                                  <RowDefinition Height="50"/>
+                                  <RowDefinition Height="10"/>
+                                  <RowDefinition Height="20"/>
+                                  <RowDefinition Height="45"/>
+                                  <RowDefinition Height="60"/>
                                   <RowDefinition Height="60"/>
                                   <RowDefinition Height="*"/>
                               </Grid.RowDefinitions>
@@ -80,7 +82,7 @@
                                           <ColumnDefinition Width="150"/>
                                       </Grid.ColumnDefinitions>
                                       <Grid.RowDefinitions>
-                                          <RowDefinition Height="65"/>
+                                          <RowDefinition Height="45"/>
                                       </Grid.RowDefinitions>
                                       <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Center">
                                           <input:CheckBox Text="Production" x:Name="rbtnProduction" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnProduction_CheckChanged"/>
@@ -90,20 +92,52 @@
                                       </Grid>
                                   </Grid>
                               </Grid>
+                              <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center">
+                                <Label x:Name="lblInvQty" x:FieldModifier="public" Text="NÄITA INVENTUURI KOGUST" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="18" TextColor="White"  />
+                              </Grid>
+                              <Grid Grid.Column="0" Grid.Row="6" HorizontalOptions="Center">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="45"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Center">
+                                        <input:CheckBox Text="JAH" x:Name="rbtnInvQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnInvQtyYes_CheckChanged"/>
+                                    </Grid>
+                                    <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center">
+                                        <input:CheckBox Text="EI" x:Name="rbtnInvQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnInvQtyNo_CheckChanged"/>
+                                    </Grid>
+                                </Grid>
+                              </Grid>
 
-                              <Grid  Grid.Column="0" Grid.Row="4" HorizontalOptions="Center">
-                                  <Label x:Name="lblShopLocationCode" x:FieldModifier="public" Text="ASUKOHT" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="18" TextColor="White"  />
-                              </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center"  BackgroundColor="Yellow" WidthRequest="320" HeightRequest="40">
-                                  <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
-                                      <Editor  ClassId="shopLocationCode" x:Name="shopLocationCode" Grid.Row="0" x:FieldModifier="public" Style="{StaticResource ReadOnlyEditorStyle}" FontSize="22" Focused="Editor_FocusedKeyboardWithSwitch"  Unfocused="Entry_Unfocused" />
-                                  </Frame>
-                              </Grid>
 
-                              <Grid Grid.Column="0" Grid.Row="6" HorizontalOptions="End" WidthRequest="60" HeightRequest="60">
-                                  <Button Text="&#xf0c7;" FontFamily="{StaticResource FaSolid}" x:Name="btnSettingsOK" x:FieldModifier="public" Clicked="btnSettingsOK_Clicked" BackgroundColor="#FF0862FF"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
-                              </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="7" HorizontalOptions="StartAndExpand">
+                                <Grid  Grid.Column="0" Grid.Row="7" HorizontalOptions="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="65"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="242"/>
+                                        <ColumnDefinition Width="82"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Grid.Row="0" HorizontalOptions="Center">
+                                        <Label x:Name="lblShopLocationCode" x:FieldModifier="public" Text="ASUKOHT" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="18" TextColor="White"  />
+                                        <Grid  Grid.Column="0" Grid.Row="0" HorizontalOptions="Center"  BackgroundColor="Yellow" WidthRequest="320" HeightRequest="40">
+                                            <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                                                <Editor  ClassId="shopLocationCode" x:Name="shopLocationCode" Grid.Row="0" x:FieldModifier="public" Style="{StaticResource ReadOnlyEditorStyle}" FontSize="26" Focused="Editor_FocusedKeyboardWithSwitch"  Unfocused="Entry_Unfocused" />
+                                            </Frame>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid Grid.Column="1" Grid.Row="0" HorizontalOptions="End" WidthRequest="60" HeightRequest="60">
+                                        <Button Text="&#xf0c7;" FontFamily="{StaticResource FaSolid}" x:Name="btnSettingsOK" x:FieldModifier="public" Clicked="btnSettingsOK_Clicked" BackgroundColor="#FF0862FF"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                                    </Grid>
+                                </Grid>
+
+
+
+                            <Grid  Grid.Column="0" Grid.Row="8" HorizontalOptions="StartAndExpand">
 
                                   <Grid>
                                       <Grid.ColumnDefinitions>

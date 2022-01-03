@@ -19,7 +19,10 @@ using Xamarin.Forms;
 using BauhofWMS.Droid.Scanner;
 using BauhofWMS.Droid.Utils;
 using Android.Content;
+
 using Android.Views.InputMethods;
+using Android.Support.V4.Content;
+using Android.Support.V4.App;
 
 
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.Droid.Utils.PlatformDetailsAndroid))]
@@ -34,6 +37,7 @@ namespace BauhofWMS.Droid
         Theme = "@style/MainTheme",
         MainLauncher = false,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+
 
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
@@ -50,20 +54,51 @@ namespace BauhofWMS.Droid
         {
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
-
+            string[] perm = new string[] { Manifest.Permission.WriteExternalStorage, Manifest.Permission.WriteExternalStorage, Manifest.Permission.WriteSettings };
+            RequestPermissions(perm, 1);
+            Permission WESCheck2 = ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.ReadExternalStorage);
+            Permission WESCheck = ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.WriteExternalStorage);
+            Permission WSCheck = ContextCompat.CheckSelfPermission(Android.App.Application.Context, Manifest.Permission.WriteSettings);
+            Console.WriteLine("WESCheck " + WESCheck.ToString());
+            Console.WriteLine("WESCheck2 " + WESCheck.ToString());
+            Console.WriteLine("WSCheck " + WSCheck.ToString());
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+            //Intent intent = new Intent();
+            //intent.SetAction("WRITE_EXTERNAL_STORAGE");
+            //StartActivity(intent);
 
-            string[] perm = new string[] { Manifest.Permission.WriteExternalStorage, Manifest.Permission.WriteExternalStorage };
-            RequestPermissions(perm, 325);
+            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 1); }
+            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 1); }
             ScannerInit.OpenBarcodeReader();
             LaunchStart();
-
+            savePrivate();
+            //requestpermission();
+            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 0); }
+            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 0); }
         }
 
+        public void savePrivate()
+        {
+            try
+            {
+                String info = "Written";
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+                var backingFile = System.IO.Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                using (System.IO.StreamWriter writer = new System.IO.StreamWriter(backingFile))
+                {
+                    writer.Write("wewew");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", ex.Message);
+            }
+        }
         public async void LaunchStart()
         {
+            
             var result = await GetDeviceSerial.Get();
             if (result.Item1)
             {
@@ -82,6 +117,19 @@ namespace BauhofWMS.Droid
             MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "backPressed", "");
             base.OnBackPressed();
         }
-    }
 
+        public void requestpermission()
+        {
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted)
+            {
+                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 1);
+            }
+
+
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted)
+            {
+                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 1);
+            }
+        }
+    }
 }

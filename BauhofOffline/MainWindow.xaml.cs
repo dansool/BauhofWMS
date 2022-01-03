@@ -126,6 +126,15 @@ namespace BauhofOffline
                         bool fileExists = false;
                         device.Connect();
                         WriteLog("CheckVersion device connected", 2);
+                        
+                        try
+                        {
+                            device.CreateDirectory(@"\Internal shared storage\Download");
+                        }
+                        catch(Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                         var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                         foreach (var file in files)
@@ -657,48 +666,64 @@ namespace BauhofOffline
                             {
 
                             }
-                            var dcimDownload = device.GetDirectoryInfo(@"\IPSM card\Download");
-                           
 
-                            var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
-                            foreach (var file in files)
+                            if (proceed)
                             {
-                                if (file.Name.ToUpper().EndsWith(".APK"))
+                                var dcimDownload = device.GetDirectoryInfo(@"\IPSM card\Download");
+
+                                var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                                foreach (var file in files)
                                 {
-                                    try
+                                    if (file.Name.ToUpper().EndsWith(".APK"))
                                     {
-                                        device.DeleteFile(dcimDownload.FullName + @"\" + file.Name);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        MessageBox.Show("SKÄNNERIL EI ÕNNESTUNUD KUSTUTADA FAILI:" + "\r\n" + dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk" + "\r\n" + ex.Message);
+                                        //MessageBox.Show(file.Name);
+                                        try
+                                        {
+                                            device.DeleteFile(dcimDownload.FullName + @"\" + file.Name);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("SKÄNNERIL EI ÕNNESTUNUD KUSTUTADA FAILI:" + "\r\n" + dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk" + "\r\n" + ex.Message);
+                                        }
                                     }
                                 }
-                            }
-                            device.UploadFile(destinationFile, dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
-                           
-
-                            var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download\");
-                            var files2 = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
-                            foreach (var file in files)
-                            {
-                                if (file.Name.ToUpper().EndsWith(".APK"))
+                                try
                                 {
-                                    try
-                                    {
-                                        device.DeleteFile(dcimDownload.FullName + @"\" + file.Name);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        MessageBox.Show("SKÄNNERIL EI ÕNNESTUNUD KUSTUTADA FAILI:" + "\r\n" + dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk" + "\r\n" + ex.Message);
-                                    }
+                                    device.UploadFile(destinationFile, dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
+                                }
+                                catch (System.IO.IOException ex)
+                                {
+                                    MessageBox.Show(ex.Message);
                                 }
                             }
-                            device.UploadFile(destinationFile, photoDir.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
-                            device.Disconnect();
-                            btnUpdate.Visibility = Visibility.Collapsed;
-                            txtBkStatus.Text = "";
-                            MessageBox.Show("UUENDUS ON SKÄNNERISSE LAETUD!");
+
+
+                            //device.UploadFile(destinationFile, dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
+                            //MessageBox.Show(dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
+                            if (proceed)
+                            {
+                                var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download\");
+                                var files2 = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                                foreach (var file in files2)
+                                {
+                                    if (file.Name.ToUpper().EndsWith(".APK"))
+                                    {
+                                        try
+                                        {
+                                            device.DeleteFile(photoDir.FullName + @"\" + file.Name);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("SKÄNNERIL EI ÕNNESTUNUD KUSTUTADA FAILI:" + "\r\n" + photoDir.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk" + "\r\n" + ex.Message);
+                                        }
+                                    }
+                                }
+                                device.UploadFile(destinationFile, photoDir.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
+                                device.Disconnect();
+                                btnUpdate.Visibility = Visibility.Collapsed;
+                                txtBkStatus.Text = "";
+                                MessageBox.Show("UUENDUS ON SKÄNNERISSE LAETUD!");
+                            }
                         }
                     }
                     else

@@ -27,6 +27,7 @@ namespace BauhofWMS
         public bool isScanAllowed = true;
         public bool searchLocalShop = true;
         public string shopLocationID = "";
+        public bool showInvQty = false;
         public App()
         {
             InitializeComponent();
