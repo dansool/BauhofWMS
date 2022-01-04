@@ -57,12 +57,12 @@ namespace BauhofWMS.Droid.Utils
                 if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-
-                    File.Delete(backingFile);
+                    File.Move(Path.Combine(dir.AbsolutePath, r.Name), Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
                     using (StreamWriter writer = new StreamWriter(backingFile))
                     {
                         writer.Write(data);
                     }
+                    File.Delete(Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
                 }
                 else
                 {

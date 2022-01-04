@@ -5,21 +5,45 @@
              xmlns:converters="clr-namespace:BauhofWMS.Converters"
              x:Class="BauhofWMS.Templates.vcItemInfoBinsView">
     <ViewCell.View>
-        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="{Binding SKUCurrentShop,  Converter={StaticResource ListViewSelectedColorConverter}}">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertDateTimeLong x:Key="ConvertDateTimeLong"/>
+                </ResourceDictionary>
+            </Frame.Resources>
             <Grid Margin="4,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="75"/>
                     <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="322" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
-                    <Label Text="{Binding SKU}" FontAttributes="Bold" FontSize="18" TextColor="Magenta" VerticalOptions="Start" />
+                    <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding SKUShopName}" FontAttributes="Bold" FontSize="18" TextColor="Magenta" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                 </Grid>
                 <Grid Grid.Column="0" Grid.Row="1" Margin="0,-4,0,0">
-                    <Label Text="{Binding SKUBin}"  FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="Start" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="160" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
+                        <Label Text="{Binding SKUBin}"  FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
+                        <Label Text="{Binding SKUBin2}"  FontAttributes="Bold" FontSize="18" TextColor="Green" VerticalOptions="Start" />
+                    </Grid>
                 </Grid>
                 <Grid Grid.Column="0" Grid.Row="2" Margin="0,-8,0,0">
                     <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >

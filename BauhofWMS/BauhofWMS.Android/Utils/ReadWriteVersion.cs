@@ -66,7 +66,7 @@ namespace BauhofWMS.Droid.Utils
                     if (r.Name.ToUpper().StartsWith("VERSION.TXT"))
                     {
                         var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-                        //File.Delete(backingFile);
+                        File.Delete(backingFile);
                         using (StreamWriter writer = new StreamWriter(backingFile))
                         {
                             writer.Write(data);

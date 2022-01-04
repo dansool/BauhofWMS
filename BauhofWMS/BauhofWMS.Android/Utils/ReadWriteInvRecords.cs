@@ -55,51 +55,27 @@ namespace BauhofWMS.Droid.Utils
             {
                 
                 var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-                var dir1 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-                var dir2 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-                //var dir3 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath);
-                //var dir4 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.RootDirectory.AbsolutePath);
-                //foreach (var r in dir.ListFiles())
-                //{
-                //    if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
-                //    {
-                //        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-                //        File.Delete(backingFile);
-                //        using (StreamWriter writer = new StreamWriter(backingFile))
-                //        {
-                //            writer.Write(data);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        var backingFile = Path.Combine(dir.AbsolutePath, "INVRECORDSDB.TXT");
-                //        using (StreamWriter writer = new StreamWriter(backingFile))
-                //        {
-                //            writer.Write(data);
-                //        }
-                //    }
-                //}
-
-                var backingFile = Path.Combine(dir.AbsolutePath, "INVRECORDSDB.TXT");
-                using (StreamWriter writer = new StreamWriter(backingFile))
+                foreach (var r in dir.ListFiles())
                 {
-                    writer.Write(data);
+                    if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                        File.Move(Path.Combine(dir.AbsolutePath, r.Name), Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
+                        }
+                        File.Delete(Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
+                    }
+                    else
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, "INVRECORDSDB.TXT");
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
+                        }
+                    }
                 }
-
-
-                //var backingFile1 = Path.Combine(dir1.AbsolutePath, "INVRECORDSDB.TXT");
-                //using (StreamWriter writer = new StreamWriter(backingFile1))
-                //{
-                //    writer.Write(data);
-                //}
-
-                //var backingFile2 = Path.Combine(dir2.AbsolutePath, "INVRECORDSDB.TXT");
-                //using (StreamWriter writer = new StreamWriter(backingFile2))
-                //{
-                //    writer.Write(data);
-                //}
-
-              
             }
             catch (Exception ex)
             {

@@ -74,59 +74,9 @@ namespace BauhofWMS.Droid
             //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 1); }
             ScannerInit.OpenBarcodeReader();
             LaunchStart();
-            savePrivate();
             //requestpermission();
             //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 0); }
             //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 0); }
-        }
-
-        public async void savePrivate()
-        {
-            try
-            {
-                String info = "Written";
-
-                string directory = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, Android.OS.Environment.DirectoryDownloads);
-                string file = Path.Combine(directory, "yourfile.txt");
-
-
-                var dir = this.FilesDir;
-                var backingFile = System.IO.Path.Combine(dir.AbsolutePath + "/Download", "VERSION2.TXT");
-                using (System.IO.StreamWriter writer = new System.IO.StreamWriter(file))
-                {
-                    writer.Write("ahhhaaa wewew");
-                    MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", "DONE");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", ex.Message);
-            }
-
-            
-            var dir2 = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir2.ListFiles())
-            {
-                if (r.Name.ToUpper().StartsWith("VERSION2.TXT"))
-                {
-                    var backingFile = System.IO.Path.Combine(dir2.AbsolutePath, r.Name);
-
-                    if (backingFile == null || !System.IO.File.Exists(backingFile))
-                    {
-                        Console.WriteLine("DOOONE");
-                    }
-                    using (var reader = new System.IO.StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
-                        {
-                            Console.WriteLine("LINE " +  line);
-                            Console.WriteLine(dir2.AbsolutePath);
-                            MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "erro", "LINE " + line);
-                        }
-                    }
-                }
-            }
         }
 
         private void CheckAppPermissions()

@@ -17,6 +17,7 @@ namespace BauhofWMSDLL.ListDefinitions
         public string SKU { get; set; }
         public decimal SKUqty { get; set; }
         public string SKUBin { get; set; }
+        public string SKUBin2 { get; set; }
         public decimal price { get; set; }
         public decimal meistriklubihind { get; set; }
         public decimal profiklubihind { get; set; }

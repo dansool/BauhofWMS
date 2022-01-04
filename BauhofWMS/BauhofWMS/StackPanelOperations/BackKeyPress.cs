@@ -88,7 +88,7 @@ namespace BauhofWMS.StackPanelOperations
                     break;
                 case "ItemInfoBinsView":
                     {
-                        obj.previousLayoutName = "";
+                        obj.previousLayoutName = null;
                         obj.currentLayoutName = "ItemInfo";
                         mp.CollapseAllStackPanels.Collapse(mp);
                         mp.stkItemInfo.IsVisible = true;

@@ -1137,7 +1137,9 @@ namespace BauhofWMS
 
         public async void PrepareOperations()
         {
-            
+            frmOperationsExport.IsVisible = false;
+            lblOperationsExport.IsVisible = false;
+
             CollapseAllStackPanels.Collapse(this);
             stkOperations.IsVisible = true;
             obj.mainOperation = "";
@@ -1182,6 +1184,12 @@ namespace BauhofWMS
             LstvOperationsRecordInfo.ItemsSource = null;
             LstvOperationsRecordInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcOperationsRecords)) : new DataTemplate(typeof(vcOperationsRecords));
             LstvOperationsRecordInfo.ItemsSource = lstOperationsRecords;
+            if (lstInternalInvDB.Any() || lstInternalMovementDB.Any())
+            {
+                frmOperationsExport.IsVisible = true;
+                lblOperationsExport.IsVisible = true;
+            }
+            
         }
 
         private async void btnExit_Clicked(object sender, EventArgs e)
@@ -1216,65 +1224,92 @@ namespace BauhofWMS
 
         private async void btnOperationsExport_Clicked(object sender, EventArgs e)
         {
+            
             if (await YesNoDialog("EKSPORT", "KAS OLED KINDEL, ET KÕIK ANDMED ON KOGUTUD JA VÕIB JÄTKATA EKSPORDIGA?", false))
             {
                
-                    bool proceed = true;
-                    string exportFileNameStamp = "";
-                    string year = DateTime.Now.Year.ToString();
-                    string month = DateTime.Now.Month.ToString().Length == 1 ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString();
-                    string day = DateTime.Now.Day.ToString().Length == 1 ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString();
-                    string hour = DateTime.Now.Hour.ToString().Length == 1 ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString();
-                    string minute = DateTime.Now.Minute.ToString().Length == 1 ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString();
-                    string second = DateTime.Now.Second.ToString().Length == 1 ? "0" + DateTime.Now.Second.ToString() : DateTime.Now.Second.ToString();
+                bool proceed = true;
+                string exportFileNameStamp = "";
+                string year = DateTime.Now.Year.ToString();
+                string month = DateTime.Now.Month.ToString().Length == 1 ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString();
+                string day = DateTime.Now.Day.ToString().Length == 1 ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString();
+                string hour = DateTime.Now.Hour.ToString().Length == 1 ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString();
+                string minute = DateTime.Now.Minute.ToString().Length == 1 ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString();
+                string second = DateTime.Now.Second.ToString().Length == 1 ? "0" + DateTime.Now.Second.ToString() : DateTime.Now.Second.ToString();
 
-                    exportFileNameStamp = year + month + day + "_" + hour + minute + second;
-                    if (lstInternalInvDB.Any())
+                exportFileNameStamp = year + month + day + "_" + hour + minute + second;
+                if (lstInternalInvDB.Any())
+                {
+                    string dataRowInv = "";
+                    foreach (var p in lstInternalInvDB)
                     {
-                        string dataRowInv = "";
-                        foreach (var p in lstInternalInvDB)
+                        string barCode = "";
+                        if (!string.IsNullOrEmpty(p.barCode))
                         {
-                            dataRowInv = dataRowInv + p.itemCode + ";" + p.barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
+                            var parseSKU = p.barCode.Split(new[] { ";" }, StringSplitOptions.None);
+                            if (parseSKU.Any())
+                            {
+                                barCode = parseSKU[0];
+                            }
+                            else
+                            {
+                                barCode = p.barCode;
+                            }
                         }
-
-
-                        var write = await WriteInvRecordsToExportFile.Write(this, dataRowInv, exportFileNameStamp);
-                        if (write.Item1)
-                        {
-                            lstInternalInvDB = new List<ListOfInvRecords>();
-
-                            PrepareOperations();
-                        }
-                        else
-                        {
-                            proceed = false;
-                            DisplayFailMessage(write.Item2);
-                        }
+                        dataRowInv = dataRowInv + p.itemCode + ";" + barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
                     }
-                    if (lstInternalMovementDB.Any())
+
+
+                    var write = await WriteInvRecordsToExportFile.Write(this, dataRowInv, exportFileNameStamp);
+                    if (write.Item1)
                     {
-                        string dataRowMovement = "";
-                        foreach (var p in lstInternalMovementDB)
-                        {
-                            dataRowMovement = dataRowMovement + p.itemCode + ";" + p.barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
-                        }
-                        var write = await WriteMovementRecordsToExportFile.Write(this, dataRowMovement, exportFileNameStamp);
-                        if (write.Item1)
-                        {
-                            lstInternalMovementDB = new List<ListOfMovementRecords>();
+                        lstInternalInvDB = new List<ListOfInvRecords>();
 
-                            PrepareOperations();
-                        }
-                        else
-                        {
-                            proceed = false;
-                            DisplayFailMessage(write.Item2);
-                        }
+                        PrepareOperations();
                     }
-                    if (proceed)
+                    else
                     {
-                        DisplaySuccessMessage("SALVESTATUD!");
+                        proceed = false;
+                        DisplayFailMessage(write.Item2);
                     }
+                }
+                if (lstInternalMovementDB.Any())
+                {
+                    string dataRowMovement = "";
+                    foreach (var p in lstInternalMovementDB)
+                    {
+                        string barCode = "";
+                        if (!string.IsNullOrEmpty(p.barCode))
+                        {
+                            var parseSKU = p.barCode.Split(new[] { ";" }, StringSplitOptions.None);
+                            if (parseSKU.Any())
+                            {
+                                barCode = parseSKU[0];
+                            }
+                            else
+                            {
+                                barCode = p.barCode;
+                            }
+                        }
+                        dataRowMovement = dataRowMovement + p.itemCode + ";" + p.barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
+                    }
+                    var write = await WriteMovementRecordsToExportFile.Write(this, dataRowMovement, exportFileNameStamp);
+                    if (write.Item1)
+                    {
+                        lstInternalMovementDB = new List<ListOfMovementRecords>();
+
+                        PrepareOperations();
+                    }
+                    else
+                    {
+                        proceed = false;
+                        DisplayFailMessage(write.Item2);
+                    }
+                }
+                if (proceed)
+                {
+                    DisplaySuccessMessage("SALVESTATUD!");
+                }
             }
         }
 
@@ -1478,46 +1513,119 @@ namespace BauhofWMS
 
         public async void SearchEntStockTakeReadCode()
         {
-            
-            if (!string.IsNullOrEmpty(entStockTakeReadCode.Text))
+
+            try
             {
-                if (entStockTakeReadCode.Text.Length > 4)
+                lstStockTakeInfo = new List<ListOfdbRecords>(); 
+                if (!string.IsNullOrEmpty(entStockTakeReadCode.Text))
                 {
-                    lstStockTakeInfo = new List<ListOfdbRecords>();
-                    LstvStockTakeInfo.ItemsSource = null;
-                    LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
-                    frmbtnStockTakeQuantityOK.IsVisible = false;
-                    btnStockTakeQuantityOK.IsVisible = false;
-                    lblStockTakeQuantityUOM.IsVisible = false;
-                    frmentStockTakeQuantity.IsVisible = false;
-                    entStockTakeQuantity.IsVisible = false;
-                    lblStockTakeQuantity.IsVisible = false;
-
-                    var result = lstInternalRecordDB.Where(x =>
-                       x.itemCode.Contains(entStockTakeReadCode.Text)
-                    || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entStockTakeReadCode.Text) && x.SKU.Contains(obj.shopLocationID)).ToList();
-
-                    if (result.Any())
+                    if (entStockTakeReadCode.Text.Length > 4)
                     {
-                        if (result.Count() == 1)
-                        {
-                            if (lstInternalInvDB.Any())
-                            {
-                                var s = lstInternalInvDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
-                                if (s.Any())
-                                {
-                                    obj.isScanAllowed = false;
-                                    if (await YesNoDialog("INVENTUUR", "KAUP ON JUBA INVENTEERTUD. KAS SOOVID PARANDADA?", false))
-                                    {
-                                        obj.isScanAllowed = true;
-                                        invRecordID = s.First().recordID;
-                                        entStockTakeQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
-                                        //lblStockTakeBarCodeValue.Text = result.First().barCode;
-                                        //lblStockTakeInternalCodeValue.Text = result.First().itemCode;
-                                        //lblStockTakeItemDesc.Text = result.First().itemDesc;
-                                        lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
+                        lstStockTakeInfo = new List<ListOfdbRecords>();
+                        LstvStockTakeInfo.ItemsSource = null;
+                        LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+                        frmbtnStockTakeQuantityOK.IsVisible = false;
+                        btnStockTakeQuantityOK.IsVisible = false;
+                        lblStockTakeQuantityUOM.IsVisible = false;
+                        frmentStockTakeQuantity.IsVisible = false;
+                        entStockTakeQuantity.IsVisible = false;
+                        lblStockTakeQuantity.IsVisible = false;
 
+                        var result = lstInternalRecordDB.Where(x =>
+                           x.itemCode.Contains(entStockTakeReadCode.Text)
+                        || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
+                        || x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+
+                        if (result.Any())
+                        {
+                            if (result.Count() == 1)
+                            {
+                                if (lstInternalInvDB.Any())
+                                {
+                                    var s = lstInternalInvDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
+                                    if (s.Any())
+                                    {
+                                        obj.isScanAllowed = false;
+                                        if (await YesNoDialog("INVENTUUR", "KAUP ON JUBA INVENTEERTUD. KAS SOOVID PARANDADA?", false))
+                                        {
+                                            obj.isScanAllowed = true;
+                                            invRecordID = s.First().recordID;
+                                            entStockTakeQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
+                                            lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
+
+                                            focusedEditor = "entStockTakeQuantity";
+                                            entStockTakeQuantity.BackgroundColor = Color.Yellow;
+                                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+                                            entStockTakeReadCode.BackgroundColor = Color.White;
+
+                                            frmbtnStockTakeQuantityOK.IsVisible = true;
+                                            btnStockTakeQuantityOK.IsVisible = true;
+                                            lblStockTakeQuantityUOM.IsVisible = true;
+                                            frmentStockTakeQuantity.IsVisible = true;
+                                            entStockTakeQuantity.IsVisible = true;
+                                            lblStockTakeQuantity.IsVisible = true;
+
+                                            lstStockTakeInfo = result;
+                                            if (lstStockTakeInfo.Any())
+                                            {
+                                                lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+                                            }
+
+                                            int SKUBinCount = 0;
+                                            string sKUs = "";
+                                            string sKUs2 = "";
+                                            var parseSKU = lstStockTakeInfo.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                            if (parseSKU.Any())
+                                            {
+                                                foreach (var a in parseSKU)
+                                                {
+                                                    var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                                    if (uniqueSKU.Any())
+                                                    {
+                                                        if (uniqueSKU.Count() > 0)
+                                                        {
+                                                            if (uniqueSKU[0] == obj.shopLocationID)
+                                                            {
+                                                                SKUBinCount = SKUBinCount + 1;
+
+                                                                if (SKUBinCount < 5)
+                                                                {
+                                                                    sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                                }
+                                                                else
+                                                                {
+                                                                    sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            lstStockTakeInfo.First().SKUBin = sKUs.TrimStart().TrimEnd();
+                                            lstStockTakeInfo.First().SKUBin2 = sKUs2.TrimStart().TrimEnd();
+                                            LstvStockTakeInfo.ItemsSource = null;
+                                            LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+                                        }
+                                        else
+                                        {
+                                            invRecordID = 0;
+                                            entStockTakeReadCode.Text = "";
+                                            entStockTakeQuantity.Text = "";
+                                            lblStockTakeQuantityUOM.Text = "";
+                                            focusedEditor = "entStockTakeReadCode";
+                                            entStockTakeReadCode.BackgroundColor = Color.Yellow;
+                                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                                            entStockTakeQuantity.BackgroundColor = Color.White;
+
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Debug.WriteLine("SIIJN");
+                                        invRecordID = 0;
+                                        entStockTakeQuantity.Text = "";
+                                        lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
                                         focusedEditor = "entStockTakeQuantity";
                                         entStockTakeQuantity.BackgroundColor = Color.Yellow;
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
@@ -1535,33 +1643,51 @@ namespace BauhofWMS
                                         {
                                             lstStockTakeInfo.First().showInvQty = obj.showInvQty;
                                         }
+
+                                        int SKUBinCount = 0;
+                                        string sKUs = "";
+                                        string sKUs2 = "";
+                                        var parseSKU = lstStockTakeInfo.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                        if (parseSKU.Any())
+                                        {
+                                            foreach (var a in parseSKU)
+                                            {
+                                                var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                                if (uniqueSKU.Any())
+                                                {
+                                                    if (uniqueSKU.Count() > 0)
+                                                    {
+                                                        if (uniqueSKU[0] == obj.shopLocationID)
+                                                        {
+                                                            SKUBinCount = SKUBinCount + 1;
+
+                                                            if (SKUBinCount < 5)
+                                                            {
+                                                                sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                            }
+                                                            else
+                                                            {
+                                                                sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        lstStockTakeInfo.First().SKUBin = sKUs.TrimStart().TrimEnd();
+                                        lstStockTakeInfo.First().SKUBin2 = sKUs2.TrimStart().TrimEnd();
                                         LstvStockTakeInfo.ItemsSource = null;
                                         LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
-                                    }
-                                    else
-                                    {
-                                        invRecordID = 0;
-                                        entStockTakeReadCode.Text = "";
-                                        entStockTakeQuantity.Text = "";
-                                        lblStockTakeQuantityUOM.Text = "";
-                                        focusedEditor = "entStockTakeReadCode";
-                                        entStockTakeReadCode.BackgroundColor = Color.Yellow;
-                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
-                                        entStockTakeQuantity.BackgroundColor = Color.White;
-
-
                                     }
                                 }
                                 else
                                 {
-                                    Debug.WriteLine("SIIJN");
-                                    entStockTakeQuantity.Text = "";
+                                    invRecordID = 0;
                                     lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
                                     focusedEditor = "entStockTakeQuantity";
                                     entStockTakeQuantity.BackgroundColor = Color.Yellow;
                                     ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                     entStockTakeReadCode.BackgroundColor = Color.White;
-
                                     frmbtnStockTakeQuantityOK.IsVisible = true;
                                     btnStockTakeQuantityOK.IsVisible = true;
                                     lblStockTakeQuantityUOM.IsVisible = true;
@@ -1569,57 +1695,71 @@ namespace BauhofWMS
                                     entStockTakeQuantity.IsVisible = true;
                                     lblStockTakeQuantity.IsVisible = true;
 
+                                    lstStockTakeInfo = new List<ListOfdbRecords>();
                                     lstStockTakeInfo = result;
                                     if (lstStockTakeInfo.Any())
                                     {
                                         lstStockTakeInfo.First().showInvQty = obj.showInvQty;
                                     }
+
+                                    int SKUBinCount = 0;
+                                    string sKUs = "";
+                                    string sKUs2 = "";
+                                    var parseSKU = lstStockTakeInfo.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                    if (parseSKU.Any())
+                                    {
+                                        foreach (var a in parseSKU)
+                                        {
+                                            var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                            if (uniqueSKU.Any())
+                                            {
+                                                if (uniqueSKU.Count() > 0)
+                                                {
+                                                    if (uniqueSKU[0] == obj.shopLocationID)
+                                                    {
+                                                        SKUBinCount = SKUBinCount + 1;
+
+                                                        if (SKUBinCount < 5)
+                                                        {
+                                                            sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                        }
+                                                        else
+                                                        {
+                                                            sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    lstStockTakeInfo.First().SKUBin = sKUs.TrimStart().TrimEnd();
+                                    lstStockTakeInfo.First().SKUBin2 = sKUs2.TrimStart().TrimEnd();
                                     LstvStockTakeInfo.ItemsSource = null;
                                     LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
                                 }
+                                obj.isScanAllowed = true;
                             }
                             else
                             {
-                                lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
-                                focusedEditor = "entStockTakeQuantity";
-                                entStockTakeQuantity.BackgroundColor = Color.Yellow;
-                                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
-                                entStockTakeReadCode.BackgroundColor = Color.White;
-                                frmbtnStockTakeQuantityOK.IsVisible = true;
-                                btnStockTakeQuantityOK.IsVisible = true;
-                                lblStockTakeQuantityUOM.IsVisible = true;
-                                frmentStockTakeQuantity.IsVisible = true;
-                                entStockTakeQuantity.IsVisible = true;
-                                lblStockTakeQuantity.IsVisible = true;
-
-                                lstStockTakeInfo = result;
-                                if (lstStockTakeInfo.Any())
-                                {
-                                    lstStockTakeInfo.First().showInvQty = obj.showInvQty;
-                                }
-                                LstvStockTakeInfo.ItemsSource = null;
-                                LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
-
-
+                                obj.previousLayoutName = "StockTake";
+                                PrepareSelectItem();
                             }
-                            obj.isScanAllowed = true;
                         }
                         else
                         {
-                            obj.previousLayoutName = "StockTake";
-                            PrepareSelectItem();
+                            DisplayFailMessage("EI LEITUD MIDAGI!");
+
                         }
                     }
                     else
                     {
-                        DisplayFailMessage("EI LEITUD MIDAGI!");
-
+                        DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
                     }
                 }
-                else
-                {
-                    DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -1851,7 +1991,7 @@ namespace BauhofWMS
                     var result = lstInternalRecordDB.Where(x =>
                        x.itemCode.Contains(entTransferReadCode.Text)
                     || x.itemDesc.ToUpper().Contains(entTransferReadCode.Text.ToUpper())
-                    || x.barCode.Contains(entTransferReadCode.Text) && x.SKU.Contains(obj.shopLocationID)).ToList();
+                    || x.barCode.Contains(entTransferReadCode.Text)).ToList();
                     if (result.Any())
                     {
                         if (result.Count() == 1)
@@ -1875,6 +2015,41 @@ namespace BauhofWMS
                                         transferRecordID = s.First().recordID;
                                         entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
                                         lstTransferInfo = new List<ListOfdbRecords>();
+
+                                        int SKUBinCount = 0;
+                                        string sKUs = "";
+                                        string sKUs2 = "";
+                                        decimal sKUqty = 0;
+                                        var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                        if (parseSKU.Any())
+                                        {
+                                            foreach (var a in parseSKU)
+                                            {
+                                                var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                                if (uniqueSKU.Any())
+                                                {
+                                                    if (uniqueSKU.Count() > 0)
+                                                    {
+                                                        if (uniqueSKU[0] == obj.shopLocationID)
+                                                        {
+                                                            SKUBinCount = SKUBinCount + 1;
+                                                            sKUqty = Convert.ToDecimal(uniqueSKU[2]);
+                                                            if (SKUBinCount < 4)
+                                                            {
+                                                                sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                            }
+                                                            else
+                                                            {
+                                                                sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        sKUs = sKUs.TrimStart().TrimEnd();
+                                        sKUs2 = sKUs2.TrimStart().TrimEnd();
+
                                         lstTransferInfo.Add(new ListOfdbRecords
                                         {
                                             barCode = result.First().barCode,
@@ -1885,8 +2060,9 @@ namespace BauhofWMS
                                             price = result.First().price,
                                             profiklubihind = result.First().profiklubihind,
                                             SKU = result.First().SKU,
-                                            SKUqty = result.First().SKUqty,
-                                            SKUBin = result.First().SKUBin,
+                                            SKUqty = sKUqty,
+                                            SKUBin = sKUs,
+                                            SKUBin2 = sKUs2,
                                             soodushind = result.First().soodushind,
                                             sortiment = result.First().sortiment,
 
@@ -1923,9 +2099,40 @@ namespace BauhofWMS
                                 }
                                 else
                                 {
+                                    int SKUBinCount = 0;
+                                    string sKUs = "";
+                                    string sKUs2 = "";
+                                    decimal sKUqty = 0;
+                                    var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                    if (parseSKU.Any())
+                                    {
+                                        foreach (var a in parseSKU)
+                                        {
+                                            var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                            if (uniqueSKU.Any())
+                                            {
+                                                if (uniqueSKU.Count() > 0)
+                                                {
+                                                    if (uniqueSKU[0] == obj.shopLocationID)
+                                                    {
+                                                        SKUBinCount = SKUBinCount + 1;
+                                                        sKUqty = Convert.ToDecimal(uniqueSKU[2]);
+                                                        if (SKUBinCount < 4)
+                                                        {
+                                                            sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                        }
+                                                        else
+                                                        {
+                                                            sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    sKUs = sKUs.TrimStart().TrimEnd();
+                                    sKUs2 = sKUs2.TrimStart().TrimEnd();
                                     transferRecordID = 0;
-                                    entTransferQuantity.Text = "";
-                                    lstTransferInfo = new List<ListOfdbRecords>();
                                     lstTransferInfo.Add(new ListOfdbRecords
                                     {
                                         barCode = result.First().barCode,
@@ -1936,8 +2143,9 @@ namespace BauhofWMS
                                         price = result.First().price,
                                         profiklubihind = result.First().profiklubihind,
                                         SKU = result.First().SKU,
-                                        SKUqty = result.First().SKUqty,
-                                        SKUBin = result.First().SKUBin,
+                                        SKUqty = sKUqty,
+                                        SKUBin = sKUs,
+                                        SKUBin2 = sKUs2,
                                         soodushind = result.First().soodushind,
                                         sortiment = result.First().sortiment,
 
@@ -1963,6 +2171,42 @@ namespace BauhofWMS
                                 transferRecordID = 0;
                                 entTransferQuantity.Text = "";
                                 lstTransferInfo = new List<ListOfdbRecords>();
+
+                                int SKUBinCount = 0;
+                                string sKUs = "";
+                                string sKUs2 = "";
+                                decimal sKUqty = 0;
+                                var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                                if (parseSKU.Any())
+                                {
+                                    foreach (var a in parseSKU)
+                                    {
+                                        var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+                                        if (uniqueSKU.Any())
+                                        {
+                                            if (uniqueSKU.Count() > 0)
+                                            {
+                                                if (uniqueSKU[0] == obj.shopLocationID)
+                                                {
+                                                    SKUBinCount = SKUBinCount + 1;
+                                                    sKUqty = Convert.ToDecimal(uniqueSKU[2]);
+                                                    if (SKUBinCount < 4)
+                                                    {
+                                                        sKUs = sKUs + "\r\n" + uniqueSKU[1];
+                                                    }
+                                                    else
+                                                    {
+                                                        sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                sKUs = sKUs.TrimStart().TrimEnd();
+                                sKUs2 = sKUs2.TrimStart().TrimEnd();
+
+                                transferRecordID = 0;
                                 lstTransferInfo.Add(new ListOfdbRecords
                                 {
                                     barCode = result.First().barCode,
@@ -1973,8 +2217,9 @@ namespace BauhofWMS
                                     price = result.First().price,
                                     profiklubihind = result.First().profiklubihind,
                                     SKU = result.First().SKU,
-                                    SKUqty = result.First().SKUqty,
-                                    SKUBin = result.First().SKUBin,
+                                    SKUqty = sKUqty,
+                                    SKUBin = sKUs,
+                                    SKUBin2 = sKUs2,
                                     soodushind = result.First().soodushind,
                                     sortiment = result.First().sortiment,
 
@@ -2128,7 +2373,8 @@ namespace BauhofWMS
 
         public void PrepareItemInfo(string scannedCode)
         {
-
+            lstBins = new List<ListOfSKU>();
+            frmbtnItemInfoBins.IsVisible = false;
             CollapseAllStackPanels.Collapse(this);
             stkItemInfo.IsVisible = true;
             obj.mainOperation = "";
@@ -2166,59 +2412,101 @@ namespace BauhofWMS
             SearchEntItemInfoReadCode();
         }
 
+        public void DisplayItemInfoSKU(ListOfdbRecords row)
+        {
+            lstBins = new List<ListOfSKU>();
+            if (!string.IsNullOrEmpty(row.SKU))
+            {
+                var parseSKU = row.SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+                if (parseSKU.Any())
+                {
+                    foreach (var s in parseSKU)
+                    {
+                        var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
+                        if (uniqueSKU.Any())
+                        {
+                            if (!string.IsNullOrEmpty(uniqueSKU[0]))
+                            {
+                                Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
+
+                                row.SKUqty = Convert.ToDecimal(uniqueSKU[2]);
+                                lstBins.Add(new ListOfSKU
+                                {
+                                    SKU = uniqueSKU[0],
+                                    SKUBin = uniqueSKU[1],
+                                    SKUqty = Convert.ToDecimal(uniqueSKU[2]),
+                                    SKUShopName = GetShopName(uniqueSKU[0]),
+                                    itemMagnitude = row.itemMagnitude
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            var skuBin = "";
+            var skuBin2 = "";
+            int skuBinCount = 0;
+
+
+            foreach (var p in lstBins)
+            {
+                if (p.SKU == obj.shopLocationID)
+                {
+                    row.SKUqty = p.SKUqty;
+                    p.SKUCurrentShop = 1;
+                    skuBinCount = skuBinCount + 1;
+                    if (skuBinCount < 4)
+                    {
+                        skuBin = skuBin + p.SKUBin + "\r\n";
+                    }
+                    else
+                    {
+                        skuBin2 = skuBin2 + p.SKUBin + "\r\n";
+                    }
+                }
+            }
+
+            row.SKUBin = skuBin.TrimStart().TrimEnd();
+            row.SKUBin2 = skuBin2.TrimStart().TrimEnd();
+
+            var lst = new List<ListOfdbRecords>();
+            lst.Add(row);
+            LstvItemInfo.ItemsSource = null;
+            LstvItemInfo.ItemsSource = lst;
+            if (lst.Any())
+            {
+                frmbtnItemInfoBins.IsVisible = true;
+            }
+            else
+            {
+                frmbtnItemInfoBins.IsVisible = false;
+            }
+        }
+
         public void SearchEntItemInfoReadCode()
         {
-            ShowKeyBoard.Hide(this);
-            LstvItemInfoItems.ItemsSource = null;
-            lstItemInfo = new List<ListOfdbRecords>();
-            LstvItemInfo.ItemsSource = null;
-            if (!string.IsNullOrEmpty(entItemInfoReadCode.Text))
+            try
             {
-                if (entItemInfoReadCode.Text.Length > 4)
+                ShowKeyBoard.Hide(this);
+                LstvItemInfoItems.ItemsSource = null;
+                lstItemInfo = new List<ListOfdbRecords>();
+                LstvItemInfo.ItemsSource = null;
+                if (!string.IsNullOrEmpty(entItemInfoReadCode.Text))
                 {
-                    if (obj.searchLocalShop)
+                    if (entItemInfoReadCode.Text.Length > 4)
                     {
                         lstResultItemInfo = new List<ListOfdbRecords>();
-                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text)) && x.SKU.Contains(obj.shopLocationID)).ToList();
+                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text))).ToList();
                         if (result.Any())
                         {
-                            foreach (var p in result)
+                            Debug.WriteLine("result count " + "  " + result.Count());
+                            lstItemInfo = result;
+                            LstvItemInfoItems.ItemsSource = null;
+                            LstvItemInfoItems.ItemsSource = lstItemInfo;
+                            if (lstItemInfo.Count == 1)
                             {
-                                var parseSKU = p.SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
-                                if (parseSKU.Any())
-                                {
-                                    foreach (var s in parseSKU)
-                                    {
-                                        var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
-                                        if (uniqueSKU.Any())
-                                        {
-                                            Debug.WriteLine(uniqueSKU[0] + "  " + obj.shopLocationID);
-                                            if (uniqueSKU[0] == obj.shopLocationID)
-                                            {
-                                                lstResultItemInfo.Add(new ListOfdbRecords
-                                                {
-                                                    itemCode = p.itemCode,
-                                                    itemDesc = p.itemDesc,
-                                                    itemMagnitude = p.itemMagnitude,
-                                                    barCode = result.First().barCode,
-                                                    SKU = uniqueSKU[0],
-                                                    SKUBin = uniqueSKU[1],
-                                                    SKUqty = Convert.ToDecimal(uniqueSKU[2]),
-                                                    meistriklubihind = p.meistriklubihind,
-                                                    price = p.price,
-                                                    profiklubihind = p.profiklubihind,
-                                                    soodushind = p.soodushind,
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            LstvItemInfoItems.ItemsSource = lstResultItemInfo;
-                            if (lstResultItemInfo.Count == 1)
-                            {
-                                lstItemInfo = lstResultItemInfo;
-                                LstvItemInfo.ItemsSource = lstItemInfo;
+                                DisplayItemInfoSKU(lstItemInfo.First());
                             }
                         }
                         else
@@ -2231,68 +2519,16 @@ namespace BauhofWMS
                     }
                     else
                     {
-                        lstResultItemInfo = new List<ListOfdbRecords>();
-                        var result2 = lstInternalRecordDB.Where(x =>
-                           x.itemCode.Contains(entItemInfoReadCode.Text)
-                        || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
-                        || x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
-                        if (result2.Any())
-                        {
-                            foreach (var p in result2)
-                            {
-                                var parseSKU = p.SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
-                                if (parseSKU.Any())
-                                {
-                                    foreach (var s in parseSKU)
-                                    {
-                                        var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
-                                        if (uniqueSKU.Any())
-                                        {
-                                            if (!string.IsNullOrEmpty(uniqueSKU[0]))
-                                            {
-                                                Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
-                                                lstResultItemInfo.Add(new ListOfdbRecords
-                                                {
-                                                    itemCode = p.itemCode,
-                                                    itemDesc = p.itemDesc,
-                                                    itemMagnitude = p.itemMagnitude,
-                                                    barCode = p.barCode,
-                                                    SKU = uniqueSKU[0],
-                                                    SKUBin = uniqueSKU[1],
-                                                    SKUqty = Convert.ToDecimal(uniqueSKU[2]),
-                                                    meistriklubihind = p.meistriklubihind,
-                                                    price = p.price,
-                                                    profiklubihind = p.profiklubihind,
-                                                    soodushind = p.soodushind,
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            LstvItemInfoItems.ItemsSource = lstResultItemInfo;
-                            if (result2.Count == 1)
-                            {
-                                lstItemInfo = result2;
-                                LstvItemInfo.ItemsSource = lstItemInfo;
-                            }
-                        }
-                        else
-                        {
-                            DisplayFailMessage("EI LEITUD MIDAGI!");
-                            focusedEditor = "entItemInfoReadCode";
-                            entItemInfoReadCode.BackgroundColor = Color.Yellow;
-                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
-                        }
+                        DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
+                        focusedEditor = "entItemInfoReadCode";
+                        entItemInfoReadCode.BackgroundColor = Color.Yellow;
+                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                     }
                 }
-                else
-                {
-                    DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
-                    focusedEditor = "entItemInfoReadCode";
-                    entItemInfoReadCode.BackgroundColor = Color.Yellow;
-                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -2300,8 +2536,9 @@ namespace BauhofWMS
         {
             lstItemInfo = new List<ListOfdbRecords>();
             var item = e.Item as ListOfdbRecords;
-            lstItemInfo.Add(item);
-            LstvItemInfo.ItemsSource = lstItemInfo;
+            DisplayItemInfoSKU(item);
+            //lstItemInfo.Add(item);
+            //LstvItemInfo.ItemsSource = lstItemInfo;
         }
 
         private void btnItemInfoReadCodeClear_Clicked(object sender, EventArgs e)
@@ -2309,44 +2546,10 @@ namespace BauhofWMS
             entItemInfoReadCode.Text = "";
         }
 
-        private void btnItemInfoOtherLocations_Clicked(object sender, EventArgs e)
-        {
-            if (btnItemInfoOtherLocations.Text == "KÕIGIS LADUDES")
-            {
-                obj.searchLocalShop = false;
-                btnItemInfoOtherLocations.Text = "SELLES LAOS";
-                SearchEntItemInfoReadCode();
-            }
-            else
-            {
-                obj.searchLocalShop = true;
-                btnItemInfoOtherLocations.Text = "KÕIGIS LADUDES";
-                SearchEntItemInfoReadCode();
-            }
-        }
 
         private void btnItemInfoBins_Clicked(object sender, EventArgs e)
         {
-            lstBins = new List<ListOfSKU>();
-            if (lstItemInfo.Any())
-            {
-                var searchItemLines = lstResultItemInfo.Where(x => x.itemCode == lstItemInfo.First().itemCode);
-                foreach (var p in searchItemLines)
-                {
-                    lstBins.Add(new ListOfSKU
-                    {
-                        SKU = GetShopName(p.SKU),
-                        SKUBin = SplitBins(p.SKUBin),
-                        SKUqty = p.SKUqty,
-                        itemMagnitude = p.itemMagnitude
-                    });
-                }
-                PrepareItemInfoBinsView();
-            }
-            else
-            {
-                DisplayFailMessage("VALI NIMEKIRJAST KAUP!");
-            }
+            PrepareItemInfoBinsView();
         }
 
         #endregion
@@ -2425,6 +2628,10 @@ namespace BauhofWMS
             stkItemInfoBinsView.IsVisible = true;
             obj.mainOperation = "";
             obj.currentLayoutName = "ItemInfoBinsView";
+            obj.previousLayoutName = null;
+            obj.nextLayoutName = null;
+            obj.mainOperation = null;
+
             lblItemInfoBinsViewHeader.Text = "RIIULID";
             LstvItemInfoBinsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoBinsView)) : new DataTemplate(typeof(vcItemInfoBinsView));
             if (obj.operatingSystem == "UWP")
@@ -2437,8 +2644,48 @@ namespace BauhofWMS
                 grdMain.ScaleY = 1.0;
             }
             focusedEditor = "";
+
+            var lstToDisplay = lstBins.GroupBy(x => x.SKU).Select(s => new ListOfSKU
+            {
+                SKU = s.First().SKU,
+                SKUBin = s.First().SKUBin,
+                SKUqty = s.First().SKUqty,
+                itemMagnitude = s.First().itemMagnitude,
+                SKUCurrentShop = s.First().SKU == obj.shopLocationID ? 1 : 0,
+                SKUShopName = s.First().SKUShopName
+            }).ToList();
+
+            
+            foreach (var s in lstToDisplay)
+            {
+                string sku = "";
+                string sku2 = "";
+                int skucount = 0;
+                var bins = lstBins.Where(x => x.SKU == s.SKU);
+                if (bins.Any())
+                {
+                    skucount = skucount + 1;
+                    foreach (var p in bins)
+                    {                        
+                        if (skucount < 5)
+                        {
+                            sku = sku + p.SKUBin + "\r\n";
+                        }
+                        else
+                        {
+                            sku2 = sku2 + p.SKUBin + "\r\n";
+                        }
+                    }
+                }
+                s.SKUBin = sku.TrimStart().TrimEnd();
+                s.SKUBin2 = sku2.TrimStart().TrimEnd();
+            }
+            
+            lblItemInfoBinsViewCount.Text = "KOGUS KÕIGIS POODIDES KOKKU: " + lstToDisplay.Sum(x => x.SKUqty);
+
+            Debug.WriteLine("BINSARE lstToDisplay :" + lstToDisplay.First().SKUBin);
             LstvItemInfoBinsView.ItemsSource = null;
-            LstvItemInfoBinsView.ItemsSource = lstBins;
+            LstvItemInfoBinsView.ItemsSource = lstToDisplay;
         }
         private async void LstvItemInfoBinsView_ItemTapped(object sender, ItemTappedEventArgs e)
         {

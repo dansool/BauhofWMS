@@ -21,6 +21,8 @@ namespace BauhofWMSDLL.ListDefinitions
         
         public int debugLevel { get; set; }
         
+        public string shopFileFolder { get; set; }
+        public string csvArchiveFolder { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -31,6 +33,8 @@ namespace BauhofWMSDLL.ListDefinitions
         public string currentVersion { get; set; }
 
         public bool showInvQty { get; set; }
+
+        public string smtpServer { get; set; }
         public bool isSelected
         {
             get { return m_isVisible; }
@@ -42,6 +46,7 @@ namespace BauhofWMSDLL.ListDefinitions
         }
 
         public bool m_isVisible;
+
 
         
         protected void OnPropertyChanged(string name)

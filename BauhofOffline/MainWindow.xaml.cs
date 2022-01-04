@@ -86,6 +86,7 @@ namespace BauhofOffline
         {
             try
             {
+                Debug.WriteLine("1");
                 WriteLog("CheckVersion started", 1);
                 txtBkLatestVersionValue.Text = "";
                 txtBkScannerVersionValue.Text = "";
@@ -116,6 +117,8 @@ namespace BauhofOffline
                     WriteLog("CheckVersion " + txtBkStatus.Text, 2);
                     MessageBox.Show("VÄLIST SEADET EI LEITUD!");
                 }
+
+                Debug.WriteLine("2");
                 Debug.WriteLine("DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer);
                 if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                 {
@@ -139,8 +142,10 @@ namespace BauhofOffline
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                         foreach (var file in files)
                         {
-                           if (file.Name.ToUpper() == "VERSION.TXT")
+                            
+                            if (file.Name.ToUpper() == "VERSION.TXT")
                            {
+                                Debug.WriteLine("3");
                                 fileExists = true;
                                 WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
                                 count = count + 1;
@@ -153,9 +158,12 @@ namespace BauhofOffline
 
                                 if (!File.Exists(destinationFileName))
                                 {
+                                    Debug.WriteLine("4");
                                     using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
                                     {
+                                        Debug.WriteLine("5");
                                         device.DownloadFile(file.FullName, fs);
+                                        Debug.WriteLine("6");
                                         WriteLog(@"CheckVersion VERSION.TXT downloaded from the device to c:\windows\temp\", 2);
                                     }
                                 }
@@ -166,6 +174,8 @@ namespace BauhofOffline
                                     MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
                                     
                                 }
+
+                                
                                 if (proceed)
                                 {
                                     if (File.Exists(destinationFileName))
@@ -192,6 +202,8 @@ namespace BauhofOffline
                                 }
                             }                           
                         }
+
+                        
                         if (!fileExists)
                         {
                             txtBkScannerVersionValue.Text = "PUUDUB";
@@ -326,13 +338,13 @@ namespace BauhofOffline
                         proceed = false;
                         if (ex.Message.Contains(@"\Internal shared storage\Download") && ex.Message.Contains("not found"))
                         {
-                            WriteError("GetConfiguration ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                            MessageBox.Show("GetConfiguration  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
+                            WriteError("CheckVersion ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                            MessageBox.Show("CheckVersion  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
                         }
                         else
                         {
-                            WriteError("GetConfiguration " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                            MessageBox.Show("GetConfiguration  " + ex.Message);
+                            WriteError("CheckVersion " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                            MessageBox.Show("CheckVersion  " + ex.Message);
                         }
                     }
                 }
@@ -748,14 +760,14 @@ namespace BauhofOffline
                 stopWatch.Start();
                 string filename = folderPath + inputFileName;
                 Debug.WriteLine("filename:" + filename);
-                if (!Directory.Exists(folderPath + @"\Archive\"))
+                if (!Directory.Exists(lstSettings.First().csvArchiveFolder))
                 {
-                    Directory.CreateDirectory(folderPath + @"\Archive\");
+                    Directory.CreateDirectory(lstSettings.First().csvArchiveFolder);
                 }
-                if (!File.Exists(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert")))
+                if (!File.Exists(lstSettings.First().csvArchiveFolder + @"\" + inputFileName.Replace(".csv", ".convert")))
                 {
                     
-                    File.WriteAllText(folderPath + @"\Archive\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
+                    File.WriteAllText(lstSettings.First().csvArchiveFolder + @"\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
                     List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
                     if (fileCounter == 1)
                     {
@@ -899,7 +911,7 @@ namespace BauhofOffline
                         lstDB30 = values;
                     }
                 }
-                File.Move(filename, folderPath + @"\Archive\" + inputFileName);
+                File.Move(filename, lstSettings.First().csvArchiveFolder + @"\" + inputFileName);
                 return "";
             }
             catch (Exception ex)
@@ -986,6 +998,8 @@ namespace BauhofOffline
             GetLatestDBFile();
             bool proceed = true;
             string csvFolderPath = "";
+            string shopFileFolder = "";
+            string csvArchiveFolder = "";
             IEnumerable<ListOfdbRecordsImport> dbconcat = null;
             try
             {
@@ -996,6 +1010,8 @@ namespace BauhofOffline
                 }));
 
                 csvFolderPath = lstSettings.First().csvFolder;
+                shopFileFolder = lstSettings.First().shopFileFolder;
+                csvArchiveFolder = lstSettings.First().csvArchiveFolder;
                 string jsonFolderPath = lstSettings.First().jsonFolder;
                 string jsonArchiveFolder = lstSettings.First().jsonFolder + @"\Archive\";
                 if (!Directory.Exists(jsonArchiveFolder))
@@ -1007,117 +1023,114 @@ namespace BauhofOffline
                 {
                     Directory.CreateDirectory(csvFolderPath);
                 }
-
-                
                 if (proceed)
                 {
-                    if (File.Exists(csvFolderPath + relationFileName))
+                    if (File.Exists(shopFileFolder + relationFileName))
                     {
-                        var l = ConvertCsvFileToJsonObject(csvFolderPath, relationFileName, DateTime.Now);
-                        //lstShopRelations = File.ReadAllLines(csvFolderPath + relationFileName).Select(v => FromShopRelationCsv(v, relationFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
-                        string[] dirs = Directory.GetFiles(csvFolderPath);
-                        int fileCounter = 0;
-                        if (dirs.Any())
-                        {
-                            bool dbfilesExist = false;
-                            foreach (string str in dirs)
-                            {
-                                string sourceFileName = str;
-                                int index = str.LastIndexOf("\\");
-                                string fileName = str.Substring(index + 1);
-                                if (fileName.EndsWith(".lock"))
-                                {
-                                    proceed = false;
-                                }
-                                if (fileName.EndsWith(".csv") && fileName.Contains("_PDA_Products"))
-                                {
-                                    dbfilesExist = true;
-                                }
-                            }
-                            
-                            if (proceed)
-                            {
-                                if (dbfilesExist)
-                                {
-                                    Debug.WriteLine("A1");
-                                    var file = new StreamWriter(csvFolderPath + Environment.MachineName + ".lock", true);
-                                    Debug.WriteLine("A2");
-                                    file.WriteLine("");
-                                    file.Close();
-                                    {
-                                        foreach (string str in dirs)
-                                        {
-                                            fileCounter = fileCounter + 1;
-                                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                                            {
-                                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
-                                            }));
-                                            string sourceFileName = str;
-                                            int index = str.LastIndexOf("\\");
-                                            string fileName = str.Substring(index + 1);
-                                            if (fileName.EndsWith(".lock"))
-                                            {
-                                                proceed = false;
-                                            }
+                        var l = ConvertCsvFileToJsonObject(shopFileFolder, relationFileName, DateTime.Now);
+                    }
+                }
 
-                                            if (proceed)
+                if (proceed)
+                {
+                    string[] dirs = Directory.GetFiles(csvFolderPath);
+                    int fileCounter = 0;
+                    if (dirs.Any())
+                    {
+                        bool dbfilesExist = false;
+                        foreach (string str in dirs)
+                        {
+                            string sourceFileName = str;
+                            int index = str.LastIndexOf("\\");
+                            string fileName = str.Substring(index + 1);
+                            if (fileName.EndsWith(".lock"))
+                            {
+                                proceed = false;
+                            }
+                            if (fileName.EndsWith(".csv") && fileName.Contains("_PDA_Products"))
+                            {
+                                dbfilesExist = true;
+                            }
+                        }
+
+                        if (proceed)
+                        {
+                            if (dbfilesExist)
+                            {
+                                Debug.WriteLine("A1");
+                                var file = new StreamWriter(csvArchiveFolder + Environment.MachineName + ".lock", true);
+                                Debug.WriteLine("A2");
+                                file.WriteLine("");
+                                file.Close();
+                                {
+                                    foreach (string str in dirs)
+                                    {
+                                        fileCounter = fileCounter + 1;
+                                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                                        {
+                                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
+                                        }));
+                                        string sourceFileName = str;
+                                        int index = str.LastIndexOf("\\");
+                                        string fileName = str.Substring(index + 1);
+                                        if (fileName.EndsWith(".lock"))
+                                        {
+                                            proceed = false;
+                                        }
+
+                                        if (proceed)
+                                        {
+                                            if (fileName.EndsWith(".csv"))
                                             {
-                                                if (fileName.EndsWith(".csv"))
+                                                if (fileName.ToUpper() == relationFileName.ToUpper())
                                                 {
-                                                    if (fileName.ToUpper() == relationFileName.ToUpper())
+                                                    string json = JsonConvert.SerializeObject(lstShopRelations);
+                                                    File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
+                                                }
+                                                else
+                                                {
+                                                    var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
+                                                    var prefixToSearch = fileNameSplitPrefix[0];
+                                                    Debug.WriteLine("Prefix is " + prefixToSearch);
+                                                    string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
+                                                    foreach (string str2 in dirsPrefixSearch)
                                                     {
-                                                        string json = JsonConvert.SerializeObject(lstShopRelations);
-                                                        File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
-                                                    }
-                                                    else
-                                                    {
-                                                        var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
-                                                        var prefixToSearch = fileNameSplitPrefix[0];
-                                                        Debug.WriteLine("Prefix is " + prefixToSearch);
-                                                        string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
-                                                        foreach (string str2 in dirsPrefixSearch)
+                                                        Debug.WriteLine("fileName is " + str2);
+                                                        int index2 = str2.LastIndexOf("\\");
+                                                        string fileName2 = str2.Substring(index2 + 1);
+                                                        if (fileName2.StartsWith(prefixToSearch))
                                                         {
-                                                            Debug.WriteLine("fileName is " + str2);
-                                                            int index2 = str2.LastIndexOf("\\");
-                                                            string fileName2 = str2.Substring(index2 + 1);
-                                                            if (fileName2.StartsWith(prefixToSearch))
+                                                            if (fileName2 != fileName)
                                                             {
-                                                                if (fileName2 != fileName)
-                                                                {
-                                                                    File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
-                                                                }
+                                                                File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
                                                             }
                                                         }
-                                                        if (!File.Exists(jsonFolderPath + fileName))
-                                                        {
-                                                            var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
-                                                            string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
-                                                            string formatstring = "yyyyMMddHHmmss";
-                                                            DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
-
-                                                            ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
-                                                        }
+                                                    }
+                                                    if (!File.Exists(jsonFolderPath + fileName))
+                                                    {
+                                                        var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
+                                                        string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
+                                                        string formatstring = "yyyyMMddHHmmss";
+                                                        DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
+                                                        ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    proceed = false;
-                                }
                             }
-                            fileCounter = fileCounter + 1;
+                            else
+                            {
+                                proceed = false;
+                            }
                         }
-                        else
-                        {
-                            MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
-                        }
+                        fileCounter = fileCounter + 1;
                     }
                     else
                     {
-                        MessageBox.Show("bw_DoWork_ConvertFiles: ShopRelations.csv nimeline fail puudub csv kataloogist " + csvFolderPath + "!");
+                        proceed = false;
+                        //MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
                     }
                 }
                 if (proceed)
@@ -1125,6 +1138,7 @@ namespace BauhofOffline
                     Debug.WriteLine("started concat");
                     if (lstDB01.Any())
                     {
+                        dbconcat = lstDB01;
                         Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                         {
                             txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
@@ -1133,6 +1147,7 @@ namespace BauhofOffline
                         Debug.WriteLine("started concat 1");
                        
                         Debug.WriteLine("started concat 2");
+                     
                         if (lstDB02.Any())
                         {
                             Debug.WriteLine("started concat 3");
@@ -1141,6 +1156,7 @@ namespace BauhofOffline
                             dbconcat = d1;
                             Debug.WriteLine("CONCAT1 " + d1.Count());
                         }
+
                         if (lstDB03.Any())
                         {
                             var d2 = dbconcat.Concat(lstDB03);
@@ -1385,7 +1401,7 @@ namespace BauhofOffline
 
                     File.WriteAllText(lstSettings.First().jsonFolder + outputFile.ToUpper(), jsonFinal);
                     Debug.WriteLine("CONCAT final " + dbconcat.Count() + " "  + csvFolderPath);
-                    File.Delete(csvFolderPath + Environment.MachineName + ".lock");
+                    File.Delete(lstSettings.First().csvArchiveFolder + Environment.MachineName + ".lock");
                     Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                     {
                         DisplayPostedMessage("ANDMEBAAS VALMIS!");
@@ -1646,6 +1662,7 @@ namespace BauhofOffline
                 WriteLog("GetConfiguration started", 1);
                 lstSettings = new List<ListOfSettings>();
                 var row = new ListOfSettings();
+               
 
                 Configuration configManager = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 KeyValueConfigurationCollection confCollection = configManager.AppSettings.Settings;
@@ -1675,15 +1692,29 @@ namespace BauhofOffline
                     row.exportFolder = confCollection["exportFolder"].Value.ToString();
                     WriteLog("GetConfiguration exportFolder = " + row.exportFolder, 2);
                 }
-
+                if (confCollection["smtpServer"] != null)
+                {
+                    row.smtpServer = confCollection["smtpServer"].Value.ToString();
+                    WriteLog("GetConfiguration smtpServer = " + row.smtpServer, 2);
+                }
                 if (confCollection["debugLevel"] != null)
                 {
                     row.debugLevel = Convert.ToInt32(confCollection["debugLevel"].Value.ToString());
                     WriteLog("GetConfiguration debugLevel = " + row.debugLevel, 2);
                 }
+                if (confCollection["shopFileFolder"] != null)
+                {
+                    row.shopFileFolder = confCollection["shopFileFolder"].Value.ToString();
+                    WriteLog("GetConfiguration shopFileFolder = " + row.debugLevel, 2);
+                }
+                if (confCollection["csvArchiveFolder"] != null)
+                {
+                    row.csvArchiveFolder = confCollection["csvArchiveFolder"].Value.ToString();
+                    WriteLog("GetConfiguration csvArchiveFolder = " + row.debugLevel, 2);
+                }
+
                 lstSettings.Add(row);
                 WriteLog("GetConfiguration complete", 1);
-                WriteError("GetConfiguration " + "TEST" + " " + "test2");
             }
             catch (Exception ex)
             {
@@ -1704,7 +1735,8 @@ namespace BauhofOffline
                         String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
                         "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
                         "" + "\r\n" +
-                        message;
+                        message + "\r\n" + 
+                        "================";
 
                         if (!Directory.Exists(lstSettings.First().logFolder))
                         {
