@@ -1291,7 +1291,7 @@ namespace BauhofWMS
                                 barCode = p.barCode;
                             }
                         }
-                        dataRowMovement = dataRowMovement + p.itemCode + ";" + p.barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
+                        dataRowMovement = dataRowMovement + p.itemCode + ";" + barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
                     }
                     var write = await WriteMovementRecordsToExportFile.Write(this, dataRowMovement, exportFileNameStamp);
                     if (write.Item1)

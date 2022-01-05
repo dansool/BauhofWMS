@@ -1034,6 +1034,37 @@ namespace BauhofOffline
                         var l = ConvertCsvFileToJsonObject(shopFileFolder, relationFileName, DateTime.Now);
                     }
                 }
+                Debug.WriteLine("lstShopRelations.count alustan");
+
+               Debug.WriteLine("lstShopRelations.count " + lstShopRelations.Count());
+                if (lstShopRelations.Any())
+                {
+                    
+                    string[] dirs = Directory.GetFiles(csvFolderPath);
+                    foreach (var r in lstShopRelations)
+                    {
+                        bool isInFolder = false;
+                        foreach (string str in dirs)
+                        {
+                            string sourceFileName = str;
+                            int index = str.LastIndexOf("\\");
+                            string fileName = str.Substring(index + 1);
+                            if (fileName.StartsWith(r.shopID + "_PDA_Products"))
+                            {
+                                isInFolder = true;
+                            }
+                        }
+                        if (isInFolder)
+                        {
+                            Debug.WriteLine("ON " + r.shopID + " " + r.shopName);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("EI OLE! " + r.shopID + " " + r.shopName);
+                            proceed = false;
+                        }
+                    }
+                }
 
                 if (proceed)
                 {
@@ -1435,8 +1466,10 @@ namespace BauhofOffline
             //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
             //    }
             //}
+            DateTime stamp = DateTime.Now;
             var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
             {
+                fileDate = stamp,
                 itemCode = s.First().itemCode,
                 SKU = GetSKUString(s, countOfConcat),
                 barCode = s.First().barCode,
