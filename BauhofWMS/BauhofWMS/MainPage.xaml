@@ -342,17 +342,6 @@
                                     <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                        <!--<Grid Grid.Row="2" HorizontalOptions="Start">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="25"/>
-                          </Grid.RowDefinitions>
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
-                            <Label x:Name="lblStockTakeItemDesc" x:FieldModifier="public" Text="X" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Magenta"  />
-                          </Grid>
-                        </Grid>-->
                         <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-25,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -364,33 +353,7 @@
                                     <ListView x:FieldModifier="public"  x:Name="LstvStockTakeInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                                 </Grid>
                          </Grid>
-                            <!--<Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="5"/>
-                            <ColumnDefinition Width="220"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="20"/>
-                            <RowDefinition Height="20"/>
-                          </Grid.RowDefinitions>
-                         
-
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakeInternalCode" x:FieldModifier="public" Text="KAUBAKOOD" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
-                            <Label x:Name="lblStockTakeInternalCodeValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="0" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakeBarCode" x:FieldModifier="public" Text="VÖÖTKOOD" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="2" Grid.Row="1"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="240">
-                            <Label x:Name="lblStockTakeBarCodeValue" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
-                          </Grid>
-                        </Grid>-->
-                       
-                        <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand">
+                            <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="110"/>
@@ -400,10 +363,12 @@
                           <Grid.RowDefinitions>
                             <RowDefinition Height="55"/>
                           </Grid.RowDefinitions>
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblStockTakeQuantity" x:FieldModifier="public" Text="LISA" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
+                            <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                <Frame x:Name="frmbtnStockTakeAddedRowsDelete" BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="&#xf2ed;" FontFamily="{StaticResource FaSolid}" x:Name="btnStockTakeAddedRowsDelete"  WidthRequest="60" HeightRequest="50"  x:FieldModifier="public" Clicked="btnStockTakeAddedRowsDelete_Clicked" BackgroundColor="Red"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                                </Frame>
+                            </Grid>
+                            <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
                             <Frame x:Name="frmentStockTakeQuantity" BorderColor="Blue" HasShadow="False" x:FieldModifier="public" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entStockTakeQuantity" x:Name="entStockTakeQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
                             </Frame>
@@ -417,18 +382,18 @@
                             </Frame>
                           </Grid>
                         </Grid>
-                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-10,0,0">
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="5,-6,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="60"/>
                           </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
-                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="47"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                             <Frame BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
-                              <Button Text="&#xf06e;" FontFamily="{StaticResource FaSolid}" x:Name="btnStockTakeAddedRowsView"  WidthRequest="60" HeightRequest="50"  x:FieldModifier="public" Clicked="btnStockTakeAddedRowsView_Clicked" BackgroundColor="Blue"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                              <Button Text="&#xf06e;" FontFamily="{StaticResource FaSolid}" x:Name="btnStockTakeAddedRowsView"  WidthRequest="60" HeightRequest="47"  x:FieldModifier="public" Clicked="btnStockTakeAddedRowsView_Clicked" BackgroundColor="Blue"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
                             </Frame>
                           </Grid>
                           <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End">
@@ -499,7 +464,7 @@
                             <ListView x:FieldModifier="public"  x:Name="LstvTransferInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                           </Grid>
                         </Grid>
-                        <Grid Grid.Row="3"  HorizontalOptions="CenterAndExpand">
+                            <Grid Grid.Row="3"  HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="110"/>
@@ -509,10 +474,12 @@
                           <Grid.RowDefinitions>
                             <RowDefinition Height="55"/>
                           </Grid.RowDefinitions>
-                          <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                            <Label x:Name="lblTransferQuantity" x:FieldModifier="public" Text="LISA" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
-                          </Grid>
-                          <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
+                            <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Frame x:Name="frmbtnTransferAddedRowsDelete" BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
+                                    <Button Text="&#xf2ed;" FontFamily="{StaticResource FaSolid}" x:Name="btnTransferAddedRowsDelete"  WidthRequest="60" HeightRequest="50"  x:FieldModifier="public" Clicked="btnTransferAddedRowsDelete_Clicked" BackgroundColor="Red"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                                </Frame>
+                            </Grid>
+                            <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
                             <Frame x:Name="frmentTransferQuantity"  x:FieldModifier="public" BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
                               <entry:CustomEntry ClassId="entTransferQuantity" x:Name="entTransferQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
                             </Frame>
@@ -526,18 +493,18 @@
                             </Frame>
                           </Grid>
                         </Grid>
-                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" Margin="0,-15,0,0">
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" Margin="16,-2,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="60"/>
                           </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
-                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="47"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                             <Frame BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
-                              <Button Text="&#xf06e;" FontFamily="{StaticResource FaSolid}" x:Name="btnTransferAddedRowsView"  WidthRequest="60" HeightRequest="50"  x:FieldModifier="public" Clicked="btnTransferAddedRowsView_Clicked" BackgroundColor="Blue"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                              <Button Text="&#xf06e;" FontFamily="{StaticResource FaSolid}" x:Name="btnTransferAddedRowsView"  WidthRequest="60" HeightRequest="47"  x:FieldModifier="public" Clicked="btnTransferAddedRowsView_Clicked" BackgroundColor="Blue"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
                             </Frame>
                           </Grid>
                           <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End">

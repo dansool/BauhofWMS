@@ -415,6 +415,10 @@ namespace BauhofOffline
                                     WriteLog(@"btnDownload_Click downloaded " + file.FullName, 2);
                                 }
                             }
+                            if (File.Exists(destinationFileName))
+                            {
+                                device.DeleteFile(file.FullName);
+                            }
                         }
                         device.Disconnect();
                         WriteLog(@"btnDownload_Click device disconnected", 2);

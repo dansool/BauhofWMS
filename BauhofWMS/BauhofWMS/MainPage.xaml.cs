@@ -1318,7 +1318,7 @@ namespace BauhofWMS
         #region stkStockTake
         public async void PrepareStockTake()
         {
-            
+            frmbtnStockTakeAddedRowsDelete.IsVisible = false;
             CollapseAllStackPanels.Collapse(this);
             stkStockTake.IsVisible = true;
             obj.mainOperation = "";
@@ -1344,7 +1344,7 @@ namespace BauhofWMS
             lblStockTakeQuantityUOM.IsVisible = false;
             frmentStockTakeQuantity.IsVisible = false;
             entStockTakeQuantity.IsVisible = false;
-            lblStockTakeQuantity.IsVisible = false;
+           
 
 
             var resultReadInvRecords = await ReadInvRecords.Read(this);
@@ -1378,6 +1378,31 @@ namespace BauhofWMS
             ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
         }
 
+        private async void btnStockTakeAddedRowsDelete_Clicked(object sender, EventArgs e)
+        {
+            if (await YesNoDialog("INVENTUUR", "JÄTKAMISEL KUSTUTATAKSE KIRJE TÄIELIKULT!", false))
+            {
+                var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
+                if (record.Any())
+                {
+                    lstInternalInvDB.Remove(record.Take(1).First());
+                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                    string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
+
+                    var writeInvDbToFile = await WriteInvRecords.Write(this, data);
+                    if (writeInvDbToFile.Item1)
+                    {
+                        DisplaySuccessMessage("SALVESTATUD2!");
+                        PrepareStockTake();
+                    }
+                    else
+                    {
+                        DisplayFailMessage(writeInvDbToFile.Item2);
+                    }
+                }
+            }
+        }
+
         private async void btnStockTakeQuantityOK_Clicked(object sender, EventArgs e)
         {
             try
@@ -1393,20 +1418,13 @@ namespace BauhofWMS
                     proceed = false;
                     DisplayFailMessage("KAUPA POLE VALITUD!");
                 }
-                if (quantity == 0)
-                {
-                    if (invRecordID != 0)
-                    {
-                        if (!await YesNoDialog("INVENTUUR", "SISESTATUD KOGUS ON 0. JÄTKAMISEL TÜHISTATAKSE VAREM SISESTATUD KOGUS. KAS JÄTKATA?", false))
-                        {
-                            proceed = false;
-                        }
-                    }
-                    else
-                    {
-                        DisplayFailMessage("0 EI SAA KOGUSENA SISESTADA!");
-                    }
-                }
+                //if (quantity == 0)
+                //{
+                //    if (!await YesNoDialog("INVENTUUR", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
+                //    {
+                //        proceed = false;
+                //    }
+                //}
 
                 if (proceed)
                 {
@@ -1447,29 +1465,29 @@ namespace BauhofWMS
                         }
                         else
                         {
-                            if (quantity == 0)
-                            {
-                                var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
-                                if (record.Any())
-                                {
-                                    lstInternalInvDB.Remove(record.Take(1).First());
-                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                    string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
+                            //if (quantity == 0)
+                            //{
+                            //    var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
+                            //    if (record.Any())
+                            //    {
+                            //        lstInternalInvDB.Remove(record.Take(1).First());
+                            //        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                            //        string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
 
-                                    var writeInvDbToFile = await WriteInvRecords.Write(this, data);
-                                    if (writeInvDbToFile.Item1)
-                                    {
-                                        DisplaySuccessMessage("SALVESTATUD2!");
-                                        PrepareStockTake();
-                                    }
-                                    else
-                                    {
-                                        DisplayFailMessage(writeInvDbToFile.Item2);
-                                    }
-                                }
-                            }
-                            else
-                            {
+                            //        var writeInvDbToFile = await WriteInvRecords.Write(this, data);
+                            //        if (writeInvDbToFile.Item1)
+                            //        {
+                            //            DisplaySuccessMessage("SALVESTATUD2!");
+                            //            PrepareStockTake();
+                            //        }
+                            //        else
+                            //        {
+                            //            DisplayFailMessage(writeInvDbToFile.Item2);
+                            //        }
+                            //    }
+                            //}
+                            //else
+                            //{
                                 var record = lstInternalInvDB.Where(x => x.recordID == invRecordID);
                                 if (record.Any())
                                 {
@@ -1490,7 +1508,7 @@ namespace BauhofWMS
                                         DisplayFailMessage(writeInvDbToFile.Item2);
                                     }
                                 }
-                            }
+                            //}
                         }
                     }
                     else
@@ -1529,7 +1547,7 @@ namespace BauhofWMS
                         lblStockTakeQuantityUOM.IsVisible = false;
                         frmentStockTakeQuantity.IsVisible = false;
                         entStockTakeQuantity.IsVisible = false;
-                        lblStockTakeQuantity.IsVisible = false;
+                        
 
                         var result = lstInternalRecordDB.Where(x =>
                            x.itemCode.Contains(entStockTakeReadCode.Text)
@@ -1549,6 +1567,7 @@ namespace BauhofWMS
                                         if (await YesNoDialog("INVENTUUR", "KAUP ON JUBA INVENTEERTUD. KAS SOOVID PARANDADA?", false))
                                         {
                                             obj.isScanAllowed = true;
+                                            frmbtnStockTakeAddedRowsDelete.IsVisible = true;
                                             invRecordID = s.First().recordID;
                                             entStockTakeQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
                                             lblStockTakeQuantityUOM.Text = result.First().itemMagnitude;
@@ -1563,7 +1582,7 @@ namespace BauhofWMS
                                             lblStockTakeQuantityUOM.IsVisible = true;
                                             frmentStockTakeQuantity.IsVisible = true;
                                             entStockTakeQuantity.IsVisible = true;
-                                            lblStockTakeQuantity.IsVisible = true;
+                                          
 
                                             lstStockTakeInfo = result;
                                             if (lstStockTakeInfo.Any())
@@ -1616,7 +1635,7 @@ namespace BauhofWMS
                                             entStockTakeReadCode.BackgroundColor = Color.Yellow;
                                             ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                                             entStockTakeQuantity.BackgroundColor = Color.White;
-
+                                            frmbtnStockTakeAddedRowsDelete.IsVisible = false;
 
                                         }
                                     }
@@ -1631,13 +1650,13 @@ namespace BauhofWMS
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                         entStockTakeReadCode.BackgroundColor = Color.White;
 
+                                        frmbtnStockTakeAddedRowsDelete.IsVisible = false;
                                         frmbtnStockTakeQuantityOK.IsVisible = true;
                                         btnStockTakeQuantityOK.IsVisible = true;
                                         lblStockTakeQuantityUOM.IsVisible = true;
                                         frmentStockTakeQuantity.IsVisible = true;
                                         entStockTakeQuantity.IsVisible = true;
-                                        lblStockTakeQuantity.IsVisible = true;
-
+                                   
                                         lstStockTakeInfo = result;
                                         if (lstStockTakeInfo.Any())
                                         {
@@ -1693,7 +1712,8 @@ namespace BauhofWMS
                                     lblStockTakeQuantityUOM.IsVisible = true;
                                     frmentStockTakeQuantity.IsVisible = true;
                                     entStockTakeQuantity.IsVisible = true;
-                                    lblStockTakeQuantity.IsVisible = true;
+                                    
+                                   frmbtnStockTakeAddedRowsDelete.IsVisible = false;
 
                                     lstStockTakeInfo = new List<ListOfdbRecords>();
                                     lstStockTakeInfo = result;
@@ -1778,7 +1798,7 @@ namespace BauhofWMS
         #region stkTransfer
         public async void PrepareTransfer()
         {
-
+            frmbtnTransferAddedRowsDelete.IsVisible = false;
             CollapseAllStackPanels.Collapse(this);
             stkTransfer.IsVisible = true;
             obj.mainOperation = "";
@@ -1798,7 +1818,7 @@ namespace BauhofWMS
             entTransferReadCode.Text = "";
             entTransferQuantity.Text = "";
 
-            lblTransferQuantity.IsVisible = false;
+           
             frmentTransferQuantity.IsVisible = false;
             entTransferQuantity.IsVisible = false;
             lblTransferQuantityUOM.IsVisible = false;
@@ -1832,6 +1852,30 @@ namespace BauhofWMS
             ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
         }
 
+        private async void btnTransferAddedRowsDelete_Clicked(object sender, EventArgs e)
+        {
+            if (await YesNoDialog("LIIKUMINE", "JÄTKAMISEL KUSTUTATAKSE KIRJE TÄIELIKULT!", false))
+            {
+                var record = lstInternalMovementDB.Where(x => x.recordID == transferRecordID);
+                if (record.Any())
+                {
+                    lstInternalMovementDB.Remove(record.Take(1).First());
+                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                    string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
+                    Debug.WriteLine(data);
+                    var writeMovementDbToFile = await WriteMovementRecords.Write(this, data);
+                    if (writeMovementDbToFile.Item1)
+                    {
+                        DisplaySuccessMessage("SALVESTATUD!");
+                        PrepareTransfer();
+                    }
+                    else
+                    {
+                        DisplayFailMessage(writeMovementDbToFile.Item2);
+                    }
+                }
+            }
+        }
         private async void btnTransferQuantityOK_Clicked(object sender, EventArgs e)
         {
             bool proceed = true;
@@ -1854,20 +1898,20 @@ namespace BauhofWMS
                     DisplayFailMessage("KAUPA POLE VALITUD!");
                 }
             }
-            if (quantity == 0)
-            {
-                if (transferRecordID != 0)
-                {
-                    if (!await YesNoDialog("LIIKUMINE", "SISESTATUD KOGUS ON 0. JÄTKAMISEL TÜHISTATAKSE VAREM SISESTATUD KOGUS. KAS JÄTKATA?", false))
-                    {
-                        proceed = false;
-                    }
-                }
-                else
-                {
-                    DisplayFailMessage("0 EI SAA KOGUSENA SISESTADA!");
-                }
-            }
+            //if (quantity == 0)
+            //{
+            //    if (transferRecordID != 0)
+            //    {
+            //        if (!await YesNoDialog("LIIKUMINE", "SISESTATUD KOGUS ON 0. JÄTKAMISEL TÜHISTATAKSE VAREM SISESTATUD KOGUS. KAS JÄTKATA?", false))
+            //        {
+            //            proceed = false;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        DisplayFailMessage("0 EI SAA KOGUSENA SISESTADA!");
+            //    }
+            //}
             if (proceed)
             {
                 if (quantity > -1)
@@ -1908,30 +1952,9 @@ namespace BauhofWMS
                     }
                     else
                     {
-                        if (quantity == 0)
-                        {
-                            var record = lstInternalMovementDB.Where(x => x.recordID == transferRecordID);
-                            if (record.Any())
-                            {
-                                lstInternalMovementDB.Remove(record.Take(1).First());
-                                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
-                                Debug.WriteLine(data);
-                                var writeMovementDbToFile = await WriteMovementRecords.Write(this, data);
-                                //await DisplayAlert("writeMovementDbToFile", writeMovementDbToFile.Item1 + "  " + writeMovementDbToFile.Item2, "OK");
-                                if (writeMovementDbToFile.Item1)
-                                {
-                                    DisplaySuccessMessage("SALVESTATUD!");
-                                    PrepareTransfer();
-                                }
-                                else
-                                {
-                                    DisplayFailMessage(writeMovementDbToFile.Item2);
-                                }
-                            }
-                        }
-                        else
-                        {
+                        
+                        //else
+                        //{
                             var record = lstInternalMovementDB.Where(x => x.recordID == transferRecordID);
                             if (record.Any())
                             {
@@ -1953,7 +1976,7 @@ namespace BauhofWMS
                                     DisplayFailMessage(writeMovementDbToFile.Item2);
                                 }
                             }
-                        }
+                        //}
                     }
                 }
                 else
@@ -1998,7 +2021,7 @@ namespace BauhofWMS
                         {
                             if (lstInternalMovementDB.Any())
                             {
-                                lblTransferQuantity.IsVisible = false;
+                               
                                 frmentTransferQuantity.IsVisible = false;
                                 entTransferQuantity.IsVisible = false;
                                 lblTransferQuantityUOM.IsVisible = false;
@@ -2012,6 +2035,7 @@ namespace BauhofWMS
                                     if (await YesNoDialog("LIIKUMINE", "KAUP ON JUBA LIIGUTATUD. KAS SOOVID PARANDADA?", false))
                                     {
                                         obj.isScanAllowed = true;
+                                        frmbtnTransferAddedRowsDelete.IsVisible = true;
                                         transferRecordID = s.First().recordID;
                                         entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
                                         lstTransferInfo = new List<ListOfdbRecords>();
@@ -2075,7 +2099,7 @@ namespace BauhofWMS
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                         entTransferReadCode.BackgroundColor = Color.White;
 
-                                        lblTransferQuantity.IsVisible = true;
+                                    
                                         frmentTransferQuantity.IsVisible = true;
                                         entTransferQuantity.IsVisible = true;
                                         lblTransferQuantityUOM.IsVisible = true;
@@ -2095,6 +2119,7 @@ namespace BauhofWMS
                                         entTransferReadCode.BackgroundColor = Color.Yellow;
                                         ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
                                         entTransferQuantity.BackgroundColor = Color.White;
+                                        frmbtnTransferAddedRowsDelete.IsVisible = false;
                                     }
                                 }
                                 else
@@ -2158,12 +2183,13 @@ namespace BauhofWMS
                                     ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                     entTransferReadCode.BackgroundColor = Color.White;
 
-                                    lblTransferQuantity.IsVisible = true;
+                                   
                                     frmentTransferQuantity.IsVisible = true;
                                     entTransferQuantity.IsVisible = true;
                                     lblTransferQuantityUOM.IsVisible = true;
                                     frmbtnTransferQuantityOK.IsVisible = true;
                                     btnTransferQuantityOK.IsVisible = true;
+                                    frmbtnTransferAddedRowsDelete.IsVisible = false;
                                 }
                             }
                             else
@@ -2232,12 +2258,13 @@ namespace BauhofWMS
                                 ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                                 entTransferReadCode.BackgroundColor = Color.White;
 
-                                lblTransferQuantity.IsVisible = true;
+                               
                                 frmentTransferQuantity.IsVisible = true;
                                 entTransferQuantity.IsVisible = true;
                                 lblTransferQuantityUOM.IsVisible = true;
                                 frmbtnTransferQuantityOK.IsVisible = true;
                                 btnTransferQuantityOK.IsVisible = true;
+                                frmbtnTransferAddedRowsDelete.IsVisible = false;
                             }
                             obj.isScanAllowed = true;
                         }
@@ -2714,8 +2741,10 @@ namespace BauhofWMS
         }
 
 
+
         #endregion
 
+       
     }
 }
     
