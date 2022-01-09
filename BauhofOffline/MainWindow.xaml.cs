@@ -23,6 +23,7 @@ using System.ComponentModel;
 using BauhofWMSDLL.ListDefinitions;
 using System.Configuration;
 using System.Net.Mail;
+using BauhofOffline.Utils;
 
 namespace BauhofOffline
 {
@@ -33,6 +34,11 @@ namespace BauhofOffline
     {
         public int sKUCounter = 0;
         private readonly BackgroundWorker bw = new BackgroundWorker();
+        private string startupArgs = App.mArgs;
+        public bool ui = true;
+        public ParseArguments ParseArguments = new ParseArguments();
+        public string convertProcessLog = "";
+        public bool convertProcess = true;
 
         #region lists
         public List<ListOfShopRelations> lstShopRelations = new List<ListOfShopRelations>();
@@ -73,20 +79,119 @@ namespace BauhofOffline
         #region Main
         public MainWindow()
         {
-            InitializeComponent();
-            prgRing.Visibility = Visibility.Hidden;
-            GetConfiguration();
-            CheckVersion();
-            ConvertFilesStart();            
+            try
+            {
+                InitializeComponent();
+                WriteLog("InitializeComponent done", 1);
+                prgRing.Visibility = Visibility.Hidden;
+                WriteLog("prgRing visible", 1);
+                if (startupArgs != null)
+                {
+                    WriteLog("Started with arguments: " + startupArgs, 1);
+                    convertProcessLog = "Started with arguments: " + startupArgs;
+                    convertProcessLog = convertProcessLog + "\r\n" + "Parsing startupArgs";
+                    var parseArgs = ParseArguments.Parse(this, startupArgs);
+                    if (parseArgs.Item1)
+                    {
+                        var lstStartupArguments = parseArgs.Item3;                        
+                        if (lstStartupArguments.Any())
+                        {
+                            WriteLog("Arguments parsed", 1);
+                            convertProcessLog = convertProcessLog + "\r\n" + "Arguments parsed";
+                            if (lstStartupArguments.First().ConvertFiles && lstStartupArguments.First().showUI == false)
+                            {
+                                GetConfiguration();
+                                WriteLog("GetConfiguration done", 1);
+                                convertProcessLog = convertProcessLog + "\r\n" + "GetConfiguration done";
+                                //CheckVersion();
+                                //WriteLog("CheckVersion done", 1);
+                                WriteLog("Converting files", 1);
+                                convertProcessLog = convertProcessLog + "\r\n" + "Converting files";
+                                ConvertFiles();
+                                CloseWindow();
+                            }
+                            else
+                            {
+                                if (lstStartupArguments.First().showUI)
+                                {
+                                    GetConfiguration();
+                                    WriteLog("GetConfiguration done", 1);
+                                    CheckVersion();
+                                    WriteLog("CheckVersion done", 1);
+                                    ConvertFilesStart();
+                                }
+                                else
+                                {
+                                    CloseWindow();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(parseArgs.Item2);
+                    }
+                }
+                else
+                {
+                    GetConfiguration();
+                    WriteLog("GetConfiguration done", 1);
+                    CheckVersion();
+                    WriteLog("CheckVersion done", 1);
+
+                }
+                WriteLog("ConvertFilesStart done", 1);
+            }
+            catch (Exception ex)
+            {
+                string error = "MainWindow " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+            }
         }
 
-     
+        public void SendMail(string errroToWrite)
+        {
+            try
+            {
+                //lstSettings.First().smtpServer = "mail.konesko.ee";
+                Debug.WriteLine("using " + lstSettings.First().smtpServer);
+                Debug.WriteLine("using " + lstSettings.First().adminEmail);
+                Debug.WriteLine("BauhofOffline error from " + Environment.MachineName);
+                Debug.WriteLine(errroToWrite);
+                var mail = new MailMessage();
+                var SmtpServer = new SmtpClient(lstSettings.First().smtpServer);
+                //SmtpServer.Credentials = new System.Net.NetworkCredential("dan.sool@konesko.ee", "kl0ngn11 ");
+                mail.From = new MailAddress("bauhofoffline@konesko.ee");
+                mail.To.Add(lstSettings.First().adminEmail);
+
+                mail.Subject = "BauhofOffline error from " + Environment.MachineName;
+                mail.Body = errroToWrite;
+                SmtpServer.Send(mail);
+                Debug.WriteLine("mail sent");
+            }
+            catch(SmtpException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        public void CloseWindow()
+        {
+            Environment.Exit(0);
+        }
 
         private void CheckVersion()
         {
             try
             {
-                Debug.WriteLine("1");
                 WriteLog("CheckVersion started", 1);
                 txtBkLatestVersionValue.Text = "";
                 txtBkScannerVersionValue.Text = "";
@@ -118,7 +223,6 @@ namespace BauhofOffline
                     MessageBox.Show("VÄLIST SEADET EI LEITUD!");
                 }
 
-                Debug.WriteLine("2");
                 Debug.WriteLine("DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer);
                 if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                 {
@@ -129,23 +233,23 @@ namespace BauhofOffline
                         bool fileExists = false;
                         device.Connect();
                         WriteLog("CheckVersion device connected", 2);
-                        
-                        try
-                        {
-                            device.CreateDirectory(@"\Internal shared storage\Download");
-                        }
-                        catch(Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
+
+                        //try
+                        //{
+                        //    device.CreateDirectory(@"\Internal shared storage\Download");
+                        //}
+                        //catch(Exception ex)
+                        //{
+                        //    WriteError("CheckVersion create Download directory: " + ex.Message);
+                        //}
+                        WriteLog(@"CheckVersion looking for files in Internal shared storage\Download", 2);
                         var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                         foreach (var file in files)
                         {
-                            
+                            WriteLog(@"CheckVersion found " + file.Name + @" in Internal shared storage\Download", 2);
                             if (file.Name.ToUpper() == "VERSION.TXT")
                            {
-                                Debug.WriteLine("3");
                                 fileExists = true;
                                 WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
                                 count = count + 1;
@@ -158,12 +262,9 @@ namespace BauhofOffline
 
                                 if (!File.Exists(destinationFileName))
                                 {
-                                    Debug.WriteLine("4");
                                     using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
                                     {
-                                        Debug.WriteLine("5");
                                         device.DownloadFile(file.FullName, fs);
-                                        Debug.WriteLine("6");
                                         WriteLog(@"CheckVersion VERSION.TXT downloaded from the device to c:\windows\temp\", 2);
                                     }
                                 }
@@ -759,39 +860,38 @@ namespace BauhofOffline
         {
             try
             {
-                Debug.WriteLine("folderPath " + fileCounter);
+                convertProcessLog = convertProcessLog + "\r\n" + "Processing " + inputFileName;
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 string filename = folderPath + inputFileName;
-                Debug.WriteLine("filename:" + filename);
                 if (!Directory.Exists(lstSettings.First().csvArchiveFolder))
-                {
+                {                    
                     Directory.CreateDirectory(lstSettings.First().csvArchiveFolder);
                 }
                 if (!File.Exists(lstSettings.First().csvArchiveFolder + @"\" + inputFileName.Replace(".csv", ".convert")))
                 {
-                    
+                    convertProcessLog = convertProcessLog + "\r\n" + "Locking file " + inputFileName;
                     File.WriteAllText(lstSettings.First().csvArchiveFolder + @"\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
+                    convertProcessLog = convertProcessLog + "\r\n" + "Reading file " + inputFileName;
+                    WriteLog("Inputfile read started: " + inputFileName, 1);
                     List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                    convertProcessLog = convertProcessLog + "\r\n" + "Inputfile " + inputFileName + " " + values.Count() + " lines readed";
+                    WriteLog("Inputfile " + inputFileName + " " + values.Count() + " lines readed", 1);
                     if (fileCounter == 1)
                     {
                         lstDB01 = values;
-                        Debug.WriteLine("lstDB01 values count:" + values.Count());
                     }
                     if (fileCounter == 2)
                     {
                         lstDB02 = values;
-                        Debug.WriteLine("lstDB02 values count:" + values.Count());
                     }
                     if (fileCounter == 3)
                     {
                         lstDB03 = values;
-                        Debug.WriteLine("lstDB03 values count:" + values.Count());
                     }
                     if (fileCounter == 4)
                     {
                         lstDB04 = values;
-                        Debug.WriteLine("lstDB04 values count:" + values.Count());
                     }
                     if (fileCounter == 5)
                     {
@@ -915,13 +1015,20 @@ namespace BauhofOffline
                         lstDB30 = values;
                     }
                 }
+                WriteLog("Moving inputfile " + inputFileName + " to " + lstSettings.First().csvArchiveFolder, 1);
+                convertProcessLog = convertProcessLog + "\r\n" + "Moving inputfile " + inputFileName + " to " + lstSettings.First().csvArchiveFolder;
                 File.Move(filename, lstSettings.First().csvArchiveFolder + @"\" + inputFileName);
                 return "";
             }
             catch (Exception ex)
             {
-                WriteError("ConvertCsvFileToJsonObject " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("ConvertCsvFileToJsonObject  " + ex.Message);
+                string error = "ConvertCsvFileToJsonObject " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
                 return "";
             }
         }
@@ -930,23 +1037,33 @@ namespace BauhofOffline
         {
             try
             {
+                convertProcessLog = convertProcessLog + "\r\n" + "Convert of shopfile started";
                 string filename = folderPath + inputFileName;
+                convertProcessLog = convertProcessLog + "\r\n" + "Shopfile read started";
                 List<ListOfShopRelations> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromShopRelationCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
                 lstShopRelations = values;
+                convertProcessLog = convertProcessLog + "\r\n" + "Shopfile read done. Total records " + lstShopRelations.Count();
                 Debug.WriteLine("lstShopRelations.Count() " + lstShopRelations.Count());
                 string outputFile = inputFileName.Replace(".csv", ".txt").ToUpper();
                 string json = JsonConvert.SerializeObject(values);
                 if (File.Exists(lstSettings.First().jsonFolder + outputFile))
                 {
+                    convertProcessLog = convertProcessLog + "\r\n" + "Deleting existing shopfile";
                     File.Delete(lstSettings.First().jsonFolder + outputFile);
                 }
                 File.WriteAllText(lstSettings.First().jsonFolder + outputFile, json);
+                convertProcessLog = convertProcessLog + "\r\n" + "Shopfile created!";
                 return "";
             }
             catch (Exception ex)
             {
-                WriteError("ConvertCsvFileToJsonObject " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("ConvertCsvFileToJsonObject  " + ex.Message);
+                string error = "ConvertCsvFileToJsonObject " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
                 return "";
             }
         }
@@ -955,6 +1072,7 @@ namespace BauhofOffline
         {
             try
             {
+                Debug.WriteLine("ConvertFilesStart start");
                 var backgroundWorker = new BackgroundWorker
                 {
                     WorkerReportsProgress = true,
@@ -963,6 +1081,7 @@ namespace BauhofOffline
                 backgroundWorker.DoWork += bw_DoWork_ConvertFiles;
                 backgroundWorker.RunWorkerCompleted += bw_RunWorkerCompleted_ConvertFiles;
                 backgroundWorker.RunWorkerAsync();
+               
             }
             catch (Exception ex)
             {
@@ -973,514 +1092,558 @@ namespace BauhofOffline
 
         public void GetLatestDBFile()
         {
-            string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
-            if (dirs.Any())
+            try
             {
-                foreach (string str in dirs)
+                convertProcessLog = convertProcessLog + "\r\n" + "Getting files from " + lstSettings.First().jsonFolder;
+                string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
+                if (dirs.Any())
                 {
-                    
-                    string sourceFileName = str;
-                    int index = str.LastIndexOf("\\");
-                    string fileName = str.Substring(index + 1);
-                    Debug.WriteLine(fileName);
-                    if (fileName.ToUpper().StartsWith("DBRECORDS_") && fileName.ToUpper().EndsWith(".TXT"))
+                    foreach (string str in dirs)
                     {
-                        string fileVersionFull = fileName.Replace("DBRECORDS_", "").Replace(".TXT", "");
-                        string fileVersion = fileVersionFull.Substring(6, 2) + "." + fileVersionFull.Substring(4, 2) + "." + fileVersionFull.Substring(0, 4) + " " + fileVersionFull.Substring(9, 2) + ":" + fileVersionFull.Substring(11, 2) + ":" + fileVersionFull.Substring(13, 2);
-                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+
+                        string sourceFileName = str;
+                        int index = str.LastIndexOf("\\");
+                        string fileName = str.Substring(index + 1);
+                        if (fileName.ToUpper().StartsWith("DBRECORDS_") && fileName.ToUpper().EndsWith(".TXT"))
                         {
-                            txtBkLatestFile.Text = "ANDMEBAASI VERSIOON: " + fileVersion;
-                        }));
+                            string fileVersionFull = fileName.Replace("DBRECORDS_", "").Replace(".TXT", "");
+                            string fileVersion = fileVersionFull.Substring(6, 2) + "." + fileVersionFull.Substring(4, 2) + "." + fileVersionFull.Substring(0, 4) + " " + fileVersionFull.Substring(9, 2) + ":" + fileVersionFull.Substring(11, 2) + ":" + fileVersionFull.Substring(13, 2);
+                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            {
+                                convertProcessLog = convertProcessLog + "\r\n" + "Current database version: " + fileVersion;
+                                txtBkLatestFile.Text = "ANDMEBAASI VERSIOON: " + fileVersion;
+                            }));
+                        }
                     }
                 }
             }
-            
+            catch (Exception ex)
+            {
+                string error = "GetLatestDBFile " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(error);
+                }
+                MessageBox.Show(error);
+            }
         }
 
         private void bw_DoWork_ConvertFiles(object sender, DoWorkEventArgs e)
         {
-            GetLatestDBFile();
-            bool proceed = true;
-            string csvFolderPath = "";
-            string shopFileFolder = "";
-            string csvArchiveFolder = "";
-            IEnumerable<ListOfdbRecordsImport> dbconcat = null;
+            ConvertFiles();
+        }
+
+        private void ConvertFiles()
+        {
             try
-            {
-                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+            {                
+                GetLatestDBFile();
+                bool proceed = true;
+                string csvFolderPath = "";
+                string shopFileFolder = "";
+                string csvArchiveFolder = "";
+                IEnumerable<ListOfdbRecordsImport> dbconcat = null;
+                try
                 {
-                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks!";
-                    prgRing.Visibility = Visibility.Visible;
-                }));
-
-                csvFolderPath = lstSettings.First().csvFolder;
-                shopFileFolder = lstSettings.First().shopFileFolder;
-                csvArchiveFolder = lstSettings.First().csvArchiveFolder;
-                string jsonFolderPath = lstSettings.First().jsonFolder;
-                string jsonArchiveFolder = lstSettings.First().jsonFolder + @"\Archive\";
-                if (!Directory.Exists(jsonArchiveFolder))
-                {
-                    Directory.CreateDirectory(jsonArchiveFolder);
-                }
-                string relationFileName = "ShopRelations.csv";
-                if (!Directory.Exists(csvFolderPath))
-                {
-                    Directory.CreateDirectory(csvFolderPath);
-                }
-                if (proceed)
-                {
-                    if (File.Exists(shopFileFolder + relationFileName))
+                    if (ui)
                     {
-                        var l = ConvertCsvFileToJsonObject(shopFileFolder, relationFileName, DateTime.Now);
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks!";
+                            prgRing.Visibility = Visibility.Visible;
+                        }));
                     }
-                }
-                Debug.WriteLine("lstShopRelations.count alustan");
 
-               Debug.WriteLine("lstShopRelations.count " + lstShopRelations.Count());
-                if (lstShopRelations.Any())
-                {
-                    
-                    string[] dirs = Directory.GetFiles(csvFolderPath);
-                    foreach (var r in lstShopRelations)
+                    csvFolderPath = lstSettings.First().csvFolder;
+                    shopFileFolder = lstSettings.First().shopFileFolder;
+                    csvArchiveFolder = lstSettings.First().csvArchiveFolder;
+                    string jsonFolderPath = lstSettings.First().jsonFolder;
+                    string jsonArchiveFolder = lstSettings.First().jsonFolder + @"\Archive\";
+                    if (!Directory.Exists(jsonArchiveFolder))
                     {
-                        bool isInFolder = false;
-                        foreach (string str in dirs)
+                        convertProcessLog = convertProcessLog + "\r\n" + "Creating " + jsonArchiveFolder;
+                        Directory.CreateDirectory(jsonArchiveFolder);
+                    }
+                    string relationFileName = "ShopRelations.csv";
+                    if (!Directory.Exists(csvFolderPath))
+                    {
+                        convertProcessLog = convertProcessLog + "\r\n" + "Creating " + csvFolderPath;
+                        Directory.CreateDirectory(csvFolderPath);
+                    }
+                    if (proceed)
+                    {
+                        if (File.Exists(shopFileFolder + relationFileName))
                         {
-                            string sourceFileName = str;
-                            int index = str.LastIndexOf("\\");
-                            string fileName = str.Substring(index + 1);
-                            if (fileName.StartsWith(r.shopID + "_PDA_Products"))
-                            {
-                                isInFolder = true;
-                            }
-                        }
-                        if (isInFolder)
-                        {
-                            Debug.WriteLine("ON " + r.shopID + " " + r.shopName);
-                        }
-                        else
-                        {
-                            Debug.WriteLine("EI OLE! " + r.shopID + " " + r.shopName);
-                            proceed = false;
+                            var l = ConvertCsvFileToJsonObject(shopFileFolder, relationFileName, DateTime.Now);
                         }
                     }
-                }
 
-                if (proceed)
-                {
-                    string[] dirs = Directory.GetFiles(csvFolderPath);
-                    int fileCounter = 0;
-                    if (dirs.Any())
+                    if (proceed)
                     {
-                        bool dbfilesExist = false;
-                        foreach (string str in dirs)
+                        if (lstShopRelations.Any())
                         {
-                            string sourceFileName = str;
-                            int index = str.LastIndexOf("\\");
-                            string fileName = str.Substring(index + 1);
-                            if (fileName.EndsWith(".lock"))
+                            string[] dirs = Directory.GetFiles(csvFolderPath);
+                            foreach (var r in lstShopRelations)
                             {
-                                proceed = false;
-                            }
-                            if (fileName.EndsWith(".csv") && fileName.Contains("_PDA_Products"))
-                            {
-                                dbfilesExist = true;
-                            }
-                        }
-
-                        if (proceed)
-                        {
-                            if (dbfilesExist)
-                            {
-                                Debug.WriteLine("A1");
-                                var file = new StreamWriter(csvArchiveFolder + Environment.MachineName + ".lock", true);
-                                Debug.WriteLine("A2");
-                                file.WriteLine("");
-                                file.Close();
+                                bool isInFolder = false;
+                                foreach (string str in dirs)
                                 {
-                                    foreach (string str in dirs)
+                                    string sourceFileName = str;
+                                    int index = str.LastIndexOf("\\");
+                                    string fileName = str.Substring(index + 1);
+                                    if (fileName.StartsWith(r.shopID + "_PDA_Products"))
                                     {
-                                        fileCounter = fileCounter + 1;
-                                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                                        {
-                                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
-                                        }));
-                                        string sourceFileName = str;
-                                        int index = str.LastIndexOf("\\");
-                                        string fileName = str.Substring(index + 1);
-                                        if (fileName.EndsWith(".lock"))
-                                        {
-                                            proceed = false;
-                                        }
+                                        isInFolder = true;
+                                    }
+                                }
+                                if (!isInFolder)
+                                {
+                                    convertProcessLog = convertProcessLog + "\r\n" + "PDA csv file for " + r.shopID + " " + r.shopName + " was not found";
+                                    Debug.WriteLine("EI OLE! " + r.shopID + " " + r.shopName);
+                                    proceed = false;
+                                }
+                            }
+                        }
+                    }
+                    if (proceed)
+                    {
+                       
+                        string[] dirs = Directory.GetFiles(csvFolderPath);
+                        int fileCounter = 0;
+                        if (dirs.Any())
+                        {
+                            bool dbfilesExist = false;
+                            foreach (string str in dirs)
+                            {
+                                string sourceFileName = str;
+                                int index = str.LastIndexOf("\\");
+                                string fileName = str.Substring(index + 1);
+                                if (fileName.EndsWith(".lock"))
+                                {
+                                    WriteLog("Lock exists, convert operations skipped", 1);
+                                    proceed = false;
+                                }
+                                if (fileName.EndsWith(".csv") && fileName.Contains("_PDA_Products"))
+                                {
+                                    dbfilesExist = true;
+                                }
+                            }
 
-                                        if (proceed)
+                            if (proceed)
+                            {
+                                if (dbfilesExist)
+                                {
+                                    var file = new StreamWriter(csvArchiveFolder + Environment.MachineName + ".lock", true);
+                                    WriteLog("Lock file created", 1);
+                                    file.WriteLine("");
+                                    file.Close();
+                                    {
+                                        foreach (string str in dirs)
                                         {
-                                            if (fileName.EndsWith(".csv"))
+                                            fileCounter = fileCounter + 1;
+                                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                                             {
-                                                if (fileName.ToUpper() == relationFileName.ToUpper())
+                                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
+                                            }));
+
+                                            string sourceFileName = str;
+                                            int index = str.LastIndexOf("\\");
+                                            string fileName = str.Substring(index + 1);
+                                            if (fileName.EndsWith(".lock"))
+                                            {
+                                                proceed = false;
+                                            }
+
+                                            if (proceed)
+                                            {
+                                                if (fileName.EndsWith(".csv"))
                                                 {
-                                                    string json = JsonConvert.SerializeObject(lstShopRelations);
-                                                    File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
-                                                }
-                                                else
-                                                {
-                                                    var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
-                                                    var prefixToSearch = fileNameSplitPrefix[0];
-                                                    Debug.WriteLine("Prefix is " + prefixToSearch);
-                                                    string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
-                                                    foreach (string str2 in dirsPrefixSearch)
+                                                    if (fileName.ToUpper() == relationFileName.ToUpper())
                                                     {
-                                                        Debug.WriteLine("fileName is " + str2);
-                                                        int index2 = str2.LastIndexOf("\\");
-                                                        string fileName2 = str2.Substring(index2 + 1);
-                                                        if (fileName2.StartsWith(prefixToSearch))
+                                                        string json = JsonConvert.SerializeObject(lstShopRelations);
+                                                        File.WriteAllText(jsonFolderPath + relationFileName.Replace(".csv", ".txt"), json);
+
+                                                    }
+                                                    else
+                                                    {
+                                                        var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
+                                                        var prefixToSearch = fileNameSplitPrefix[0];
+                                                        Debug.WriteLine("Prefix is " + prefixToSearch);
+                                                        string[] dirsPrefixSearch = Directory.GetFiles(jsonFolderPath);
+                                                        foreach (string str2 in dirsPrefixSearch)
                                                         {
-                                                            if (fileName2 != fileName)
+                                                            Debug.WriteLine("fileName is " + str2);
+                                                            int index2 = str2.LastIndexOf("\\");
+                                                            string fileName2 = str2.Substring(index2 + 1);
+                                                            if (fileName2.StartsWith(prefixToSearch))
                                                             {
-                                                                File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                                if (fileName2 != fileName)
+                                                                {
+                                                                    File.Move(jsonFolderPath + fileName2, jsonArchiveFolder + fileName2);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    if (!File.Exists(jsonFolderPath + fileName))
-                                                    {
-                                                        var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
-                                                        string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
-                                                        string formatstring = "yyyyMMddHHmmss";
-                                                        DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
-                                                        ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
+                                                        if (!File.Exists(jsonFolderPath + fileName))
+                                                        {
+                                                            var fileNameSplit = fileName.Split(new[] { "_PDA_Products_" }, StringSplitOptions.None);
+                                                            string datePart = fileNameSplit[1].Replace(".csv", "").Replace("-", "");
+                                                            string formatstring = "yyyyMMddHHmmss";
+                                                            DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
+                                                            ConvertCsvFileToJsonObjectToLarge(csvFolderPath, fileName, fileDate, fileCounter);
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    proceed = false;
+                                }
                             }
-                            else
-                            {
-                                proceed = false;
-                            }
+                            fileCounter = fileCounter + 1;
                         }
-                        fileCounter = fileCounter + 1;
+                        else
+                        {
+                            proceed = false;
+                            //MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
+                        }
                     }
-                    else
+                    if (proceed)
                     {
-                        proceed = false;
-                        //MessageBox.Show("bw_DoWork_ConvertFiles: csv faile ei leitud kataloogist " + csvFolderPath);
+                        convertProcessLog = convertProcessLog + "\r\n" + "Inputfiles merge started";
+                        WriteLog("Inputfiles merge started", 1);
+                        if (lstDB01.Any())
+                        {
+                            dbconcat = lstDB01;
+                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            {
+                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
+                            }));
+
+
+                            if (lstDB02.Any())
+                            {
+                                var d1 = lstDB01.Concat(lstDB02);
+                                dbconcat = d1;
+                            }
+
+                            if (lstDB03.Any())
+                            {
+                                var d2 = dbconcat.Concat(lstDB03);
+                                dbconcat = d2;
+                            }
+
+                            if (lstDB04.Any())
+                            {
+                                var d3 = dbconcat.Concat(lstDB04);
+                                dbconcat = d3;
+                            }
+
+                            if (lstDB05.Any())
+                            {
+                                var d4 = dbconcat.Concat(lstDB05);
+                                dbconcat = d4;
+                            }
+
+                            if (lstDB06.Any())
+                            {
+                                var d5 = dbconcat.Concat(lstDB06);
+                                dbconcat = d5;
+                            }
+
+                            if (lstDB07.Any())
+                            {
+                                var d6 = dbconcat.Concat(lstDB07);
+                                dbconcat = d6;
+                            }
+
+                            if (lstDB08.Any())
+                            {
+                                var d7 = dbconcat.Concat(lstDB08);
+                                dbconcat = d7;
+                            }
+
+                            if (lstDB09.Any())
+                            {
+                                var d8 = dbconcat.Concat(lstDB09);
+                                dbconcat = d8;
+                            }
+
+                            if (lstDB10.Any())
+                            {
+                                var d9 = dbconcat.Concat(lstDB10);
+                                dbconcat = d9;
+                            }
+
+                            if (lstDB11.Any())
+                            {
+                                var d10 = dbconcat.Concat(lstDB11);
+                                dbconcat = d10;
+                            }
+
+                            if (lstDB12.Any())
+                            {
+                                var d11 = dbconcat.Concat(lstDB12);
+                                dbconcat = d11;
+                            }
+
+                            if (lstDB13.Any())
+                            {
+                                var d12 = dbconcat.Concat(lstDB13);
+                                dbconcat = d12;
+                            }
+
+                            if (lstDB14.Any())
+                            {
+                                var d13 = dbconcat.Concat(lstDB14);
+                                dbconcat = d13;
+                            }
+
+                            if (lstDB15.Any())
+                            {
+                                var d14 = dbconcat.Concat(lstDB15);
+                                dbconcat = d14;
+                            }
+
+                            if (lstDB16.Any())
+                            {
+                                var d15 = dbconcat.Concat(lstDB16);
+                                dbconcat = d15;
+                            }
+
+                            if (lstDB17.Any())
+                            {
+                                var d16 = dbconcat.Concat(lstDB17);
+                                dbconcat = d16;
+                            }
+
+                            if (lstDB18.Any())
+                            {
+                                var d17 = dbconcat.Concat(lstDB18);
+                                dbconcat = d17;
+                            }
+
+                            if (lstDB19.Any())
+                            {
+                                var d18 = dbconcat.Concat(lstDB19);
+                                dbconcat = d18;
+                            }
+
+                            if (lstDB20.Any())
+                            {
+                                var d19 = dbconcat.Concat(lstDB20);
+                                dbconcat = d19;
+                            }
+
+
+                            if (lstDB21.Any())
+                            {
+                                var d20 = dbconcat.Concat(lstDB21);
+                                dbconcat = d20;
+                            }
+
+                            if (lstDB22.Any())
+                            {
+                                var d21 = dbconcat.Concat(lstDB22);
+                                dbconcat = d21;
+                            }
+
+                            if (lstDB23.Any())
+                            {
+                                var d22 = dbconcat.Concat(lstDB23);
+                                dbconcat = d22;
+                            }
+
+                            if (lstDB24.Any())
+                            {
+                                var d23 = dbconcat.Concat(lstDB24);
+                                dbconcat = d23;
+                            }
+
+                            if (lstDB25.Any())
+                            {
+                                var d24 = dbconcat.Concat(lstDB25);
+                                dbconcat = d24;
+                            }
+
+                            if (lstDB26.Any())
+                            {
+                                var d25 = dbconcat.Concat(lstDB26);
+                                dbconcat = d25;
+                            }
+
+                            if (lstDB27.Any())
+                            {
+                                var d26 = dbconcat.Concat(lstDB27);
+                                dbconcat = d26;
+                            }
+
+                            if (lstDB28.Any())
+                            {
+                                var d27 = dbconcat.Concat(lstDB28);
+                                dbconcat = d27;
+                            }
+
+                            if (lstDB29.Any())
+                            {
+                                var d28 = dbconcat.Concat(lstDB29);
+                                dbconcat = d28;
+                            }
+
+                            if (lstDB30.Any())
+                            {
+                                var d29 = dbconcat.Concat(lstDB30);
+                                dbconcat = d29;
+                            }
+
+
+
+                        }
                     }
-                }
-                if (proceed)
-                {
-                    Debug.WriteLine("started concat");
-                    if (lstDB01.Any())
+                    if (proceed)
                     {
-                        dbconcat = lstDB01;
+
+                        var lstOfConcat = dbconcat.ToList();
+                        convertProcessLog = convertProcessLog + "\r\n" + "Inputfiles merge complete. Total records: " + lstOfConcat.Count();
+                        WriteLog("Inputfiles merge complete. Total records: " + lstOfConcat.Count(), 1);
+                        List<ListOfdbRecords> finalDB = null;
+                        sKUCounter = 0;
                         Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                         {
-                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
                         }));
+                        var countOfConcat = lstOfConcat.GroupBy(x => x.itemCode).ToList().Count();
+                        convertProcessLog = convertProcessLog + "\r\n" + "dbconcat grouping complete. Total records: " +  countOfConcat;
+                        WriteLog("dbconcat grouping complete. Total records: " + countOfConcat, 1);
+                        finalDB = FillSKUData(lstOfConcat, countOfConcat);
+                        convertProcessLog = convertProcessLog + "\r\n" + "finalDB done. Total records: " + finalDB.Count();
+                        WriteLog("finalDB done. Total records: " + finalDB.Count(), 1);
 
-                        Debug.WriteLine("started concat 1");
-                       
-                        Debug.WriteLine("started concat 2");
-                     
-                        if (lstDB02.Any())
+
+                        string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
+                        Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
+
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                         {
-                            Debug.WriteLine("started concat 3");
-                            Debug.Write("started lstDB02");
-                            var d1 = lstDB01.Concat(lstDB02);
-                            dbconcat = d1;
-                            Debug.WriteLine("CONCAT1 " + d1.Count());
-                        }
-
-                        if (lstDB03.Any())
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Kirjutan impordifaili";
+                        }));
+                        string jsonFinal = JsonConvert.SerializeObject(finalDB);
+                        string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
+                        if (dirs.Any())
                         {
-                            var d2 = dbconcat.Concat(lstDB03);
-                            dbconcat = d2;
-                            Debug.WriteLine("CONCAT2 " + d2.Count());
-                        }
-
-                        if (lstDB04.Any())
-                        {
-                            var d3 = dbconcat.Concat(lstDB04);
-                            dbconcat = d3;
-                            Debug.WriteLine("CONCAT3 " + d3.Count());
-                        }
-
-                        if (lstDB05.Any())
-                        {
-                            var d4 = dbconcat.Concat(lstDB05);
-                            dbconcat = d4;
-                            Debug.WriteLine("CONCAT4 " + d4.Count());
-                        }
-
-                        if (lstDB06.Any())
-                        {
-                            var d5 = dbconcat.Concat(lstDB06);
-                            dbconcat = d5;
-                            Debug.WriteLine("CONCAT5 " + d5.Count());
-                        }
-
-                        if (lstDB07.Any())
-                        {
-                            var d6 = dbconcat.Concat(lstDB07);
-                            dbconcat = d6;
-                            Debug.WriteLine("CONCAT6 " + d6.Count());
-                        }
-
-                        if (lstDB08.Any())
-                        {
-                            var d7 = dbconcat.Concat(lstDB08);
-                            dbconcat = d7;
-                            Debug.WriteLine("CONCAT7 " + d7.Count());
-                        }
-
-                        if (lstDB09.Any())
-                        {
-                            var d8 = dbconcat.Concat(lstDB09);
-                            dbconcat = d8;
-                            Debug.WriteLine("CONCAT8 " + d8.Count());
-                        }
-
-                        if (lstDB10.Any())
-                        {
-                            var d9 = dbconcat.Concat(lstDB10);
-                            dbconcat = d9;
-                            Debug.WriteLine("CONCAT9 " + d9.Count());
-                        }
-
-                        if (lstDB11.Any())
-                        {
-                            var d10 = dbconcat.Concat(lstDB11);
-                            dbconcat = d10;
-                            Debug.WriteLine("CONCAT10 " + d10.Count());
-                        }
-
-                        if (lstDB12.Any())
-                        {
-                            var d11 = dbconcat.Concat(lstDB12);
-                            dbconcat = d11;
-                            Debug.WriteLine("CONCAT11 " + d11.Count());
-                        }
-
-                        if (lstDB13.Any())
-                        {
-                            var d12 = dbconcat.Concat(lstDB13);
-                            dbconcat = d12;
-                            Debug.WriteLine("CONCAT12 " + d12.Count());
-                        }
-
-                        if (lstDB14.Any())
-                        {
-                            var d13 = dbconcat.Concat(lstDB14);
-                            dbconcat = d13;
-                            Debug.WriteLine("CONCAT13 " + d13.Count());
-                        }
-
-                        if (lstDB15.Any())
-                        {
-                            var d14 = dbconcat.Concat(lstDB15);
-                            dbconcat = d14;
-                            Debug.WriteLine("CONCAT14 " + d14.Count());
-                        }
-
-                        if (lstDB16.Any())
-                        {
-                            var d15 = dbconcat.Concat(lstDB16);
-                            dbconcat = d15;
-                            Debug.WriteLine("CONCAT15 " + d15.Count());
-                        }
-
-                        if (lstDB17.Any())
-                        {
-                            var d16 = dbconcat.Concat(lstDB17);
-                            dbconcat = d16;
-                            Debug.WriteLine("CONCAT16 " + d16.Count());
-                        }
-
-                        if (lstDB18.Any())
-                        {
-                            var d17 = dbconcat.Concat(lstDB18);
-                            dbconcat = d17;
-                            Debug.WriteLine("CONCAT17 " + d17.Count());
-                        }
-
-                        if (lstDB19.Any())
-                        {
-                            var d18 = dbconcat.Concat(lstDB19);
-                            dbconcat = d18;
-                            Debug.WriteLine("CONCAT18 " + d18.Count());
-                        }
-
-                        if (lstDB20.Any())
-                        {
-                            var d19 = dbconcat.Concat(lstDB20);
-                            dbconcat = d19;
-                            Debug.WriteLine("CONCAT19 " + d19.Count());
-                        }
-
-
-                        if (lstDB21.Any())
-                        {
-                            var d20 = dbconcat.Concat(lstDB21);
-                            dbconcat = d20;
-                            Debug.WriteLine("CONCAT20 " + d20.Count());
-                        }
-
-                        if (lstDB22.Any())
-                        {
-                            var d21 = dbconcat.Concat(lstDB22);
-                            dbconcat = d21;
-                            Debug.WriteLine("CONCAT21 " + d21.Count());
-                        }
-
-                        if (lstDB23.Any())
-                        {
-                            var d22 = dbconcat.Concat(lstDB23);
-                            dbconcat = d22;
-                            Debug.WriteLine("CONCAT22 " + d22.Count());
-                        }
-
-                        if (lstDB24.Any())
-                        {
-                            var d23 = dbconcat.Concat(lstDB24);
-                            dbconcat = d23;
-                            Debug.WriteLine("CONCAT23 " + d23.Count());
-                        }
-
-                        if (lstDB25.Any())
-                        {
-                            var d24 = dbconcat.Concat(lstDB25);
-                            dbconcat = d24;
-                            Debug.WriteLine("CONCAT24 " + d24.Count());
-                        }
-
-                        if (lstDB26.Any())
-                        {
-                            var d25 = dbconcat.Concat(lstDB26);
-                            dbconcat = d25;
-                            Debug.WriteLine("CONCAT25 " + d25.Count());
-                        }
-
-                        if (lstDB27.Any())
-                        {
-                            var d26 = dbconcat.Concat(lstDB27);
-                            dbconcat = d26;
-                            Debug.WriteLine("CONCAT26 " + d26.Count());
-                        }
-
-                        if (lstDB28.Any())
-                        {
-                            var d27 = dbconcat.Concat(lstDB28);
-                            dbconcat = d27;
-                            Debug.WriteLine("CONCAT27 " + d27.Count());
-                        }
-
-                        if (lstDB29.Any())
-                        {
-                            var d28 = dbconcat.Concat(lstDB29);
-                            dbconcat = d28;
-                            Debug.WriteLine("CONCAT28 " + d28.Count());
-                        }
-
-                        if (lstDB30.Any())
-                        {
-                            var d29 = dbconcat.Concat(lstDB30);
-                            dbconcat = d29;
-                            Debug.WriteLine("CONCAT29 " + d29.Count());
-                        }
-
-                        
-                        
-                    }
-                }
-                if (proceed)
-                {
-                    var lstOfConcat = dbconcat.ToList();
-                    List<ListOfdbRecords> finalDB = null;
-                    sKUCounter = 0;
-                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                    {
-                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
-                    }));
-                    var countOfConcat = lstOfConcat.GroupBy(x => x.itemCode).ToList().Count();
-                        
-                    finalDB = FillSKUData(lstOfConcat, countOfConcat);
-
-                    string outputFile = "dbRecords_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".txt";
-                    Debug.WriteLine(lstSettings.First().jsonFolder + outputFile);
-                        
-                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                    {
-                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Kirjutan impordifaili";
-                    }));
-                    string jsonFinal = JsonConvert.SerializeObject(finalDB);
-                    string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
-                    if (dirs.Any())
-                    {
-                        foreach (string str in dirs)
-                        {
-                            string sourceFileName = str;
-                            int index = str.LastIndexOf("\\");
-                            string fileName = str.Substring(index + 1);
-                            if (fileName.ToUpper().StartsWith("DBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
+                            foreach (string str in dirs)
                             {
-                                if (!Directory.Exists(lstSettings.First().jsonFolder + @"\Archive\"))
+                                string sourceFileName = str;
+                                int index = str.LastIndexOf("\\");
+                                string fileName = str.Substring(index + 1);
+                                if (fileName.ToUpper().StartsWith("DBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
                                 {
-                                    Directory.CreateDirectory(lstSettings.First().jsonFolder + @"\Archive\");
+                                    if (!Directory.Exists(lstSettings.First().jsonFolder + @"\Archive\"))
+                                    {
+                                        Directory.CreateDirectory(lstSettings.First().jsonFolder + @"\Archive\");
+                                    }
+                                    WriteLog("Moving existing file " + fileName + " to archive", 1);
+                                    convertProcessLog = convertProcessLog + "\r\n" + "Moving existing file " + fileName + " to archive";
+                                    File.Move(lstSettings.First().jsonFolder + @"\" + fileName, lstSettings.First().jsonFolder + @"\Archive\" + fileName);
                                 }
-                                File.Move(lstSettings.First().jsonFolder + @"\" + fileName, lstSettings.First().jsonFolder + @"\Archive\" + fileName);
                             }
                         }
+
+
+                        File.WriteAllText(lstSettings.First().jsonFolder + outputFile.ToUpper(), jsonFinal);
+                        convertProcessLog = convertProcessLog + "\r\n" + "New db file created: " + outputFile;
+                        WriteLog("New db file created: " + outputFile, 1);
+                        File.Delete(lstSettings.First().csvArchiveFolder + Environment.MachineName + ".lock");
+
+                        convertProcessLog = convertProcessLog + "\r\n" + "lockfile deleted in " + lstSettings.First().csvArchiveFolder;
+                        WriteLog("lockfile deleted in " + lstSettings.First().csvArchiveFolder, 1);
+
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            DisplayPostedMessage("ANDMEBAAS VALMIS!");
+                        }));
                     }
-
-
-                    File.WriteAllText(lstSettings.First().jsonFolder + outputFile.ToUpper(), jsonFinal);
-                    Debug.WriteLine("CONCAT final " + dbconcat.Count() + " "  + csvFolderPath);
-                    File.Delete(lstSettings.First().csvArchiveFolder + Environment.MachineName + ".lock");
-                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    if (proceed)
                     {
-                        DisplayPostedMessage("ANDMEBAAS VALMIS!");
-                    }));
-
-
-
+                        convertProcessLog = convertProcessLog + "\r\n" + "Conversion of db is complete " + lstSettings.First().csvArchiveFolder;
+                        SendMail(convertProcessLog);
+                        WriteLog("Conversion of db is complete " + lstSettings.First().csvArchiveFolder, 1);
+                    }
+                    if (!proceed)
+                    {
+                        if (!string.IsNullOrEmpty(convertProcessLog))
+                        {
+                            SendMail(convertProcessLog + "\r\n" + "Process stopped!");
+                        }
+                    }
                 }
+                catch (Exception ex)
+                {
+                    string error = "ConvertFiles " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                    WriteError(error);
+                    if (!string.IsNullOrEmpty(convertProcessLog))
+                    {
+                        SendMail(error);
+                    }
+                    MessageBox.Show(error);
+                }
+            }
+            catch(Exception ex)
+            {
+                string error = "ConvertFiles " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+            }
+        }
+        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecordsImport> lstOfConcat, int countOfConcat)
+        {
+            try
+            {
+                //foreach (var r in lstOfConcat)
+                //{
+                //    if (r.itemCode == "701222")
+                //    {
+                //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
+                //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
+                //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
+                //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
+                //    }
+                //}
+                DateTime stamp = DateTime.Now;
+                var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                {
+                    fileDate = stamp,
+                    itemCode = s.First().itemCode,
+                    SKU = GetSKUString(s, countOfConcat),
+                    barCode = s.First().barCode,
+                    itemDesc = s.First().itemDesc,
+                    itemMagnitude = s.First().itemMagnitude,
+                    meistriklubihind = s.First().meistriklubihind,
+                    price = s.First().price,
+                    profiklubihind = s.First().profiklubihind,
+                    soodushind = s.First().soodushind,
+                    sortiment = s.First().sortiment,
+                }).ToList();
+                return finalDB;
             }
             catch (Exception ex)
             {
-                WriteError("bw_DoWork_ConvertFiles: " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("bw_DoWork_ConvertFiles: " + ex.Message);
+                string error = "GetLatestDBFile " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+                return new List<ListOfdbRecords>();
             }
-            
-        }
-
-        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecordsImport> lstOfConcat, int countOfConcat)
-        {
-            //foreach (var r in lstOfConcat)
-            //{
-            //    if (r.itemCode == "701222")
-            //    {
-            //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
-            //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
-            //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
-            //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
-            //    }
-            //}
-            DateTime stamp = DateTime.Now;
-            var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
-            {
-                fileDate = stamp,
-                itemCode = s.First().itemCode,
-                SKU = GetSKUString(s, countOfConcat),
-                barCode = s.First().barCode,
-                itemDesc = s.First().itemDesc,
-                itemMagnitude = s.First().itemMagnitude,
-                meistriklubihind = s.First().meistriklubihind,
-                price = s.First().price,
-                profiklubihind = s.First().profiklubihind,
-                soodushind = s.First().soodushind,
-                sortiment = s.First().sortiment,
-            }).ToList();
 
             //foreach (var r in finalDB)
             //{
@@ -1492,25 +1655,39 @@ namespace BauhofOffline
             //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
             //    }
             //}
-            return finalDB;
+            
         }
 
         public string GetSKUString(IGrouping<string, ListOfdbRecordsImport> s, int countOfConcat)
         {
-            sKUCounter = sKUCounter + 1;
-            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+            try
             {
-                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
-            }));
-            var f = s.ToList();
-            var re = "";
-            foreach (var o in f)
-            {
-                re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "%%%";
+                sKUCounter = sKUCounter + 1;
+                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                {
+                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
+                }));
+                var f = s.ToList();
+                var re = "";
+                foreach (var o in f)
+                {
+                    re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "%%%";
+                }
+                Debug.WriteLine(sKUCounter + "Ree: " + re);
+                return re;
             }
-            Debug.WriteLine(sKUCounter + "Ree: " + re);
-            return re;
-           
+            catch (Exception ex)
+            {
+                string error = "GetSKUString " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+
+                return "";
+            }
         }
 
         private void bw_RunWorkerCompleted_ConvertFiles(object sender, RunWorkerCompletedEventArgs e)
@@ -1559,7 +1736,7 @@ namespace BauhofOffline
 
                     mail.Subject = "BauhofOffline error from " + Environment.MachineName;
                     mail.Body = errroToWrite;
-                    //SmtpServer.Send(mail);
+                    SmtpServer.Send(mail);
                 }
 
                 MessageBox.Show("FromShopRelationCsv  " + ex.Message);
