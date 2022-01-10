@@ -28,8 +28,8 @@ namespace BauhofOffline.Utils
                         if (arg.ToUpper().StartsWith("SHOWUI"))
                         {
                             Debug.WriteLine(arg.ToUpper());
-
                             row.showUI = Convert.ToBoolean(Convert.ToInt32(arg.ToUpper().Replace("SHOWUI=", "")));
+                            mp.ui = row.showUI;
                         }
                         if (arg.ToUpper().StartsWith("CONVERTFILES"))
                         {

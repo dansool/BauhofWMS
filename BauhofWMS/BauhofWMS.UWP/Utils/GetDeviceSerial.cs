@@ -30,7 +30,7 @@ namespace BauhofWMS.UWP.Utils
                 else
                 {
                     var hostNames = NetworkInformation.GetHostNames();
-                    serial = hostNames.First().DisplayName.Replace(".konesko.ee", "");
+                    serial = hostNames.First().DisplayName.Replace(".bauhof.ee", "");
                     return new Tuple<bool, string, string>(true, null, serial);
                 }
             }

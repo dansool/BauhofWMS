@@ -24,6 +24,8 @@ using BauhofWMSDLL.ListDefinitions;
 using System.Configuration;
 using System.Net.Mail;
 using BauhofOffline.Utils;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace BauhofOffline
 {
@@ -96,6 +98,8 @@ namespace BauhofOffline
                         var lstStartupArguments = parseArgs.Item3;                        
                         if (lstStartupArguments.Any())
                         {
+                            ui = lstStartupArguments.First().showUI;
+                            WriteLog("UI:" + ui, 1);
                             WriteLog("Arguments parsed", 1);
                             convertProcessLog = convertProcessLog + "\r\n" + "Arguments parsed";
                             if (lstStartupArguments.First().ConvertFiles && lstStartupArguments.First().showUI == false)
@@ -138,7 +142,6 @@ namespace BauhofOffline
                     WriteLog("GetConfiguration done", 1);
                     CheckVersion();
                     WriteLog("CheckVersion done", 1);
-
                 }
                 WriteLog("ConvertFilesStart done", 1);
             }
@@ -166,7 +169,7 @@ namespace BauhofOffline
                 var mail = new MailMessage();
                 var SmtpServer = new SmtpClient(lstSettings.First().smtpServer);
                 //SmtpServer.Credentials = new System.Net.NetworkCredential("dan.sool@konesko.ee", "kl0ngn11 ");
-                mail.From = new MailAddress("bauhofoffline@konesko.ee");
+                mail.From = new MailAddress(lstSettings.First().senderEmail);
                 mail.To.Add(lstSettings.First().adminEmail);
 
                 mail.Subject = "BauhofOffline error from " + Environment.MachineName;
@@ -192,106 +195,78 @@ namespace BauhofOffline
         {
             try
             {
-                WriteLog("CheckVersion started", 1);
-                txtBkLatestVersionValue.Text = "";
-                txtBkScannerVersionValue.Text = "";
-                btnUpdate.Visibility = Visibility.Collapsed;
-                string DeviceNameAsSeenInMyComputer = "";
-                MediaDevice device = null;
-                WriteLog("trying to connect...", 2);
-                var devices = MediaDevice.GetDevices();
-                if (devices.Any())
+                if (ui)
                 {
-                    if (devices.Count() == 1)
+                    WriteLog("CheckVersion started", 1);
+                    txtBkLatestVersionValue.Text = "";
+                    txtBkScannerVersionValue.Text = "";
+                    btnUpdate.Visibility = Visibility.Collapsed;
+                    string DeviceNameAsSeenInMyComputer = "";
+                    MediaDevice device = null;
+
+
+                    WriteLog("trying to connect...", 2);
+                    var devices = MediaDevice.GetDevices();
+                    if (devices.Any())
                     {
-                        device = devices.First();
-                        DeviceNameAsSeenInMyComputer = devices.First().Description;
-                        WriteLog("CheckVersion DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer, 2);
+                        if (devices.Count() == 1)
+                        {
+                            device = devices.First();
+                            DeviceNameAsSeenInMyComputer = devices.First().Description;
+                            WriteLog("CheckVersion DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer, 2);
+                        }
+                        else
+                        {
+
+                            txtBkStatus.Text = "LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!";
+                            WriteLog("CheckVersion " + txtBkStatus.Text, 2);
+                            MessageBox.Show("LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!");
+                        }
                     }
                     else
                     {
-                        
-                        txtBkStatus.Text = "LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!";
+                        txtBkStatus.Text = "VÄLIST SEADET EI LEITUD!";
                         WriteLog("CheckVersion " + txtBkStatus.Text, 2);
-                        MessageBox.Show("LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!");
+                        MessageBox.Show("VÄLIST SEADET EI LEITUD!");
                     }
-                }
-                else
-                {
-                    txtBkStatus.Text = "VÄLIST SEADET EI LEITUD!";
-                    WriteLog("CheckVersion " + txtBkStatus.Text, 2);
-                    MessageBox.Show("VÄLIST SEADET EI LEITUD!");
-                }
 
-                Debug.WriteLine("DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer);
-                if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
-                {
-                    bool proceed = true;
-                    int count = 0;
-                    try
+
+
+                    Debug.WriteLine("DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer);
+                    if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                     {
-                        bool fileExists = false;
-                        device.Connect();
-                        WriteLog("CheckVersion device connected", 2);
-
-                        //try
-                        //{
-                        //    device.CreateDirectory(@"\Internal shared storage\Download");
-                        //}
-                        //catch(Exception ex)
-                        //{
-                        //    WriteError("CheckVersion create Download directory: " + ex.Message);
-                        //}
-                        WriteLog(@"CheckVersion looking for files in Internal shared storage\Download", 2);
-                        var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
-                        var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
-                        foreach (var file in files)
+                        bool proceed = true;
+                        int count = 0;
+                        try
                         {
-                            WriteLog(@"CheckVersion found " + file.Name + @" in Internal shared storage\Download", 2);
-                            if (file.Name.ToUpper() == "VERSION.TXT")
-                           {
-                                fileExists = true;
-                                WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
-                                count = count + 1;
-                                string destinationFileName = $@"c:\windows\temp\{file.Name}";
-                                if (File.Exists(destinationFileName))
-                                {
-                                    File.Delete(destinationFileName);
-                                    WriteLog(@"CheckVersion VERSION.TXT deleted from c:\windows\temp\", 2);
-                                }
+                            bool fileExists = false;
+                            device.Connect();
+                            WriteLog("CheckVersion device connected", 2);
 
-                                if (!File.Exists(destinationFileName))
+                            WriteLog(@"CheckVersion looking for files in Internal shared storage\Download", 2);
+                            var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
+                            var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                            foreach (var file in files)
+                            {
+                                WriteLog(@"CheckVersion found " + file.Name + @" in Internal shared storage\Download", 2);
+                                if (file.Name.ToUpper() == "VERSION.TXT")
                                 {
-                                    using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
-                                    {
-                                        device.DownloadFile(file.FullName, fs);
-                                        WriteLog(@"CheckVersion VERSION.TXT downloaded from the device to c:\windows\temp\", 2);
-                                    }
-                                }
-                                else
-                                {
-                                    proceed = false;
-                                    WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD", 2);
-                                    MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
-                                    
-                                }
-
-                                
-                                if (proceed)
-                                {
+                                    fileExists = true;
+                                    WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
+                                    count = count + 1;
+                                    string destinationFileName = $@"c:\windows\temp\{file.Name}";
                                     if (File.Exists(destinationFileName))
                                     {
-                                        string text = System.IO.File.ReadAllText(destinationFileName);
-                                        if (!string.IsNullOrEmpty(text))
+                                        File.Delete(destinationFileName);
+                                        WriteLog(@"CheckVersion VERSION.TXT deleted from c:\windows\temp\", 2);
+                                    }
+
+                                    if (!File.Exists(destinationFileName))
+                                    {
+                                        using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
                                         {
-                                            txtBkScannerVersionValue.Text = text;
-                                            WriteLog(@"CheckVersion SKÄNNERI VERSIOON: " + txtBkScannerVersionValue.Text, 2);
-                                        }
-                                        else
-                                        {
-                                            proceed = false;
-                                            WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!", 2);
-                                            MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!");
+                                            device.DownloadFile(file.FullName, fs);
+                                            WriteLog(@"CheckVersion VERSION.TXT downloaded from the device to c:\windows\temp\", 2);
                                         }
                                     }
                                     else
@@ -299,153 +274,180 @@ namespace BauhofOffline
                                         proceed = false;
                                         WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD", 2);
                                         MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
+
                                     }
-                                }
-                            }                           
-                        }
 
-                        
-                        if (!fileExists)
-                        {
-                            txtBkScannerVersionValue.Text = "PUUDUB";
-                        }
 
-                        if (proceed)
-                        {
-                            string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
-                            if (File.Exists(destinationLatestFileName))
-                            {
-                                File.Delete(destinationLatestFileName);
-                                WriteLog(@"CheckVersion deleted c:\windows\temp\BauhofWMSVersion.txt", 2);
-                            }
-
-                            try
-                            {
-                                WebClient webClient = new WebClient();
-                                webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
-                                WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
-                            }
-                            catch (Exception ex)
-                            {
-                                proceed = false;
-                                WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
-                                MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD!" + "\r\n" + ex.Message);
-                            }
-                            
-                            if (proceed)
-                            {
-                                if (File.Exists(destinationLatestFileName))
-                                {
-                                    string text = System.IO.File.ReadAllText(destinationLatestFileName);
-                                    if (!string.IsNullOrEmpty(text))
+                                    if (proceed)
                                     {
-                                        WriteLog(@"CheckVersion " + destinationLatestFileName + " loetud: " + "\r\n" + text, 2);
-                                        var textSplit = text.Split(new[] { "#_#" }, StringSplitOptions.None);
-                                        if (textSplit.Any())
+                                        if (File.Exists(destinationFileName))
                                         {
-                                            foreach (var s in textSplit)
+                                            string text = System.IO.File.ReadAllText(destinationFileName);
+                                            if (!string.IsNullOrEmpty(text))
                                             {
-                                                if (s.StartsWith("MAJOR:"))
-                                                {
-                                                    txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
-                                                    WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
-                                                }
+                                                txtBkScannerVersionValue.Text = text;
+                                                WriteLog(@"CheckVersion SKÄNNERI VERSIOON: " + txtBkScannerVersionValue.Text, 2);
+                                            }
+                                            else
+                                            {
+                                                proceed = false;
+                                                WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!", 2);
+                                                MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!");
                                             }
                                         }
+                                        else
+                                        {
+                                            proceed = false;
+                                            WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD", 2);
+                                            MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
+                                        }
+                                    }
+                                }
+                            }
 
+
+                            if (!fileExists)
+                            {
+                                txtBkScannerVersionValue.Text = "PUUDUB";
+                            }
+
+                            if (proceed)
+                            {
+                                string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
+                                if (File.Exists(destinationLatestFileName))
+                                {
+                                    File.Delete(destinationLatestFileName);
+                                    WriteLog(@"CheckVersion deleted c:\windows\temp\BauhofWMSVersion.txt", 2);
+                                }
+
+                                try
+                                {
+                                    WebClient webClient = new WebClient();
+                                    webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
+                                    WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
+                                }
+                                catch (Exception ex)
+                                {
+                                    proceed = false;
+                                    WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
+                                    MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD!" + "\r\n" + ex.Message);
+                                }
+
+                                if (proceed)
+                                {
+                                    if (File.Exists(destinationLatestFileName))
+                                    {
+                                        string text = System.IO.File.ReadAllText(destinationLatestFileName);
+                                        if (!string.IsNullOrEmpty(text))
+                                        {
+                                            WriteLog(@"CheckVersion " + destinationLatestFileName + " loetud: " + "\r\n" + text, 2);
+                                            var textSplit = text.Split(new[] { "#_#" }, StringSplitOptions.None);
+                                            if (textSplit.Any())
+                                            {
+                                                foreach (var s in textSplit)
+                                                {
+                                                    if (s.StartsWith("MAJOR:"))
+                                                    {
+                                                        txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
+                                                        WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            proceed = false;
+                                            WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!", 2);
+                                            MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!");
+                                        }
                                     }
                                     else
                                     {
                                         proceed = false;
-                                        WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!", 2);
-                                        MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!");
+                                        WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD", 2);
+                                        MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD");
+                                    }
+                                }
+                            }
+                            if (proceed)
+                            {
+                                Debug.WriteLine(txtBkLatestVersionValue.Text + "  " + txtBkScannerVersionValue.Text);
+                                if (txtBkScannerVersionValue.Text == "PUUDUB")
+                                {
+                                    if (MessageBox.Show("NÄIB, ET SKÄNNERIL EI OLE VEEL TARKVARA INSALLEERITUD. KAS KOPEERIN INSTALLATSIOONIFAILI " + txtBkLatestVersionValue.Text + " SKÄNNERISSE ? ", "SKÄNNERITARKVARA", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                    {
+                                        DownloadAPK();
                                     }
                                 }
                                 else
                                 {
-                                    proceed = false;
-                                    WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD", 2);
-                                    MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD");
+                                    if (!string.IsNullOrEmpty(txtBkLatestVersionValue.Text) && !string.IsNullOrEmpty(txtBkScannerVersionValue.Text))
+                                    {
+                                        var splitversionValueLatest = txtBkLatestVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                        var versionValueLatest = Convert.ToInt32(splitversionValueLatest[2]);
+
+                                        var splitversionValueScanner = txtBkScannerVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                        var versionValueScanner = Convert.ToInt32(splitversionValueScanner[2]);
+
+                                        if (versionValueLatest > versionValueScanner)
+                                        {
+                                            btnUpdate.Visibility = Visibility.Visible;
+                                            txtBkStatus.Text = "LEITI UUS VERSIOON!";
+                                            WriteLog(@"CheckVersion " + txtBkStatus.Text, 2);
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        if (proceed)
-                        {
-                            Debug.WriteLine(txtBkLatestVersionValue.Text + "  " + txtBkScannerVersionValue.Text);
-                            if (txtBkScannerVersionValue.Text == "PUUDUB")
+                            if (proceed)
                             {
-                                if (MessageBox.Show("NÄIB, ET SKÄNNERIL EI OLE VEEL TARKVARA INSALLEERITUD. KAS KOPEERIN INSTALLATSIOONIFAILI " + txtBkLatestVersionValue.Text + " SKÄNNERISSE ? ", "SKÄNNERITARKVARA", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                device.Connect();
+                                WriteLog("CheckVersion device connected", 2);
+                                var DCIMDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
+                                var folders = DCIMDir.EnumerateDirectories("*.*", SearchOption.TopDirectoryOnly);
                                 {
-                                    DownloadAPK();
+                                    bool exists = false;
+                                    foreach (var s in folders)
+                                    {
+                                        if (s.Name == "Export")
+                                        {
+                                            exists = true;
+                                        }
+                                    }
+                                    if (!exists)
+                                    {
+                                        device.CreateDirectory(@"\Internal shared storage\DCIM\Export");
+                                        WriteLog(@"CheckVersion device \Internal shared storage\DCIM\Export folder created", 2);
+                                    }
                                 }
+
+                                var exportDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
+                                var exportFiles = exportDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                                if (exportFiles.Count() < 3)
+                                {
+                                    foreach (var file in exportFiles)
+                                    {
+                                        txtBkDownloadFiles.Text = txtBkDownloadFiles.Text + file.Name + "\r\n";
+                                        WriteLog(@"CheckVersion found " + txtBkDownloadFiles.Text, 2);
+                                    }
+                                }
+                            }
+                            device.Disconnect();
+                            WriteLog(@"CheckVersion device disconnect", 2);
+                        }
+                        catch (Exception ex)
+                        {
+                            proceed = false;
+                            if (ex.Message.Contains(@"\Internal shared storage\Download") && ex.Message.Contains("not found"))
+                            {
+                                WriteError("CheckVersion ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                                MessageBox.Show("CheckVersion  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
                             }
                             else
                             {
-                                if (!string.IsNullOrEmpty(txtBkLatestVersionValue.Text) && !string.IsNullOrEmpty(txtBkScannerVersionValue.Text))
-                                {
-                                    var splitversionValueLatest = txtBkLatestVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
-                                    var versionValueLatest = Convert.ToInt32(splitversionValueLatest[2]);
-
-                                    var splitversionValueScanner = txtBkScannerVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
-                                    var versionValueScanner = Convert.ToInt32(splitversionValueScanner[2]);
-
-                                    if (versionValueLatest > versionValueScanner)
-                                    {
-                                        btnUpdate.Visibility = Visibility.Visible;
-                                        txtBkStatus.Text = "LEITI UUS VERSIOON!";
-                                        WriteLog(@"CheckVersion " + txtBkStatus.Text, 2);
-                                    }
-                                }
+                                WriteError("CheckVersion " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                                MessageBox.Show("CheckVersion  " + ex.Message);
                             }
-                        }
-                        if (proceed)
-                        {
-                            device.Connect();
-                            WriteLog("CheckVersion device connected", 2);
-                            var DCIMDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
-                            var folders = DCIMDir.EnumerateDirectories("*.*", SearchOption.TopDirectoryOnly);
-                            {
-                                bool exists = false;
-                                foreach (var s in folders)
-                                {
-                                    if (s.Name == "Export")
-                                    {
-                                        exists = true;
-                                    }
-                                }
-                                if (!exists)
-                                {
-                                    device.CreateDirectory(@"\Internal shared storage\DCIM\Export");
-                                    WriteLog(@"CheckVersion device \Internal shared storage\DCIM\Export folder created", 2);
-                                }
-                            }
-                            
-                            var exportDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
-                            var exportFiles = exportDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
-                            if (exportFiles.Count() < 3)
-                            {
-                                foreach (var file in exportFiles)
-                                {
-                                    txtBkDownloadFiles.Text = txtBkDownloadFiles.Text + file.Name + "\r\n";
-                                    WriteLog(@"CheckVersion found " + txtBkDownloadFiles.Text, 2);
-                                }
-                            }
-                        }
-                        device.Disconnect();
-                        WriteLog(@"CheckVersion device disconnect", 2);
-                    }
-                    catch (Exception ex)
-                    {
-                        proceed = false;
-                        if (ex.Message.Contains(@"\Internal shared storage\Download") && ex.Message.Contains("not found"))
-                        {
-                            WriteError("CheckVersion ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                            MessageBox.Show("CheckVersion  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
-                        }
-                        else
-                        {
-                            WriteError("CheckVersion " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                            MessageBox.Show("CheckVersion  " + ex.Message);
                         }
                     }
                 }
@@ -874,7 +876,7 @@ namespace BauhofOffline
                     File.WriteAllText(lstSettings.First().csvArchiveFolder + @"\" + inputFileName.Replace(".csv", ".convert"), DateTime.Now.ToString());
                     convertProcessLog = convertProcessLog + "\r\n" + "Reading file " + inputFileName;
                     WriteLog("Inputfile read started: " + inputFileName, 1);
-                    List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                    List<ListOfdbRecordsImport> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromCsv(v, inputFileName, inputFileDate, lstSettings.First().logFolder, lstSettings.First().adminEmail, lstSettings.First().senderEmail, lstSettings.First().smtpServer)).ToList();
                     convertProcessLog = convertProcessLog + "\r\n" + "Inputfile " + inputFileName + " " + values.Count() + " lines readed";
                     WriteLog("Inputfile " + inputFileName + " " + values.Count() + " lines readed", 1);
                     if (fileCounter == 1)
@@ -1040,7 +1042,7 @@ namespace BauhofOffline
                 convertProcessLog = convertProcessLog + "\r\n" + "Convert of shopfile started";
                 string filename = folderPath + inputFileName;
                 convertProcessLog = convertProcessLog + "\r\n" + "Shopfile read started";
-                List<ListOfShopRelations> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromShopRelationCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail)).ToList();
+                List<ListOfShopRelations> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromShopRelationCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail, lstSettings.First().senderEmail, lstSettings.First().smtpServer)).ToList();
                 lstShopRelations = values;
                 convertProcessLog = convertProcessLog + "\r\n" + "Shopfile read done. Total records " + lstShopRelations.Count();
                 Debug.WriteLine("lstShopRelations.Count() " + lstShopRelations.Count());
@@ -1098,9 +1100,10 @@ namespace BauhofOffline
                 string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
                 if (dirs.Any())
                 {
+                    //convertProcessLog = convertProcessLog + "\r\n" + "Dir exists";
                     foreach (string str in dirs)
                     {
-
+                        //convertProcessLog = convertProcessLog + "\r\n" + "File:" + str;
                         string sourceFileName = str;
                         int index = str.LastIndexOf("\\");
                         string fileName = str.Substring(index + 1);
@@ -1116,6 +1119,7 @@ namespace BauhofOffline
                         }
                     }
                 }
+                //convertProcessLog = convertProcessLog + "\r\n" + "Getting files from " + lstSettings.First().jsonFolder + " complete";
             }
             catch (Exception ex)
             {
@@ -1318,15 +1322,17 @@ namespace BauhofOffline
                         if (lstDB01.Any())
                         {
                             dbconcat = lstDB01;
-                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            if (ui)
                             {
-                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
-                            }));
-
+                                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                                {
+                                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
+                                }));
+                            }
 
                             if (lstDB02.Any())
                             {
-                                var d1 = lstDB01.Concat(lstDB02);
+                                var d1 = dbconcat.Concat(lstDB02);
                                 dbconcat = d1;
                             }
 
@@ -1498,9 +1504,11 @@ namespace BauhofOffline
                                 var d29 = dbconcat.Concat(lstDB30);
                                 dbconcat = d29;
                             }
-
-
-
+                        }
+                        else
+                        {
+                            WriteLog("Inputfiles merge failed: no lstDB01 available", 1);
+                            proceed = false;
                         }
                     }
                     if (proceed)
@@ -1631,11 +1639,25 @@ namespace BauhofOffline
                     soodushind = s.First().soodushind,
                     sortiment = s.First().sortiment,
                 }).ToList();
+
+                //var p = finalDB.Where(x => x.itemCode == "701222").ToList();
+                //if (p.Any())
+                //{
+                //    if (ui)
+                //    {
+                //        MessageBox.Show(p.First().price.ToString());
+                //    }
+                //    else
+                //    {
+                //        Debug.WriteLine("701222 " + p.First().price.ToString());
+                //    }
+                //}
+                
                 return finalDB;
             }
             catch (Exception ex)
             {
-                string error = "GetLatestDBFile " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                string error = "FillSKUData " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
                 WriteError(error);
                 if (!string.IsNullOrEmpty(convertProcessLog))
                 {
@@ -1663,17 +1685,23 @@ namespace BauhofOffline
             try
             {
                 sKUCounter = sKUCounter + 1;
-                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
-                {
-                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
-                }));
+               
                 var f = s.ToList();
                 var re = "";
                 foreach (var o in f)
                 {
                     re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "%%%";
                 }
-                Debug.WriteLine(sKUCounter + "Ree: " + re);
+                if (sKUCounter.ToString().EndsWith("0000") || sKUCounter.ToString().EndsWith("00000") || sKUCounter.ToString().EndsWith("000000"))
+                {
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    {
+                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
+                    }));
+                    
+                    //WriteLog("sKUCounter: " + sKUCounter, 1);
+                    Debug.WriteLine(sKUCounter + ": " + re);
+                }
                 return re;
             }
             catch (Exception ex)
@@ -1701,7 +1729,7 @@ namespace BauhofOffline
             }));
         }
 
-        public static ListOfShopRelations FromShopRelationCsv(string csvLine, string fileName, string logFolder, string adminEmail)
+        public static ListOfShopRelations FromShopRelationCsv(string csvLine, string fileName, string logFolder, string adminEmail, string senderEmail, string smtpServer)
         {
             ListOfShopRelations lst = new ListOfShopRelations();
             try
@@ -1730,8 +1758,8 @@ namespace BauhofOffline
                 if (!string.IsNullOrEmpty(adminEmail))
                 {
                     var mail = new MailMessage();
-                    var SmtpServer = new SmtpClient("mail.neti.ee");
-                    mail.From = new MailAddress("bauhofoffline@bauhof.ee");
+                    var SmtpServer = new SmtpClient(smtpServer);
+                    mail.From = new MailAddress(senderEmail);
                     mail.To.Add(adminEmail);
 
                     mail.Subject = "BauhofOffline error from " + Environment.MachineName;
@@ -1744,89 +1772,157 @@ namespace BauhofOffline
             }
         }
 
-        public static ListOfdbRecordsImport FromCsv(string csvLine, string fileName, DateTime fileDate, string logFolder, string adminEmail)
+        public static ListOfdbRecordsImport FromCsv(string csvLine, string fileName, DateTime fileDate, string logFolder, string adminEmail, string senderEmail, string smtpServer)
         {
             ListOfdbRecordsImport lst = new ListOfdbRecordsImport();
-            try
+            if (!string.IsNullOrEmpty(csvLine))
             {
-                decimal temp = 0;
-                string[] values = csvLine.Split("\"" + "," + "\"");
-                lst.fileName = fileName;
-                lst.fileDate = fileDate;
-
-                
-                lst.itemCode = values[0].Replace("\"", "");
-                lst.itemDesc = values[1].Replace("\"", "");
-                lst.itemMagnitude = values[2].Replace("\"", "");
-
-                values[3] = string.IsNullOrEmpty(values[3]) ? "0" : values[3].Replace(",", ".").Replace("\"", "");
-                lst.price = Decimal.TryParse(values[3], out temp) ? Convert.ToDecimal(values[3]) : 0;
-
-                lst.SKU = values[4].Replace("\"", "");
-
-                values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
-                lst.SKUqty = Decimal.TryParse(values[6], out temp) ? Convert.ToDecimal(values[6]) : 0;
-
-                values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
-                lst.meistriklubihind = Decimal.TryParse(values[7], out temp) ? Convert.ToDecimal(values[7]) : 0;
-
-                values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
-                lst.soodushind = Decimal.TryParse(values[8], out temp) ? Convert.ToDecimal(values[8]) : 0;
-
-                values[9] = string.IsNullOrEmpty(values[9]) ? "0" : values[9].Replace(",", ".").Replace("\"", "");
-                lst.profiklubihind = Decimal.TryParse(values[9], out temp) ? Convert.ToDecimal(values[9]) : 0;
-
-                lst.sortiment = values[10].Replace("\"", "");
-                lst.SKUBin = values[12].Replace("\"", "");
-                lst.barCode = values[13].Replace("\"", "");
-
-                //if (values[0].Contains("701222"))
-                //{
-                //    Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
-                //    Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
-                //    Debug.WriteLine("values[2] " + values[2] + "  lst.itemMagnitude:" + lst.itemMagnitude);
-                //    Debug.WriteLine("values[3] " + values[3] + "  lst.price:" + lst.price);
-                //    Debug.WriteLine("values[4] " + values[4] + "  lst.SKU:" + lst.SKU);
-                //    Debug.WriteLine("values[5] " + values[5] + "  config");
-                //    Debug.WriteLine("values[6] " + values[6] + "  lst.SKUqty:" + lst.SKUqty);
-                //    Debug.WriteLine("values[7] " + values[7] + "  lst.soodushind:" + lst.meistriklubihind);
-                //    Debug.WriteLine("values[8] " + values[8] + "  lst.soodushind:" + lst.soodushind);
-                //    Debug.WriteLine("values[9] " + values[9] + "  lst.profiklubihind:" + lst.profiklubihind);
-                //    Debug.WriteLine("values[10] " + values[10] + "  lst.sortiment:" + lst.sortiment);
-                //    Debug.WriteLine("values[11] " + values[11] + "  lst.product");
-                //    Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
-                //    Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
-
-
-                //    }
-                return lst;
-            }
-            catch (Exception ex)
-            {
-                string message = ("FromCsv " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                string errroToWrite = "" + "\r\n" +
-                    String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
-                    "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
-                    "" + "\r\n" +
-                    message + "\r\n" +
-                    "================";
-
-                var str = new StreamWriter(logFolder + Environment.MachineName + "_Error.txt", true);
-                str.WriteLine(errroToWrite);
-                str.Close();
-
-                if (!string.IsNullOrEmpty(adminEmail))
+                int step = 0;
+                try
                 {
-                    var mail = new MailMessage();
-                    var SmtpServer = new SmtpClient("mail.neti.ee");
-                    mail.From = new MailAddress("bauhofoffline@bauhof.ee");
-                    mail.To.Add(adminEmail);
+                    step = 1;
+                    decimal temp = 0;
+                    string[] values = csvLine.Split("\"" + "," + "\"");
+                    lst.fileName = fileName;
+                    lst.fileDate = fileDate;
 
-                    mail.Subject = "BauhofOffline error from " + Environment.MachineName;
-                    mail.Body = errroToWrite;
-                    //SmtpServer.Send(mail);
+                    step = 2;
+                    lst.itemCode = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
+
+                    step = 3;
+                    lst.itemDesc = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
+
+                    step = 4;
+                    lst.itemMagnitude = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
+
+                    step = 5;
+                    var cultureInfo = CultureInfo.InvariantCulture;
+                    NumberStyles styles = NumberStyles.AllowDecimalPoint;
+
+                    step = 6;
+                    values[3] = string.IsNullOrEmpty(values[3]) ? "0" : values[3].Replace(",", ".").Replace("\"", "");
+                    try
+                    {
+                        lst.price = decimal.Parse(values[3], cultureInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        lst.price = 0;
+                        Debug.WriteLine("price " + ex.Message);
+                    }
+
+                    step = 7;
+                    lst.SKU = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
+
+                    step = 8;
+                    values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                    try
+                    {
+                        lst.SKUqty = decimal.Parse(values[6], cultureInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        lst.SKUqty = 0;
+                        Debug.WriteLine("SKUqty " + ex.Message);
+                    }
+
+                    step = 9;
+                    values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
+                    try
+                    {
+                        lst.meistriklubihind = decimal.Parse(values[7], cultureInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        lst.meistriklubihind = 0;
+                        Debug.WriteLine("meistriklubihind "  + values[7]  + " "  + ex.Message);
+                    }
+
+                    step = 10;
+                    values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
+                    try
+                    {
+                        lst.soodushind = decimal.Parse(values[8], cultureInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        lst.soodushind = 0;
+                        Debug.WriteLine("soodushind " + ex.Message);
+                    }
+
+                    step = 11;
+                    values[9] = string.IsNullOrEmpty(values[9]) ? "0" : values[9].Replace(",", ".").Replace("\"", "");
+                    try
+                    {
+                        lst.profiklubihind = decimal.Parse(values[9], cultureInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        lst.profiklubihind = 0;
+                        Debug.WriteLine("profiklubihind " + ex.Message);
+                    }
+
+                    step = 12;
+                    lst.sortiment = string.IsNullOrEmpty(values[10]) ? "" : values[10].Replace("\"", "");
+
+                    step = 13;
+                    lst.SKUBin = string.IsNullOrEmpty(values[12]) ? "" : values[12].Replace("\"", "");
+
+                    step = 14;
+                    lst.barCode = string.IsNullOrEmpty(values[13]) ? "" : values[13].Replace("\"", "");
+
+                    //if (values[0].Contains("701222"))
+                    //{
+                    //    Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
+                    //    Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
+                    //    Debug.WriteLine("values[2] " + values[2] + "  lst.itemMagnitude:" + lst.itemMagnitude);
+                    //    Debug.WriteLine("values[3] " + values[3] + "  lst.price:" + lst.price);
+                    //    Debug.WriteLine("values[4] " + values[4] + "  lst.SKU:" + lst.SKU);
+                    //    Debug.WriteLine("values[5] " + values[5] + "  config");
+                    //    Debug.WriteLine("values[6] " + values[6] + "  lst.SKUqty:" + lst.SKUqty);
+                    //    Debug.WriteLine("values[7] " + values[7] + "  lst.soodushind:" + lst.meistriklubihind);
+                    //    Debug.WriteLine("values[8] " + values[8] + "  lst.soodushind:" + lst.soodushind);
+                    //    Debug.WriteLine("values[9] " + values[9] + "  lst.profiklubihind:" + lst.profiklubihind);
+                    //    Debug.WriteLine("values[10] " + values[10] + "  lst.sortiment:" + lst.sortiment);
+                    //    Debug.WriteLine("values[11] " + values[11] + "  lst.product");
+                    //    Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
+                    //    Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
+
+                    step = 15;
+                    //    }
+                    return lst;
                 }
-                MessageBox.Show("FromCsv  " + ex.Message);
+                catch (Exception ex)
+                {
+                    string message = ("FromCsv " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                    string errroToWrite = "" + "\r\n" +
+                        String.Format("{0:dd.MM.yyyy HH:mm:ss}", DateTime.Now) + "\r\n" +
+                        "Hostname: " + Environment.MachineName + " Username:" + Environment.UserName + "\r\n" +
+                        "" + "\r\n" +
+                        "step: " + step + " line:  " + csvLine + "\r\n" + message + "\r\n" +
+                        "================";
+
+                    var str = new StreamWriter(logFolder + Environment.MachineName + "_Error.txt", true);
+                    str.WriteLine(errroToWrite);
+                    str.Close();
+
+                    if (!string.IsNullOrEmpty(adminEmail))
+                    {
+                        var mail = new MailMessage();
+                        var SmtpServer = new SmtpClient(smtpServer);
+                        mail.From = new MailAddress(senderEmail);
+                        mail.To.Add(adminEmail);
+
+                        mail.Subject = "BauhofOffline error from " + Environment.MachineName;
+                        mail.Body = errroToWrite;
+                        //SmtpServer.Send(mail);
+                    }
+                    MessageBox.Show("FromCsv  " + ex.Message);
+                    return lst;
+                }
+            }
+            else
+            {
                 return lst;
             }
         }
@@ -1926,7 +2022,13 @@ namespace BauhofOffline
                     row.csvArchiveFolder = confCollection["csvArchiveFolder"].Value.ToString();
                     WriteLog("GetConfiguration csvArchiveFolder = " + row.debugLevel, 2);
                 }
+                if (confCollection["senderEmail"] != null)
+                {
+                    row.senderEmail = confCollection["senderEmail"].Value.ToString();
+                    WriteLog("GetConfiguration senderEmail = " + row.debugLevel, 2);
+                }
 
+                
                 lstSettings.Add(row);
                 WriteLog("GetConfiguration complete", 1);
             }
@@ -1986,8 +2088,8 @@ namespace BauhofOffline
                 if (!string.IsNullOrEmpty(lstSettings.First().adminEmail))
                 {
                     var mail = new MailMessage();
-                    var SmtpServer = new SmtpClient("mail.neti.ee");
-                    mail.From = new MailAddress("bauhofoffline@bauhof.ee");
+                    var SmtpServer = new SmtpClient(lstSettings.First().smtpServer);
+                    mail.From = new MailAddress(lstSettings.First().senderEmail);
                     mail.To.Add(lstSettings.First().adminEmail);
 
                     mail.Subject = "BauhofOffline error from " + Environment.MachineName;
