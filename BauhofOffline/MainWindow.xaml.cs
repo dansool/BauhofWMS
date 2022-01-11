@@ -142,6 +142,7 @@ namespace BauhofOffline
                     WriteLog("GetConfiguration done", 1);
                     CheckVersion();
                     WriteLog("CheckVersion done", 1);
+                    GetLatestDBFile();
                 }
                 WriteLog("ConvertFilesStart done", 1);
             }
