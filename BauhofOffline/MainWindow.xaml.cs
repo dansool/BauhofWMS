@@ -21,6 +21,7 @@ using ChoETL;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using BauhofWMSDLL.ListDefinitions;
+using BauhofWMSDLL.ListDefinitions;
 using System.Configuration;
 using System.Net.Mail;
 using BauhofOffline.Utils;
@@ -204,7 +205,7 @@ namespace BauhofOffline
                     btnUpdate.Visibility = Visibility.Collapsed;
                     string DeviceNameAsSeenInMyComputer = "";
                     MediaDevice device = null;
-
+                    string destinationLatestFileNameText = "";
 
                     WriteLog("trying to connect...", 2);
                     var devices = MediaDevice.GetDevices();
@@ -250,59 +251,11 @@ namespace BauhofOffline
                             foreach (var file in files)
                             {
                                 WriteLog(@"CheckVersion found " + file.Name + @" in Internal shared storage\Download", 2);
-                                if (file.Name.ToUpper() == "VERSION.TXT")
+                                if (file.Name.ToUpper().StartsWith("VERSION_") && file.Name.ToUpper().EndsWith("_.TXT"))
                                 {
+                                    var textSplit = file.Name.ToUpper().Split(new[] { "_" }, StringSplitOptions.None);
+                                    txtBkScannerVersionValue.Text = textSplit[1];
                                     fileExists = true;
-                                    WriteLog(@"CheckVersion VERSION.TXT found in device Internal shared storage\Download", 2);
-                                    count = count + 1;
-                                    string destinationFileName = $@"c:\windows\temp\{file.Name}";
-                                    if (File.Exists(destinationFileName))
-                                    {
-                                        File.Delete(destinationFileName);
-                                        WriteLog(@"CheckVersion VERSION.TXT deleted from c:\windows\temp\", 2);
-                                    }
-
-                                    if (!File.Exists(destinationFileName))
-                                    {
-                                        using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
-                                        {
-                                            device.DownloadFile(file.FullName, fs);
-                                            WriteLog(@"CheckVersion VERSION.TXT downloaded from the device to c:\windows\temp\", 2);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        proceed = false;
-                                        WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD", 2);
-                                        MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
-
-                                    }
-
-
-                                    if (proceed)
-                                    {
-                                        if (File.Exists(destinationFileName))
-                                        {
-                                            string text = System.IO.File.ReadAllText(destinationFileName);
-                                            if (!string.IsNullOrEmpty(text))
-                                            {
-                                                txtBkScannerVersionValue.Text = text;
-                                                WriteLog(@"CheckVersion SKÄNNERI VERSIOON: " + txtBkScannerVersionValue.Text, 2);
-                                            }
-                                            else
-                                            {
-                                                proceed = false;
-                                                WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!", 2);
-                                                MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt ON TÜHI!");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            proceed = false;
-                                            WriteLog(@"CheckVersion SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD", 2);
-                                            MessageBox.Show("SKÄNNERI VERSIOONI EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\version.txt EI LEITUD");
-                                        }
-                                    }
                                 }
                             }
 
@@ -314,18 +267,22 @@ namespace BauhofOffline
 
                             if (proceed)
                             {
-                                string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
-                                if (File.Exists(destinationLatestFileName))
-                                {
-                                    File.Delete(destinationLatestFileName);
-                                    WriteLog(@"CheckVersion deleted c:\windows\temp\BauhofWMSVersion.txt", 2);
-                                }
+                                //string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
+                                //if (File.Exists(destinationLatestFileName))
+                                //{
+                                //    File.Delete(destinationLatestFileName);
+                                //    WriteLog(@"CheckVersion deleted c:\windows\temp\BauhofWMSVersion.txt", 2);
+                                //}
 
                                 try
                                 {
                                     WebClient webClient = new WebClient();
-                                    webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
-                                    WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
+                                    byte[] myDataBuffer = webClient.DownloadData((new Uri("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt")));
+                                    string download = Encoding.ASCII.GetString(myDataBuffer);
+                                    destinationLatestFileNameText = download;
+
+                                    //webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
+                                    //WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
                                 }
                                 catch (Exception ex)
                                 {
@@ -336,31 +293,20 @@ namespace BauhofOffline
 
                                 if (proceed)
                                 {
-                                    if (File.Exists(destinationLatestFileName))
+                                    if (!string.IsNullOrEmpty(destinationLatestFileNameText))
                                     {
-                                        string text = System.IO.File.ReadAllText(destinationLatestFileName);
-                                        if (!string.IsNullOrEmpty(text))
+                                        
+                                            var textSplit = destinationLatestFileNameText.Split(new[] { "#_#" }, StringSplitOptions.None);
+                                        if (textSplit.Any())
                                         {
-                                            WriteLog(@"CheckVersion " + destinationLatestFileName + " loetud: " + "\r\n" + text, 2);
-                                            var textSplit = text.Split(new[] { "#_#" }, StringSplitOptions.None);
-                                            if (textSplit.Any())
+                                            foreach (var s in textSplit)
                                             {
-                                                foreach (var s in textSplit)
+                                                if (s.StartsWith("MAJOR:"))
                                                 {
-                                                    if (s.StartsWith("MAJOR:"))
-                                                    {
-                                                        txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
-                                                        WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
-                                                    }
+                                                    txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
+                                                    WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
                                                 }
                                             }
-
-                                        }
-                                        else
-                                        {
-                                            proceed = false;
-                                            WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!", 2);
-                                            MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt ON TÜHI!");
                                         }
                                     }
                                     else

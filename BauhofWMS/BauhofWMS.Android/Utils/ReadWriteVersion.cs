@@ -31,7 +31,7 @@ namespace BauhofWMS.Droid.Utils
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
             foreach (var r in dir.ListFiles())
             {
-                if (r.Name.ToUpper().StartsWith("VERSION.TXT"))
+                if (r.Name.ToUpper().StartsWith("VERSION_") && r.Name.ToUpper().EndsWith("_.TXT"))
                 {
                     var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
@@ -39,14 +39,17 @@ namespace BauhofWMS.Droid.Utils
                     {
                         return null;
                     }
-                    using (var reader = new StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
-                        {
-                            result = result + line;
-                        }
-                    }
+                    var textSplit = r.Name.ToUpper().Split(new[] { "_" }, StringSplitOptions.None);
+                    result = textSplit[1];
+
+                    //using (var reader = new StreamReader(backingFile, true))
+                    //{
+                    //    string line;
+                    //    while ((line = await reader.ReadLineAsync()) != null)
+                    //    {
+                    //        result = result + line;
+                    //    }
+                    //}
                 }
             }
             return result;
@@ -63,35 +66,61 @@ namespace BauhofWMS.Droid.Utils
                 foreach (var r in dir.ListFiles())
                 {
                     result = result +"\r\n" + r.Name;
-                    if (r.Name.ToUpper().StartsWith("VERSION.TXT"))
+                    if (r.Name.ToUpper() == "VERSION.TXT")
                     {
-                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-                        File.Delete(backingFile);
-                        using (StreamWriter writer = new StreamWriter(backingFile))
-                        {
-                            writer.Write(data);
-                        }
+                        var oldVersion = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                        File.Delete(oldVersion);
                     }
-                    else 
+                    else
                     {
-                        result = result +  "\r\n" + "leidsin, et pole faili";
-                        var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
-                        result = result + backingFile;
-                        using (StreamWriter writer = new StreamWriter(backingFile))
+
+                        if (r.Name.ToUpper().StartsWith("VERSION_") && r.Name.ToUpper().EndsWith("_.TXT"))
                         {
-                            writer.Write(data);
+                            var oldVersion = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                            File.Delete(oldVersion);
+                            var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                            File.Delete(backingFile);
+
+
+                            backingFile = Path.Combine(dir.AbsolutePath, "VERSION_" + data + "_.TXT");
+                            using (StreamWriter writer = new StreamWriter(backingFile))
+                            {
+                                writer.Write(data);
+                            }
                         }
-                        result = result + "\r\n" + "kirjutasin faili";
+                        else
+                        {
+
+                            result = result + "\r\n" + "leidsin, et pole faili";
+                            var backingFile = Path.Combine(dir.AbsolutePath, "VERSION_" + data + "_.TXT");
+                            using (StreamWriter writer = new StreamWriter(backingFile))
+                            {
+                                writer.Write(data);
+                            }
+                            //var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                            //result = result + backingFile;
+                            //using (StreamWriter writer = new StreamWriter(backingFile))
+                            //{
+                            //    writer.Write(data);
+                            //}
+                            result = result + "\r\n" + "kirjutasin faili";
+                        }
                     }
                 }
                 if (dir.ListFiles().Count() == 0)
                 {
+                   
                     result = result + "\r\n" + "leidsin, et pole faili";
-                    var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                    var backingFile = Path.Combine(dir.AbsolutePath, "VERSION_" + data + "_.TXT");
                     using (StreamWriter writer = new StreamWriter(backingFile))
                     {
                         writer.Write(data);
                     }
+                    //var backingFile = Path.Combine(dir.AbsolutePath, "VERSION.TXT");
+                    //using (StreamWriter writer = new StreamWriter(backingFile))
+                    //{
+                    //    writer.Write(data);
+                    //}
                     result = result + "\r\n" + "kirjutasin faili";
                 }
 

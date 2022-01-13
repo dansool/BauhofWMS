@@ -719,6 +719,7 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
+                                <RowDefinition Height="40"/>
                                 <RowDefinition Height="*"/>
 
                             </Grid.RowDefinitions>
@@ -733,9 +734,27 @@
                                     <Label x:Name="lblStockTakeAddedRowsViewHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
                                 </Grid>
                             </Grid>
-
-
                             <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                        <Label x:Name="lblStockTakeAddedRowsViewClear" x:FieldModifier="public" Text="KUSTUTA KÕIK READ" FontAttributes="Bold" HorizontalTextAlignment="End" Margin="0,0,0,0"  FontSize="18" TextColor="Yellow"  />
+                                    </Grid>
+                                </Grid>
+                                <Grid Grid.Column="1">
+                                    <Frame x:Name="frmbtnStockTakeAddedRowsViewClear" x:FieldModifier="public" BorderColor="Yellow" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="&#xf2ed;" FontFamily="{StaticResource FaSolid}" x:Name="btnStockTakeAddedRowsViewClear" x:FieldModifier="public" Clicked="btnStockTakeAddedRowsViewClear_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Red"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
+                                </Grid>
+                            </Grid>
+
+                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
@@ -757,7 +776,8 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                           <RowDefinition Height="25"/>
-                          <RowDefinition Height="*"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="*"/>
 
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
@@ -771,9 +791,27 @@
                             <Label x:Name="lblTransferAddedRowsViewHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
                           </Grid>
                         </Grid>
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                        <Label x:Name="lblTransferAddedRowsViewClear" x:FieldModifier="public" Text="KUSTUTA KÕIK READ" FontAttributes="Bold" HorizontalTextAlignment="End" Margin="0,0,0,0"  FontSize="18" TextColor="Yellow"  />
+                                    </Grid>
+                                </Grid>
+                                <Grid Grid.Column="1">
+                                    <Frame x:Name="frmbtnTransferAddedRowsViewClear" x:FieldModifier="public" BorderColor="Yellow" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="&#xf2ed;" FontFamily="{StaticResource FaSolid}" x:Name="btnTransferAddedRowsViewClear" x:FieldModifier="public" Clicked="btnTransferAddedRowsViewClear_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Red"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
+                                </Grid>
+                            </Grid>
 
-
-                        <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                           </Grid.ColumnDefinitions>

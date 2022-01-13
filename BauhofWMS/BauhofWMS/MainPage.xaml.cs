@@ -1186,8 +1186,17 @@ namespace BauhofWMS
             LstvOperationsRecordInfo.ItemsSource = lstOperationsRecords;
             if (lstInternalInvDB.Any() || lstInternalMovementDB.Any())
             {
-                frmOperationsExport.IsVisible = true;
-                lblOperationsExport.IsVisible = true;
+                if (lstInternalInvDB.Count > 0)
+                {
+                    frmOperationsExport.IsVisible = true;
+                    lblOperationsExport.IsVisible = true;
+                }
+                if (lstInternalMovementDB.Count > 0)
+                {
+                    frmOperationsExport.IsVisible = true;
+                    lblOperationsExport.IsVisible = true;
+                }
+               
             }
             
         }
@@ -1259,19 +1268,21 @@ namespace BauhofWMS
                         dataRowInv = dataRowInv + p.itemCode + ";" + barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
                     }
 
+                    
+                        var write = await WriteInvRecordsToExportFile.Write(this, dataRowInv, exportFileNameStamp);
+                        if (write.Item1)
+                        {
+                            lstInternalInvDB = new List<ListOfInvRecords>();
 
-                    var write = await WriteInvRecordsToExportFile.Write(this, dataRowInv, exportFileNameStamp);
-                    if (write.Item1)
-                    {
-                        lstInternalInvDB = new List<ListOfInvRecords>();
-
-                        PrepareOperations();
-                    }
-                    else
-                    {
-                        proceed = false;
-                        DisplayFailMessage(write.Item2);
-                    }
+                            PrepareOperations();
+                        }
+                        else
+                        {
+                            proceed = false;
+                            DisplayFailMessage(write.Item2);
+                        }
+                    
+                    
                 }
                 if (lstInternalMovementDB.Any())
                 {
@@ -1291,7 +1302,9 @@ namespace BauhofWMS
                                 barCode = p.barCode;
                             }
                         }
-                        dataRowMovement = dataRowMovement + p.itemCode + ";" + barCode + ";" + p.quantity + ";" + p.uom + "\r\n";
+
+                        //Muudetud Märdi ettepanekul 12.01.22
+                        dataRowMovement = dataRowMovement + p.itemCode + ";" + barCode + ";" + (0 - p.quantity) + ";" + p.uom + "\r\n";
                     }
                     var write = await WriteMovementRecordsToExportFile.Write(this, dataRowMovement, exportFileNameStamp);
                     if (write.Item1)
@@ -1392,7 +1405,7 @@ namespace BauhofWMS
                     var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                     if (writeInvDbToFile.Item1)
                     {
-                        DisplaySuccessMessage("SALVESTATUD2!");
+                        DisplaySuccessMessage("SALVESTATUD!");
                         PrepareStockTake();
                     }
                     else
@@ -1455,7 +1468,7 @@ namespace BauhofWMS
                             var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                             if (writeInvDbToFile.Item1)
                             {
-                                DisplaySuccessMessage("SALVESTATUD1!");
+                                DisplaySuccessMessage("SALVESTATUD!");
                                 PrepareStockTake();
                             }
                             else
@@ -1500,7 +1513,7 @@ namespace BauhofWMS
                                     var writeInvDbToFile = await WriteInvRecords.Write(this, data);
                                     if (writeInvDbToFile.Item1)
                                     {
-                                        DisplaySuccessMessage("SALVESTATUD3!");
+                                        DisplaySuccessMessage("SALVESTATUD!");
                                         PrepareStockTake();
                                     }
                                     else
@@ -2609,9 +2622,30 @@ namespace BauhofWMS
         {
 
         }
+
+        private async void btnStockTakeAddedRowsViewClear_Clicked(object sender, EventArgs e)
+        {
+            if (await YesNoDialog("INVENTUUR", "JÄTKAMISEL KUSTUTATAKSE KÕIK INVENTUURI KIRJED!", false))
+            {
+                lstInternalInvDB = new List<ListOfInvRecords>();
+                //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                //string data = JsonConvert.SerializeObject(lstInternalInvDB, jSONsettings);
+
+                var writeInvDbToFile = await WriteInvRecords.Write(this, "");
+                if (writeInvDbToFile.Item1)
+                {
+                    DisplaySuccessMessage("KUSTUTATUD!");
+                    PrepareStockTake();
+                }
+                else
+                {
+                    DisplayFailMessage(writeInvDbToFile.Item2);
+                }
+            }
+        }
         #endregion
 
-        #region stkStockTakeAddedRowsView
+        #region stkTransferAddedRowsView
 
         public  void PrepareTransferAddedRowsView()
         {
@@ -2639,7 +2673,26 @@ namespace BauhofWMS
         {
 
         }
-
+        private async void btnTransferAddedRowsViewClear_Clicked(object sender, EventArgs e)
+        {
+            if (await YesNoDialog("LIIKUMINE", "JÄTKAMISEL KUSTUTATAKSE KÕIK LIIMUSTE KIRJED!", false))
+            {
+                lstInternalMovementDB = new List<ListOfMovementRecords>();
+                //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                //string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
+                //Debug.WriteLine(data);
+                var writeMovementDbToFile = await WriteMovementRecords.Write(this, "");
+                if (writeMovementDbToFile.Item1)
+                {
+                    DisplaySuccessMessage("KUSTUTATUD!");
+                    PrepareTransfer();
+                }
+                else
+                {
+                    DisplayFailMessage(writeMovementDbToFile.Item2);
+                }
+            }
+        }
 
 
 
@@ -2742,9 +2795,11 @@ namespace BauhofWMS
 
 
 
+
+
         #endregion
 
-       
+   
     }
 }
     
