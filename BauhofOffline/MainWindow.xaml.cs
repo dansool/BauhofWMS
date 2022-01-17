@@ -42,6 +42,7 @@ namespace BauhofOffline
         public ParseArguments ParseArguments = new ParseArguments();
         public string convertProcessLog = "";
         public bool convertProcess = true;
+        public string language = "EN";
 
         #region lists
         public List<ListOfShopRelations> lstShopRelations = new List<ListOfShopRelations>();
@@ -88,6 +89,41 @@ namespace BauhofOffline
                 WriteLog("InitializeComponent done", 1);
                 prgRing.Visibility = Visibility.Hidden;
                 WriteLog("prgRing visible", 1);
+
+
+                string DeviceNameAsSeenInMyComputer = "";
+                MediaDevice device = null;
+                var devices = MediaDevice.GetDevices();
+                if (devices.Any())
+                {
+                    if (devices.Count() == 1)
+                    {
+                        device = devices.First();
+                        DeviceNameAsSeenInMyComputer = devices.First().Description;
+                    }
+                    else
+                    {
+                        txtBkStatus.Text = "LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!";
+                    }
+
+                }
+                else
+                {
+                    txtBkStatus.Text = "VÄLIST SEADET EI LEITUD!";
+                }
+                if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
+                {
+                    Debug.WriteLine("Sii");
+                    device.Connect();
+                    if (device.DirectoryExists(@"\Internal shared storage"))
+                    {
+                        language = "EN";
+                    }
+                    else
+                    {
+                        language = "ET";
+                    }
+                }
                 if (startupArgs != null)
                 {
                     WriteLog("Started with arguments: " + startupArgs, 1);
@@ -96,7 +132,7 @@ namespace BauhofOffline
                     var parseArgs = ParseArguments.Parse(this, startupArgs);
                     if (parseArgs.Item1)
                     {
-                        var lstStartupArguments = parseArgs.Item3;                        
+                        var lstStartupArguments = parseArgs.Item3;
                         if (lstStartupArguments.Any())
                         {
                             ui = lstStartupArguments.First().showUI;
@@ -157,12 +193,15 @@ namespace BauhofOffline
                 }
                 MessageBox.Show(error);
             }
+
+            //MessageBox.Show(CultureInfo.InstalledUICulture.DisplayName);
         }
 
         public void SendMail(string errroToWrite)
         {
             try
             {
+                
                 //lstSettings.First().smtpServer = "mail.konesko.ee";
                 Debug.WriteLine("using " + lstSettings.First().smtpServer);
                 Debug.WriteLine("using " + lstSettings.First().adminEmail);
@@ -245,12 +284,12 @@ namespace BauhofOffline
                             device.Connect();
                             WriteLog("CheckVersion device connected", 2);
 
-                            WriteLog(@"CheckVersion looking for files in Internal shared storage\Download", 2);
-                            var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download");
+                            WriteLog(@"CheckVersion looking for files in " + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download", 2);
+                            var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download");
                             var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                             foreach (var file in files)
                             {
-                                WriteLog(@"CheckVersion found " + file.Name + @" in Internal shared storage\Download", 2);
+                                WriteLog(@"CheckVersion found " + file.Name + @" in " + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download", 2);
                                 if (file.Name.ToUpper().StartsWith("VERSION_") && file.Name.ToUpper().EndsWith("_.TXT"))
                                 {
                                     var textSplit = file.Name.ToUpper().Split(new[] { "_" }, StringSplitOptions.None);
@@ -350,7 +389,7 @@ namespace BauhofOffline
                             {
                                 device.Connect();
                                 WriteLog("CheckVersion device connected", 2);
-                                var DCIMDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
+                                var DCIMDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\");
                                 var folders = DCIMDir.EnumerateDirectories("*.*", SearchOption.TopDirectoryOnly);
                                 {
                                     bool exists = false;
@@ -363,12 +402,12 @@ namespace BauhofOffline
                                     }
                                     if (!exists)
                                     {
-                                        device.CreateDirectory(@"\Internal shared storage\DCIM\Export");
-                                        WriteLog(@"CheckVersion device \Internal shared storage\DCIM\Export folder created", 2);
+                                        device.CreateDirectory(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
+                                        WriteLog(@"CheckVersion device \" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export folder created", 2);
                                     }
                                 }
 
-                                var exportDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
+                                var exportDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
                                 var exportFiles = exportDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                                 if (exportFiles.Count() < 3)
                                 {
@@ -385,7 +424,7 @@ namespace BauhofOffline
                         catch (Exception ex)
                         {
                             proceed = false;
-                            if (ex.Message.Contains(@"\Internal shared storage\Download") && ex.Message.Contains("not found"))
+                            if (ex.Message.Contains(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download") && ex.Message.Contains("not found"))
                             {
                                 WriteError("CheckVersion ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
                                 MessageBox.Show("CheckVersion  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
@@ -450,7 +489,7 @@ namespace BauhofOffline
                     try
                     {
                         device.Connect();
-                        var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\Export");
+                        var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
                         Debug.WriteLine("5");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                         foreach (var file in files)
@@ -476,7 +515,7 @@ namespace BauhofOffline
                     catch (Exception ex)
                     {
                         proceed = false;
-                        if (ex.Message.Contains(@"\Internal shared storage\DCIM") && ex.Message.Contains("not found"))
+                        if (ex.Message.Contains(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM") && ex.Message.Contains("not found"))
                         {
                             WriteError("btnDownload_Click ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!" + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
                             MessageBox.Show("btnDownload_Click  ÜHENDATUD SEADMELT EI LEITUD DOWNLOAD KATALOOGI!");
@@ -567,7 +606,7 @@ namespace BauhofOffline
                     {
                         device.Connect();
 
-                        var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\DCIM\");
+                        var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\");
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
 
                         foreach (var file in files)
@@ -768,7 +807,7 @@ namespace BauhofOffline
                             //MessageBox.Show(dcimDownload.FullName + @"\" + "BauhofWMS" + androidVersion + ".apk");
                             if (proceed)
                             {
-                                var photoDir = device.GetDirectoryInfo(@"\Internal shared storage\Download\");
+                                var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download\");
                                 var files2 = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                                 foreach (var file in files2)
                                 {

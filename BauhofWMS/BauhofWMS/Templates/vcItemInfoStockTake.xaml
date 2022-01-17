@@ -55,7 +55,7 @@
                         <Label Text="{Binding barCode}" FontAttributes="Bold" FontSize="16" TextColor="SandyBrown" VerticalOptions="Start" />
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="2" IsVisible="{Binding showInvQty}">
+                <Grid Grid.Row="2" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="65"/>
@@ -66,12 +66,11 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20"/>
-                            <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
-                        <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                        <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3" IsVisible="{Binding showInvQty}">
                             <Label Text="SALDO" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
                         </Grid>
-                        <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start">
+                        <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="Start" IsVisible="{Binding showInvQty}">
                             <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
                                 <Label.FormattedText>
                                     <FormattedString>
@@ -82,8 +81,16 @@
                                 </Label.FormattedText>
                             </Label>
                         </Grid>
+
+                        <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="SORTIMENT" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="14" TextColor="Yellow"  />
+                        </Grid>
+                        <Grid Grid.Column="4" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label  Text="{Binding sortiment}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="Yellow"  />
+                        </Grid>
                     </Grid>
                 </Grid>
+                
                 <Grid Grid.Row="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="75"/>

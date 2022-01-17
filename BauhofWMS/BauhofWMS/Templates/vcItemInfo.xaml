@@ -85,6 +85,12 @@
                             </Label>
                         </Grid>
 
+                        <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,-3">
+                            <Label Text="SORTIMENT" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start" FontSize="14" TextColor="Yellow"  />
+                        </Grid>
+                        <Grid Grid.Column="4" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End" Margin="0,3,0,0">
+                            <Label  Text="{Binding sortiment}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Start"  FontSize="18" TextColor="Yellow"  />
+                        </Grid>
 
                         <Grid Grid.Column="0" Grid.Row="1"  HorizontalOptions="End" VerticalOptions="End" Margin="0,-4,0,0">
                             <Label Text="HIND" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="End" FontSize="14" TextColor="White"  />
