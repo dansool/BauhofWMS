@@ -44,10 +44,14 @@
     <Compile Include="ListDefinitions\ListOfMovement.cs" />
     <Compile Include="ListDefinitions\ListOfMovementToExport.cs" />
     <Compile Include="ListDefinitions\ListOfOperationsRecords.cs" />
+    <Compile Include="ListDefinitions\ListOfPurchaseReceive.cs" />
     <Compile Include="ListDefinitions\ListOfSettings.cs" />
     <Compile Include="ListDefinitions\ListOfShopRelations.cs" />
+    <Compile Include="ListDefinitions\ListOfSHRCVToExport.cs" />
     <Compile Include="ListDefinitions\ListOfSKU.cs" />
     <Compile Include="ListDefinitions\ListOfStartupArgs.cs" />
+    <Compile Include="ListDefinitions\ListOfTransferReceive.cs" />
+    <Compile Include="ListDefinitions\ListOfTRFRCVToExport.cs" />
     <Compile Include="ListDefinitions\ListOfUser.cs" />
     <Compile Include="ListDefinitions\ListOfVersion.cs" />
     <Compile Include="ListDefinitions\ListOfdbRecordsImport.cs" />

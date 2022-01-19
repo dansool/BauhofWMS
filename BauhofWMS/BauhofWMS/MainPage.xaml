@@ -56,8 +56,7 @@
                                   <RowDefinition Height="25"/>
                                   <RowDefinition Height="40"/>
                                   <RowDefinition Height="45"/>
-                                  <RowDefinition Height="10"/>
-                                  <RowDefinition Height="20"/>
+                                  <RowDefinition Height="45"/>
                                   <RowDefinition Height="45"/>
                                   <RowDefinition Height="60"/>
                                   <RowDefinition Height="60"/>
@@ -92,29 +91,67 @@
                                       </Grid>
                                   </Grid>
                               </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center">
-                                <Label x:Name="lblInvQty" x:FieldModifier="public" Text="NÄITA INVENTUURI KOGUST" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="18" TextColor="White"  />
-                              </Grid>
-                              <Grid Grid.Column="0" Grid.Row="6" HorizontalOptions="Center">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="150"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="45"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Center">
-                                        <input:CheckBox Text="JAH" x:Name="rbtnInvQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnInvQtyYes_CheckChanged"/>
-                                    </Grid>
-                                    <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center">
-                                        <input:CheckBox Text="EI" x:Name="rbtnInvQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnInvQtyNo_CheckChanged"/>
-                                    </Grid>
+                              <Grid  Grid.Column="0" Grid.Row="4" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblInvQty" x:FieldModifier="public" Text="INVENTUURI
+                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
                                 </Grid>
-                              </Grid>
-
-
-                                <Grid  Grid.Column="0" Grid.Row="7" HorizontalOptions="Center">
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnInvQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnInvQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnInvQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnInvQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                              <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblPurchaseReceiveQty" x:FieldModifier="public" Text="OSTUTARNE
+                                             KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnPurchaseReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                              <Grid  Grid.Column="0" Grid.Row="6" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblTransferReceiveQty" x:FieldModifier="public" Text="ÜLEVIIMSTARNE
+                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnTransferReceiveQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnTransferReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnTransferReceiveQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                              <Grid  Grid.Column="0" Grid.Row="7" HorizontalOptions="Center">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="65"/>
                                     </Grid.RowDefinitions>
@@ -134,10 +171,7 @@
                                         <Button Text="&#xf0c7;" FontFamily="{StaticResource FaSolid}" x:Name="btnSettingsOK" x:FieldModifier="public" Clicked="btnSettingsOK_Clicked" BackgroundColor="#FF0862FF"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
                                     </Grid>
                                 </Grid>
-
-
-
-                            <Grid  Grid.Column="0" Grid.Row="8" HorizontalOptions="StartAndExpand">
+                              <Grid  Grid.Column="0" Grid.Row="8" HorizontalOptions="StartAndExpand">
 
                                   <Grid>
                                       <Grid.ColumnDefinitions>
@@ -164,7 +198,6 @@
 
 
                               </Grid>
-
                           </Grid>
                       </StackLayout>
 
@@ -231,8 +264,8 @@
                                           <ColumnDefinition Width="322"/>
                                       </Grid.ColumnDefinitions>
                                       <Grid.RowDefinitions>
-                                          <RowDefinition Height="240"/>
-                                          <RowDefinition Height="165"/>
+                                          <RowDefinition Height="280"/>
+                                          <RowDefinition Height="195"/>
                                       </Grid.RowDefinitions>
                                       <Grid Grid.Column="0" Grid.Row="0" HorizontalOptions="Center">
                                           <Grid.ColumnDefinitions>
@@ -246,8 +279,9 @@
                                           <Grid.RowDefinitions>
                                               <RowDefinition Height="20"/>
                                               <RowDefinition Height="55"/>
+                                              <RowDefinition Height="35"/>
                                               <RowDefinition Height="55"/>
-                                              <RowDefinition Height="55"/>
+                                              <RowDefinition Height="35"/>
                                               <RowDefinition Height="55"/>
                                           </Grid.RowDefinitions>
                                           <Grid Grid.Column="1" Grid.Row="1" HorizontalOptions="Center">
@@ -285,7 +319,27 @@
                                           <Grid Grid.Column="5" Grid.Row="3" HorizontalOptions="Start">
                                               <Label x:Name="lblOperationsExport" x:FieldModifier="public" Text="EKSPORDI TULEMUSED" HorizontalTextAlignment="Start"  Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
                                           </Grid>
-                                      </Grid>
+
+                                        <Grid Grid.Column="1" Grid.Row="5" HorizontalOptions="Center">
+                                            <Frame x:Name="frmOperationsPurchaseReceive" BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
+                                                <Button Text="&#xf59d;" FontFamily="{StaticResource FaSolid}" WidthRequest="55" HeightRequest="55" x:Name="btnOperationsPurchaseReceive" x:FieldModifier="public" Clicked="btnOperationsPurchaseReceive_Clicked" BackgroundColor="#FF0862FF"  FontSize="30"  TextColor="White"  FontAttributes="Bold" />
+                                            </Frame>
+                                        </Grid>
+                                        <Grid Grid.Column="2" Grid.Row="5" HorizontalOptions="Start">
+                                            <Label x:Name="lblOperationspurchaseReceive" x:FieldModifier="public" Text="OSTU-
+                                                   TARNED" HorizontalTextAlignment="Start"  Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
+                                        </Grid>
+
+                                        <Grid Grid.Column="4" Grid.Row="5" HorizontalOptions="Center">
+                                            <Frame x:Name="frmOperationsTransferReceive" BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
+                                                <Button Text="&#xf4ce;" FontFamily="{StaticResource FaSolid}" WidthRequest="55" HeightRequest="55" x:Name="btnOperationsTransferReceive" x:FieldModifier="public" Clicked="btnOperationsTransferReceive_Clicked" BackgroundColor="#FF0862FF"  FontSize="30"  TextColor="White"  FontAttributes="Bold" />
+                                            </Frame>
+                                        </Grid>
+                                        <Grid Grid.Column="5" Grid.Row="5" HorizontalOptions="Start">
+                                            <Label x:Name="lblOperationsTransferReceive" x:FieldModifier="public" Text="ÜLEVIIMIS-
+                                                   TARNED" HorizontalTextAlignment="Start"  Margin="0,0,0,0"  FontSize="14" TextColor="White"  />
+                                        </Grid>
+                                        </Grid>
                                       <Grid Grid.Column="0" Grid.Row="1" HorizontalOptions="CenterAndExpand">
                                           <ListView x:FieldModifier="public"  x:Name="LstvOperationsRecordInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand" HeightRequest="165" BackgroundColor="Transparent" HasUnevenRows="True"/>
                                       </Grid>
@@ -838,7 +892,396 @@
                             </Grid>
                         </StackLayout>
                     </StackLayout>
-                    
+
+                    <StackLayout  x:Name="stkPurchaseReceiveOrders" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
+                        <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblPurchaseReceiveOrdersHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OTSI" x:Name="btnPurchaseReceiveOrdersSearch" x:FieldModifier="public" Clicked="btnPurchaseReceiveOrdersSearch_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="48"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
+                                    <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entPurchaseReceiveOrders" x:Name="entPurchaseReceiveOrders"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="ItemPurchaseReceiveOrdersReadCodeClear" x:Name="btnPurchaseReceiveOrdersReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnPurchaseReceiveOrdersReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvPurchaseReceiveOrders" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvPurchaseReceiveOrders_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout  x:Name="stkPurchaseReceiveOrderLines" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
+                        <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblPurchaseReceiveOrderLinesHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OTSI" x:Name="btnPurchaseReceiveOrderLinesSearch" x:FieldModifier="public" Clicked="btnPurchaseReceiveOrderLinesSearch_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="48"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
+                                    <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entPurchaseReceiveOrderLines" x:Name="entPurchaseReceiveOrderLines"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="ItemPurchaseReceiveOrderLinesReadCodeClear" x:Name="btnPurchaseReceiveOrderLinesReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnPurchaseReceiveOrderLinesReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvPurchaseReceiveOrderLines" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvPurchaseReceiveOrderLines_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout  x:Name="stkPurchaseOrderQuantityInsert" x:FieldModifier="public" HorizontalOptions="Fill">
+                        <Grid HorizontalOptions="CenterAndExpand"  WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="185"/>
+                                <RowDefinition Height="80"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblPurchaseOrderQuantityInsertHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-20,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvPurchaseOrderQuantityInsertInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-25,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvPurchaseOrderQuantityInsertQuantityInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="60"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
+                                    <Frame x:Name="frmentPurchaseOrderQuantityInsertQuantity" BorderColor="Blue" HasShadow="False" x:FieldModifier="public" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entPurchaseOrderQuantityInsertQuantity" x:Name="entPurchaseOrderQuantityInsertQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblPurchaseOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame x:Name="frmbtnPurchaseOrderQuantityInsertQuantityOK" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OK" x:Name="btnPurchaseOrderQuantityInsertQuantityOK" x:FieldModifier="public" Clicked="btnPurchaseOrderQuantityInsertQuantityOK_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Green"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </StackLayout>
+
+
+                    <StackLayout  x:Name="stkTransferReceiveOrders" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
+                        <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblTransferReceiveOrdersHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OTSI" x:Name="btnTransferReceiveOrdersSearch" x:FieldModifier="public" Clicked="btnTransferReceiveOrdersSearch_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="48"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
+                                    <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entTransferReceiveOrders" x:Name="entTransferReceiveOrders"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="ItemTransferReceiveOrdersReadCodeClear" x:Name="btnTransferReceiveOrdersReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnTransferReceiveOrdersReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvTransferReceiveOrders" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvTransferReceiveOrders_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout  x:Name="stkTransferReceiveOrderLines" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
+                        <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblTransferReceiveOrderLinesHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OTSI" x:Name="btnTransferReceiveOrderLinesSearch" x:FieldModifier="public" Clicked="btnTransferReceiveOrderLinesSearch_Clicked" BackgroundColor="MediumSeaGreen" HeightRequest="48"  FontSize="12"  TextColor="White"  FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="200">
+                                    <Frame BorderColor="Blue" HasShadow="False" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entTransferReceiveOrderLines" x:Name="entTransferReceiveOrderLines"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="22" Focused="Entry_FocusedNumericWithSwitch" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="3" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand">
+                                    <Button ClassId="ItemTransferReceiveOrderLinesReadCodeClear" x:Name="btnTransferReceiveOrderLinesReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnTransferReceiveOrderLinesReadCodeClear_Clicked"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvTransferReceiveOrderLines" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvTransferReceiveOrderLines_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout  x:Name="stkTransferOrderQuantityInsert" x:FieldModifier="public" HorizontalOptions="Fill">
+                        <Grid HorizontalOptions="CenterAndExpand"  WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="185"/>
+                                <RowDefinition Height="80"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblTransferOrderQuantityInsertHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-20,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvTransferOrderQuantityInsertInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-25,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvTransferOrderQuantityInsertQuantityInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="60"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="55"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="CenterAndExpand" WidthRequest="110">
+                                    <Frame x:Name="frmentTransferOrderQuantityInsertQuantity" BorderColor="Blue" HasShadow="False" x:FieldModifier="public" Padding="1" CornerRadius="0">
+                                        <entry:CustomEntry ClassId="entTransferOrderQuantityInsertQuantity" x:Name="entTransferOrderQuantityInsertQuantity"  x:FieldModifier="public" Style="{StaticResource ReadOnlyEntryStyle}" FontSize="30" Focused="Entry_FocusedNumeric" Unfocused="Entry_Unfocused"/>
+                                    </Frame>
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblTransferOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
+                                    <Frame x:Name="frmbtnTransferOrderQuantityInsertQuantityOK" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OK" x:Name="btnTransferOrderQuantityInsertQuantityOK" x:FieldModifier="public" Clicked="btnTransferOrderQuantityInsertQuantityOK_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="Green"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </StackLayout>
+
                     <Grid x:Name="grdKeyBoards" x:FieldModifier="public"  HorizontalOptions="Fill" VerticalOptions="EndAndExpand" HeightRequest="240" IsVisible="False">
                           <Grid.ColumnDefinitions>
                               <ColumnDefinition Width="*"/>

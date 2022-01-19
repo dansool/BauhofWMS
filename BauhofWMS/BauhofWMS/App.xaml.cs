@@ -28,6 +28,8 @@ namespace BauhofWMS
         public bool searchLocalShop = true;
         public string shopLocationID = "";
         public bool showInvQty = false;
+        public bool showPurchaseReceiveQty = false;
+        public bool showTransferReceiveQty = false;
         public App()
         {
             InitializeComponent();

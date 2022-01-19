@@ -26,7 +26,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IDownloader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlatformDetailsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritePurchaseOrderPickedQuantitiesRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritePurchaseOrderPickedQuantitiesRecordsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadPurchaseReveiveRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadShopRelationRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\iReadTransferReveiveRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWritedbRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsAndroid.cs" />
@@ -35,6 +39,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteSettingsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteInvRecordsUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteTransferOrderPickedQuantitiesRecordsAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteTransferOrderPickedQuantitiesRecordsUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IReadWriteVersionAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsToExportFileAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsToExportFileUWP.cs" />
@@ -80,6 +86,46 @@
       <DependentUpon>vcInsertedRecords.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderLines.xaml.cs">
+      <DependentUpon>vcPurchaseOrderLines.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertInfo.xaml.cs">
+      <DependentUpon>vcPurchaseOrderQuantityInsertInfo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertQuantityInfo.xaml.cs">
+      <DependentUpon>vcPurchaseOrderQuantityInsertQuantityInfo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertQuantityInfoFull.xaml.cs">
+      <DependentUpon>vcPurchaseOrderQuantityInsertQuantityInfoFull.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrders.xaml.cs">
+      <DependentUpon>vcPurchaseOrders.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderLines.xaml.cs">
+      <DependentUpon>vcTransferOrderLines.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertInfo.xaml.cs">
+      <DependentUpon>vcTransferOrderQuantityInsertInfo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertQuantityInfo.xaml.cs">
+      <DependentUpon>vcTransferOrderQuantityInsertQuantityInfo.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertQuantityInfoFull.xaml.cs">
+      <DependentUpon>vcTransferOrderQuantityInsertQuantityInfoFull.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrders.xaml.cs">
+      <DependentUpon>vcTransferOrders.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CheckNewVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DownloadEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GetCurrentVersion.cs" />
@@ -92,14 +138,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReaddbShopRelationRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadMovementRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadPurchaseOrderPickedQuantitiesRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadPurchaseReceiveRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadTransferReceiveRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheckLocal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteInvRecordsToExportFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecordsToExportFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WritePurchaseOrderPickedQuantitiesRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteTransferOrderPickedQuantitiesRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YesNo.xaml.cs">
       <DependentUpon>YesNo.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -149,6 +200,66 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcItemInfoBinsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrders.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderLines.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertQuantityInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcPurchaseOrderQuantityInsertQuantityInfoFull.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrders.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderLines.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertQuantityInfoFull.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertQuantityInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

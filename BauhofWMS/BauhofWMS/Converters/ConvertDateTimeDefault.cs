@@ -25,6 +25,7 @@ namespace BauhofWMS.Converters
                 var maxDate = DateTime.Now.AddYears(10);
                 if ((minDate < DateValue) && (maxDate > DateValue))
                 {
+               
                     return String.Format("{0:dd.MM.yyyy}", DateValue.ToLocalTime());
                 }
                 else

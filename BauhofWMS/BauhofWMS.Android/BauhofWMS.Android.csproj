@@ -105,11 +105,15 @@
     <Compile Include="Utils\GetDeviceSerial.cs" />
     <Compile Include="Utils\PlatformDetailsAndroid.cs" />
     <Compile Include="Utils\ProgressStream.cs" />
+    <Compile Include="Utils\ReadPurchaseReceiveRecords.cs" />
     <Compile Include="Utils\ReadShopRelationRecordsAsync.cs" />
+    <Compile Include="Utils\ReadTransferReveiveRecords.cs" />
     <Compile Include="Utils\ReadWritedbRecords.cs" />
     <Compile Include="Utils\ReadWriteInvRecords.cs" />
     <Compile Include="Utils\ReadWriteMovementRecords.cs" />
+    <Compile Include="Utils\ReadWritePurchaseOrderPickedQuantitiesRecords.cs" />
     <Compile Include="Utils\ReadWriteSettings.cs" />
+    <Compile Include="Utils\ReadWriteTransferOrderPickedQuantitiesRecords.cs" />
     <Compile Include="Utils\Version_Android.cs" />
     <Compile Include="Utils\WriteInvRecordsToExportFile.cs" />
     <Compile Include="Utils\WriteMovementRecordsToExportFile.cs" />

@@ -9,6 +9,7 @@ namespace BauhofWMS.StackPanelOperations
         public void Collapse(BauhofWMS.MainPage mp)
         {
             //mp.ShowKeyBoard.Hide(mp);
+            mp.grdProgressBar.IsVisible = false;
             mp.stkUpdate.IsVisible = false;
             mp.stkPassword.IsVisible = false;
             mp.stkOperations.IsVisible = false;
@@ -19,8 +20,14 @@ namespace BauhofWMS.StackPanelOperations
             mp.stkItemInfo.IsVisible = false;
             mp.stkStockTakeAddedRowsView.IsVisible = false;
             mp.stkTransferAddedRowsView.IsVisible = false;
-            mp.stkItemInfoBinsView.IsVisible = false;
-            mp.grdProgressBar.IsVisible = false;
+            mp.stkItemInfoBinsView.IsVisible = false;            
+            mp.stkPurchaseReceiveOrders.IsVisible = false;
+            mp.stkPurchaseReceiveOrderLines.IsVisible = false;
+            mp.stkPurchaseOrderQuantityInsert.IsVisible = false;
+
+            mp.stkTransferReceiveOrders.IsVisible = false;
+            mp.stkTransferReceiveOrderLines.IsVisible = false;
+            mp.stkTransferOrderQuantityInsert.IsVisible = false;
         }
     }
 }

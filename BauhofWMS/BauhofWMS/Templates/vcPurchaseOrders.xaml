@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="True"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcPurchaseOrders">
+    <ViewCell.View>
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
+                    <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
+                </ResourceDictionary>
+            </Frame.Resources>
+            <Grid Margin="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="2"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="322" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="212" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding docNo}" FontAttributes="Bold" FontSize="22" TextColor="Tomato" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="TARNEKP: " FontAttributes="Bold" FontSize="14" TextColor="Black"  />
+                                    <Span Text="{Binding shipmentDate, Mode=OneWay, Converter={StaticResource ConvertDateTimeDefault}}" FontAttributes="Bold" FontSize="22" TextColor="Black"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="322" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding vendorReference}" FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" />
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="252" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding vendorCode}"  FontAttributes="Bold" FontSize="22" TextColor="Green" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding vendorName}" FontAttributes="Bold" FontSize="22" TextColor="Green" VerticalOptions="Start" />
+                    </Grid>
+                </Grid>
+                
+                
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

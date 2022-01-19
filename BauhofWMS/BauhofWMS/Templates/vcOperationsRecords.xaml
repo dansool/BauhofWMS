@@ -19,10 +19,12 @@
                     <RowDefinition Height="20"/>
                     <RowDefinition Height="20"/>
                     <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="145" />
-                    <ColumnDefinition Width="192" />
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="197" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" Grid.Row="0">
                     <Label Text="Inventuuri kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
@@ -58,6 +60,22 @@
                 <Grid Grid.Column="1" Grid.Row="4">
                     <Label Text="{Binding dbRecordsUpdateDate, Converter={StaticResource ConvertDateTimeLong}}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
                 </Grid>
+
+
+                <Grid Grid.Column="0" Grid.Row="5" IsVisible="true">
+                    <Label Text="Ostutarne kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="5" IsVisible="true">
+                    <Label Text="{Binding purchaseReceiveRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="6" IsVisible="true">
+                    <Label Text="Ülev.tarne kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+                <Grid Grid.Column="1" Grid.Row="6" IsVisible="true">
+                    <Label Text="{Binding transferReceiveRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
+                </Grid>
+
 
             </Grid>
         </Frame>

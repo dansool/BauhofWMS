@@ -47,6 +47,11 @@ namespace BauhofWMS
         public WriteInvRecordsToExportFile WriteInvRecordsToExportFile = new WriteInvRecordsToExportFile();
         public WriteMovementRecordsToExportFile WriteMovementRecordsToExportFile = new WriteMovementRecordsToExportFile();
         public VersionCheckLocal VersionCheckLocal = new VersionCheckLocal();
+        public ReadPurchaseReceiveRecords ReadPurchaseReceiveRecords = new ReadPurchaseReceiveRecords();
+        public ReadTransferReceiveRecords ReadTransferReceiveRecords = new ReadTransferReceiveRecords();
+        public ReadPurchaseOrderPickedQuantitiesRecords ReadPurchaseOrderPickedQuantitiesRecords = new ReadPurchaseOrderPickedQuantitiesRecords();
+        public WritePurchaseOrderPickedQuantitiesRecords WritePurchaseOrderPickedQuantitiesRecords = new WritePurchaseOrderPickedQuantitiesRecords();
+        public WriteTransferOrderPickedQuantitiesRecords WriteTransferOrderPickedQuantitiesRecords = new WriteTransferOrderPickedQuantitiesRecords();
         #endregion
         #region Variables
         protected override bool OnBackButtonPressed() => true;
@@ -96,6 +101,11 @@ namespace BauhofWMS
         public int transferRecordID = 0;
         public bool complete;
 
+        public int purchReceiveRecordID = 0;
+        public int transferReceiveRecordID = 0;
+        
+
+
         #endregion
         #region lists
         public List<ListOfSettings> lstSettings = new List<ListOfSettings>();
@@ -118,6 +128,32 @@ namespace BauhofWMS
         public List<ListOfSKU> lstBins = new List<ListOfSKU>();
 
         public List<ListOfdbRecords> lstResultItemInfo = new List<ListOfdbRecords>();
+
+        public List<ListOfPurchaseReceive> lstInternalPurchaseReceiveDB = new List<ListOfPurchaseReceive>();
+        public List<ListOfPurchaseReceive> lstPurchaseReceiveToExport = new List<ListOfPurchaseReceive>();
+        public List<ListOfPurchaseReceive> lstPurchaseOrders = new List<ListOfPurchaseReceive>();
+        public List<ListOfPurchaseReceive> lstPurchaseOrderLines = new List<ListOfPurchaseReceive>();
+        public List<ListOfPurchaseReceive> lstPurchaseOrderQuantityInsertInfo = new List<ListOfPurchaseReceive>();
+        public List<ListOfSHRCVToExport> lstPurchaseOrderQuantityInsertQuantities = new List<ListOfSHRCVToExport>();
+        public List<ListOfSHRCVToExport> lstPurchaseOrderPickedQuantities = new List<ListOfSHRCVToExport>();
+        public List<ListOfSHRCVToExport> lstPurchaseOrderPickedQuantitiesToExport = new List<ListOfSHRCVToExport>();
+
+
+        public List<ListOfTransferReceive> lstInternalTransferReceiveDB = new List<ListOfTransferReceive>();
+        public List<ListOfTransferReceive> lstPurchaseTransferToExport = new List<ListOfTransferReceive>();
+
+        public List<ListOfTransferReceive> lstTransferOrders = new List<ListOfTransferReceive>();
+        public List<ListOfTransferReceive> lstTransferOrderLines = new List<ListOfTransferReceive>();
+        public List<ListOfTransferReceive> lstTransferOrderQuantityInsertInfo = new List<ListOfTransferReceive>();
+        public List<ListOfTRFRCVToExport> lstTransferOrderQuantityInsertQuantities = new List<ListOfTRFRCVToExport>();
+        public List<ListOfTRFRCVToExport> lstTransferOrderPickedQuantities = new List<ListOfTRFRCVToExport>();
+        public List<ListOfTRFRCVToExport> lstTransferOrderPickedQuantitiesToExport = new List<ListOfTRFRCVToExport>();
+
+
+
+
+
+
 
 
         #endregion
@@ -200,9 +236,10 @@ namespace BauhofWMS
                         obj.wcfAddress = lstSettings.First().wmsAddress;
                         obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
                         obj.showInvQty = lstSettings.First().showInvQty; 
+                        obj.showPurchaseReceiveQty = lstSettings.First().showPurchaseReceiveQty;
+                        obj.showTransferReceiveQty = lstSettings.First().showTransferReceiveQty;
                         obj.pEnv = lstSettings.First().pEnv;
                         obj.companyName = null;
-                        obj.showInvQty = lstSettings.First().showInvQty;
                         if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
                         {
                             obj.companyName = lstSettings.First().wmsAddress.Contains("/") ? lstSettings.First().wmsAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
@@ -227,6 +264,25 @@ namespace BauhofWMS
                         else
                         {
                             rbtnInvQtyNo.IsChecked = true;
+                        }
+
+                        if (obj.showPurchaseReceiveQty)
+                        {
+                            rbtnPurchaseReceiveQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnPurchaseReceiveQtyNo.IsChecked = true;
+                        }
+
+
+                        if (obj.showTransferReceiveQty)
+                        {
+                            rbtnTransferReceiveQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnTransferReceiveQtyNo.IsChecked = true;
                         }
 
                         if (!string.IsNullOrEmpty(obj.shopLocationCode))
@@ -261,7 +317,6 @@ namespace BauhofWMS
                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                         lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
                                         progressBarActive = false;
-                                        Debug.WriteLine("lstInternalRecordDB2 meistriklubihind " + lstInternalRecordDB.First().meistriklubihind);
                                     }
                                 }
                                 else
@@ -269,9 +324,11 @@ namespace BauhofWMS
                                     Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
                                 }
 
+                                
+
                                 grdProgressBar.IsVisible = false;
                                 progressBarActive = false;
-
+                                complete = true;
                             }
 
                             if (Device.RuntimePlatform == Device.Android)
@@ -282,33 +339,49 @@ namespace BauhofWMS
                                 Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
                                 if (lstShopRelations.Any())
                                 {
-                                    Debug.WriteLine("lstShopRelations1");
                                     if (lstSettings.Any())
                                     {
-                                        foreach(var a in lstShopRelations)
-                                        {
-                                            Debug.WriteLine(a.shopID + "  " +a.shopName);
-                                        }
-                                        Debug.WriteLine("lstShopRelations2 " + lstSettings.First().shopLocationCode.ToUpper());
+                                        
                                         var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
                                         if (r.Any())
                                         {
-                                            Debug.WriteLine("lstShopRelations3");
                                             prefix = r.First().shopID;
                                             obj.shopLocationID = prefix;
-                                            Debug.WriteLine("prefix: " + prefix);
                                             if (prefix.Length == 2)
                                             {
-                                                Debug.WriteLine("prefix2: " + prefix);
-
                                                 Device.BeginInvokeOnMainThread(() =>
                                                 {
                                                     startRing();
                                                 });
+
+
+                                                var resultReadPurchaseReceivedbRecords = await ReadPurchaseReceiveRecords.Read(this);
+                                                if (resultReadPurchaseReceivedbRecords.Item1)
+                                                {
+                                                    Debug.WriteLine(resultReadPurchaseReceivedbRecords.Item2);
+                                                    if (!string.IsNullOrEmpty(resultReadPurchaseReceivedbRecords.Item2))
+                                                    {
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalPurchaseReceiveDB = JsonConvert.DeserializeObject<List<ListOfPurchaseReceive>>(resultReadPurchaseReceivedbRecords.Item2, jSONsettings);
+                                                        progressBarActive = false;
+                                                    }
+                                                }
+                                                var resultReadTransferReceivedbRecords = await ReadTransferReceiveRecords.Read(this);
+                                                if (resultReadTransferReceivedbRecords.Item1)
+                                                {
+                                                    Debug.WriteLine(resultReadTransferReceivedbRecords.Item2);
+                                                    if (!string.IsNullOrEmpty(resultReadTransferReceivedbRecords.Item2))
+                                                    {
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalTransferReceiveDB = JsonConvert.DeserializeObject<List<ListOfTransferReceive>>(resultReadTransferReceivedbRecords.Item2, jSONsettings);
+                                                        progressBarActive = false;
+                                                        complete = true;
+                                                    }
+                                                }
                                                 var resultReaddbRecords = await ReaddbRecords.Read(this);
                                                 if (resultReaddbRecords.Item1)
                                                 {
-                                                    Debug.WriteLine("Length  " + resultReaddbRecords.Item2.Length.ToString());
+                                                    Debug.WriteLine(resultReaddbRecords.Item2);
                                                     if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
                                                     {
                                                         JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
@@ -317,6 +390,8 @@ namespace BauhofWMS
                                                         complete = true;
                                                     }
                                                 }
+
+                                                
                                             }
                                         }
                                     }
@@ -350,7 +425,7 @@ namespace BauhofWMS
                                     progressBarActive = false;
                                 }
                             }
-
+                           
                             var resultReadMovementRecords = await ReadMovementRecords.Read(this);
                             if (resultReadMovementRecords.Item1)
                             {
@@ -362,6 +437,20 @@ namespace BauhofWMS
                                     progressBarActive = false;
                                 }
                             }
+
+                            var resultPurchaseOrderPickedQuantities = await ReadPurchaseOrderPickedQuantitiesRecords.Read(this);
+                            if (resultPurchaseOrderPickedQuantities.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultPurchaseOrderPickedQuantities.Item2))
+                                {
+                                    Debug.WriteLine(resultReadMovementRecords.Item2);
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstPurchaseOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfSHRCVToExport>>(resultPurchaseOrderPickedQuantities.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+                            
+
 
                             Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
 
@@ -1103,7 +1192,7 @@ namespace BauhofWMS
                 obj.shopLocationID = p.First().shopID;                
 
 
-                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, this);
+                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, obj.showPurchaseReceiveQty, obj.showTransferReceiveQty, this);
                 if (result.Item1)
                 {
                     DisplaySuccessMessage("SALVESTATUD!");
@@ -1125,6 +1214,29 @@ namespace BauhofWMS
             
         }
 
+        private void rbtnPurchaseReceiveQtyYes_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnPurchaseReceiveQtyNo.IsChecked = false;
+            obj.showPurchaseReceiveQty = true;
+        }
+
+        private void rbtnPurchaseReceiveQtyNo_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnPurchaseReceiveQtyYes.IsChecked = false;
+            obj.showPurchaseReceiveQty = false;
+        }
+
+        private void rbtnTransferReceiveQtyYes_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnTransferReceiveQtyNo.IsChecked = false;
+            obj.showTransferReceiveQty = true;
+        }
+
+        private void rbtnTransferReceiveQtyNo_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnTransferReceiveQtyYes.IsChecked = false;
+            obj.showTransferReceiveQty = false;
+        }
         void LstvSettings_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             var item = e.Item as ListOfSettings;
@@ -1137,6 +1249,11 @@ namespace BauhofWMS
 
         public async void PrepareOperations()
         {
+            frmOperationsPurchaseReceive.IsVisible = true;
+            lblOperationspurchaseReceive.IsVisible = true;
+            frmOperationsTransferReceive.IsVisible = true;
+            lblOperationsTransferReceive.IsVisible = true;
+
             frmOperationsExport.IsVisible = false;
             lblOperationsExport.IsVisible = false;
 
@@ -1173,9 +1290,11 @@ namespace BauhofWMS
                 lstOperationsRecords = new List<ListOfOperationsRecords>();
                 lstOperationsRecords.Add(new ListOfOperationsRecords
                 {
-                    inventoryRecords = lstInternalInvDB.Count(),
-                    transferRecords = lstInternalMovementDB.Count(),
-                    dbRecords = lstInternalRecordDB.Count(),
+                    inventoryRecords = lstInternalInvDB.Any() ? lstInternalInvDB.Count() : 0,
+                    transferRecords = lstInternalMovementDB.Any() ? lstInternalMovementDB.Count() : 0,
+                    purchaseReceiveRecords = lstPurchaseOrderPickedQuantities.Any() ? lstPurchaseOrderPickedQuantities.Count() : 0,
+                    transferReceiveRecords = lstTransferOrderPickedQuantities.Any() ? lstTransferOrderPickedQuantities.Count() : 0,
+                    dbRecords = lstInternalRecordDB.Any() ? lstInternalRecordDB.Count() : 0,
                     locationCode = obj.shopLocationCode,
                     dbRecordsUpdateDate = lstInternalRecordDB.First().fileDate
                 });
@@ -1325,6 +1444,18 @@ namespace BauhofWMS
                 }
             }
         }
+
+        private void btnOperationsTransferReceive_Clicked(object sender, EventArgs e)
+        {
+            PrepareTransferReceiveOrders();
+        }
+
+       
+        private void btnOperationsPurchaseReceive_Clicked(object sender, EventArgs e)
+        {
+            PreparePurchaseReceiveOrders();
+        }
+        
 
         #endregion
 
@@ -2348,6 +2479,7 @@ namespace BauhofWMS
                 LstvSelectItem.ItemsSource = result;
             }
         }
+       
 
         private void LstvSelectItem_ItemTapped(object sender, ItemTappedEventArgs e)
         {
@@ -2797,9 +2929,761 @@ namespace BauhofWMS
 
 
 
+
         #endregion
 
-   
+        #region stkPurchaseReceiveOrders
+
+        public void PreparePurchaseReceiveOrders()
+        {
+            CollapseAllStackPanels.Collapse(this);
+            stkPurchaseReceiveOrders.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "PurchaseReceiveOrders";
+            lblPurchaseReceiveOrdersHeader.Text = "OSTUTARNED";
+           
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvPurchaseReceiveOrders.ItemsSource = null;
+            LstvPurchaseReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrders)) : new DataTemplate(typeof(vcPurchaseOrders));
+
+            lstPurchaseOrders = lstInternalPurchaseReceiveDB.Where(x =>x.shop == obj.shopLocationID).ToList().GroupBy(x => x.docNo).Select(s => new ListOfPurchaseReceive
+            {
+                docNo = s.First().docNo,
+                vendorCode = s.First().vendorCode,
+                vendorName = s.First().vendorName,
+                vendorReference = s.First().vendorReference,
+                shop = s.First().shop,
+                shipmentDate = s.First().shipmentDate,
+            }).ToList().OrderBy(x => x.shipmentDate).ToList();
+            LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders;
+            focusedEditor = "entPurchaseReceiveOrders";
+           
+            
+            //entPurchaseReceiveOrders.BackgroundColor = Color.Yellow;
+            //ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+        }
+
+        private void btnPurchaseReceiveOrdersSearch_Clicked(object sender, EventArgs e)
+        {
+            Debug.WriteLine(entPurchaseReceiveOrders.Text);
+            if (!string.IsNullOrEmpty(entPurchaseReceiveOrders.Text))
+            {
+                string searchValue = entPurchaseReceiveOrders.Text.ToUpper();
+                var result = lstPurchaseOrders.Where(x =>
+                x.docNo.ToUpper().Contains(searchValue) ||
+                x.vendorCode.ToUpper().Contains(searchValue) ||
+                x.vendorName.ToUpper().Contains(searchValue) ||
+                x.vendorReference.ToUpper().Contains(searchValue));
+                if (!result.Any())
+                {
+                    DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
+                }
+                LstvPurchaseReceiveOrders.ItemsSource = result;
+            }
+            else
+            {
+                LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders;
+            }
+        }
+
+        private void LstvPurchaseReceiveOrders_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            var item = e.Item as ListOfPurchaseReceive;
+            lstPurchaseOrderLines = lstInternalPurchaseReceiveDB.Where(x => x.docNo == item.docNo && x.shop == obj.shopLocationID).ToList();
+            if (lstPurchaseOrderLines.Any())
+            {
+                foreach (var p in lstPurchaseOrderLines)
+                {
+                    var itemInfo = lstInternalRecordDB.Where(x => x.itemCode == p.itemCode).ToList();
+                    if (itemInfo.Any())
+                    {
+                        p.itemDesc = itemInfo.First().itemDesc;
+                        p.barCode = itemInfo.First().barCode;
+                    }
+                }
+                PreparePurchaseReceiveOrderLines();
+            }
+
+        }
+        private void btnPurchaseReceiveOrdersReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entPurchaseReceiveOrders.Text = "";
+        }
+
+
+        #endregion
+
+        #region stkPurchaseReceiveOrderLines
+        public void PreparePurchaseReceiveOrderLines()
+        {
+            CollapseAllStackPanels.Collapse(this);
+            stkPurchaseReceiveOrderLines.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "PurchaseReceiveOrderLines";
+            lblPurchaseReceiveOrderLinesHeader.Text = "OSTUTARNE READ";
+
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvPurchaseReceiveOrderLines.ItemsSource = null;
+            LstvPurchaseReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderLines)) : new DataTemplate(typeof(vcPurchaseOrderLines));
+            LstvPurchaseReceiveOrderLines.ItemsSource = lstPurchaseOrderLines;
+            focusedEditor = "entPurchaseReceiveOrderLines";
+
+
+            //entPurchaseReceiveOrders.BackgroundColor = Color.Yellow;
+            //ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+        }
+        private void LstvPurchaseReceiveOrderLines_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            try
+            {
+                var item = e.Item as ListOfPurchaseReceive;
+                lstPurchaseOrderQuantityInsertInfo = new List<ListOfPurchaseReceive>();
+                lstPurchaseOrderQuantityInsertInfo.Add(item);
+                PreparePurchaseOrderQuantityInsert();
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("LstvPurchaseReceiveOrderLines_ItemTapped", ex.Message, "OK");
+            }
+        }
+
+        private void btnPurchaseReceiveOrderLinesSearch_Clicked(object sender, EventArgs e)
+        {
+            SearchPurchaseReceiveOrderLines();
+        }
+
+        public void SearchPurchaseReceiveOrderLines()
+        {
+            Debug.WriteLine(entPurchaseReceiveOrderLines.Text);
+            if (!string.IsNullOrEmpty(entPurchaseReceiveOrderLines.Text))
+            {
+                string searchValue = entPurchaseReceiveOrderLines.Text.ToUpper();
+                var result = lstPurchaseOrderLines.Where(x =>
+                x.itemCode.ToUpper().Contains(searchValue) ||
+                x.itemDesc.ToUpper().Contains(searchValue) ||
+                x.barCode.ToUpper().Contains(searchValue));
+
+                if (result.Any())
+                {
+                    DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
+                }
+                {
+                    if (result.Count() == 1)
+                    {
+
+                    }
+                }
+                LstvPurchaseReceiveOrderLines.ItemsSource = result;
+                
+            }
+            else
+            {
+                LstvPurchaseReceiveOrderLines.ItemsSource = lstPurchaseOrderLines;
+            }
+        }
+
+        private void btnPurchaseReceiveOrderLinesReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entPurchaseReceiveOrderLines.Text = "";
+        }
+        #endregion
+
+        #region stkPurchaseOrderQuantityInsert
+        public async void PreparePurchaseOrderQuantityInsert()
+        {
+            bool proceed = true;
+            decimal previouslyReadQty = 0;
+            if (lstPurchaseOrderPickedQuantities.Any())
+            {
+                var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.dokno == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.dokreanr == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.pood == obj.shopLocationID);
+                if (previousRead.Any())
+                {
+                    if (!await YesNoDialog("OSTU VASTUVÕTT", lstPurchaseOrderQuantityInsertInfo.First().docNo + " RIDA " + lstPurchaseOrderQuantityInsertInfo.First().docLineNo + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                    {
+                        proceed = false;
+                    }
+                    else
+                    {
+                        previouslyReadQty = previousRead.First().pickedQty;
+                        purchReceiveRecordID = previousRead.First().recordID;
+                    }
+                }
+            }
+            if (proceed)
+            {
+                CollapseAllStackPanels.Collapse(this);
+                stkPurchaseOrderQuantityInsert.IsVisible = true;
+                obj.mainOperation = "";
+                obj.currentLayoutName = "PurchaseOrderQuantityInsert";
+                lblPurchaseOrderQuantityInsertHeader.Text = "OSTUTARNE REA KOGUS";
+
+                if (obj.operatingSystem == "UWP")
+                {
+                    stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+                }
+                if (obj.operatingSystem == "Android")
+                {
+                    grdMain.ScaleX = 1.0;
+                    grdMain.ScaleY = 1.0;
+                }
+                focusedEditor = "";
+                LstvPurchaseOrderQuantityInsertInfo.ItemsSource = null;
+                LstvPurchaseOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo));
+                LstvPurchaseOrderQuantityInsertInfo.ItemsSource = lstPurchaseOrderQuantityInsertInfo;
+                focusedEditor = "entPurchaseOrderQuantityInsertQuantity";
+
+                lblPurchaseOrderQuantityInsertQuantityUOM.Text = lstPurchaseOrderQuantityInsertInfo.First().magnitude;
+
+
+
+
+                lstPurchaseOrderQuantityInsertQuantities = new List<ListOfSHRCVToExport>();
+                var row = new ListOfSHRCVToExport
+                {
+                    initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
+                    pickedQty = previouslyReadQty,
+                    remainingQty = (lstPurchaseOrderQuantityInsertInfo.First().initialQty - previouslyReadQty),
+                    magnitude = lstPurchaseOrderQuantityInsertInfo.First().magnitude
+                };
+                lstPurchaseOrderQuantityInsertQuantities.Add(row);
+                LstvPurchaseOrderQuantityInsertQuantityInfo.ItemsSource = null;
+                if (obj.showPurchaseReceiveQty)
+                {
+                    LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull));
+                }
+                else
+                {
+                    LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo));
+                }
+                LstvPurchaseOrderQuantityInsertQuantityInfo.ItemsSource = lstPurchaseOrderQuantityInsertQuantities;
+
+                if (previouslyReadQty > 0)
+                {
+                    entPurchaseOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                }
+                else
+                {
+                    entPurchaseOrderQuantityInsertQuantity.Text = "";
+                }
+                entPurchaseOrderQuantityInsertQuantity.BackgroundColor = Color.Yellow;
+                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+            }
+        }
+        
+        private async void btnPurchaseOrderQuantityInsertQuantityOK_Clicked(object sender, EventArgs e)
+        {
+            //lstPurchaseOrderPickedQuantities = new List<ListOfSHRCVToExport>();
+            try
+            {
+                bool proceed = true;
+                decimal quantity = 0;
+                if (!string.IsNullOrEmpty(entPurchaseOrderQuantityInsertQuantity.Text))
+                {
+                    quantity = TryParseDecimal.Parse(entPurchaseOrderQuantityInsertQuantity.Text);
+                }
+                if (string.IsNullOrEmpty(lstPurchaseOrderQuantityInsertInfo.First().itemCode))
+                {
+                    proceed = false;
+                    DisplayFailMessage("KAUPA POLE VALITUD!");
+                }
+                if (quantity == 0)
+                {
+                    if (!await YesNoDialog("INVENTUUR", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
+                    {
+                        proceed = false;
+                    }
+                }
+
+                if (proceed)
+                {
+                    if (quantity > -1)
+                    {
+                        Debug.WriteLine("X2");
+                        if (purchReceiveRecordID == 0)
+                        {
+                            int lastRecordID = 0;
+                            if (lstPurchaseOrderPickedQuantities.Any())
+                            {
+                                lastRecordID = lstPurchaseOrderPickedQuantities.OrderBy(x => x.recordID).Take(1).First().recordID;
+                            }
+                            lstPurchaseOrderPickedQuantities.Add(new ListOfSHRCVToExport
+                            {
+                                dokno = lstPurchaseOrderQuantityInsertInfo.First().docNo,
+                                dokreanr = lstPurchaseOrderQuantityInsertInfo.First().docLineNo,
+                                initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
+                                pickedQty = quantity,
+                                recordDate = DateTime.Now,
+                                pood = lstPurchaseOrderQuantityInsertInfo.First().shop,
+                                recordID = lastRecordID + 1
+                            });
+
+                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                            string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                            var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data);
+                            if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                            {
+                                DisplaySuccessMessage("SALVESTATUD!");
+                                PreparePurchaseReceiveOrderLines();
+                            }
+                            else
+                            {
+                                DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                            }
+                        }
+                        else
+                        {
+                            if (quantity == 0)
+                            {
+                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    lstPurchaseOrderPickedQuantities.Remove(record.Take(1).First());
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                    var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data);
+                                    if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                    {
+                                        purchReceiveRecordID = 0;
+                                        DisplaySuccessMessage("SALVESTATUD2!");
+                                        PreparePurchaseReceiveOrderLines();
+                                    }
+                                    else
+                                    {
+                                        DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Debug.WriteLine("X3 " + purchReceiveRecordID);
+                                Debug.WriteLine("AA " + lstPurchaseOrderPickedQuantities.First().recordID);
+                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    record.First().pickedQty = quantity;
+                                    record.First().recordDate = DateTime.Now;
+
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                    var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data);
+                                    if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                    {                                        
+                                        DisplaySuccessMessage("SALVESTATUD3!");
+                                        PreparePurchaseReceiveOrderLines();
+                                    }
+                                    else
+                                    {
+                                        DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+                    else
+                    {
+                        DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+        #endregion
+
+        #region stkTransferReceiveOrders
+        public void PrepareTransferReceiveOrders()
+        {
+            CollapseAllStackPanels.Collapse(this);
+            stkTransferReceiveOrders.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "TransferReceiveOrders";
+            lblTransferReceiveOrdersHeader.Text = "ÜLEVIIMISTARNED";
+
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvTransferReceiveOrders.ItemsSource = null;
+            LstvTransferReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrders)) : new DataTemplate(typeof(vcTransferOrders));
+
+            lstTransferOrders = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID).ToList().GroupBy(x => x.docNo).Select(s => new ListOfTransferReceive
+            {
+                docNo = s.First().docNo,
+                shop = s.First().shop,
+                shipmentDate = s.First().shipmentDate,
+            }).ToList().OrderBy(x => x.shipmentDate).ToList();
+            LstvTransferReceiveOrders.ItemsSource = lstTransferOrders;
+            focusedEditor = "entTransferReceiveOrders";
+        }
+
+        private void btnTransferReceiveOrdersSearch_Clicked(object sender, EventArgs e)
+        {
+            Debug.WriteLine(entTransferReceiveOrders.Text);
+            if (!string.IsNullOrEmpty(entTransferReceiveOrders.Text))
+            {
+                string searchValue = entTransferReceiveOrders.Text.ToUpper();
+                var result = lstTransferOrders.Where(x =>
+                x.docNo.ToUpper().Contains(searchValue));            
+                if (!result.Any())
+                {
+                    DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
+                }
+                LstvTransferReceiveOrders.ItemsSource = result;
+            }
+            else
+            {
+                LstvTransferReceiveOrders.ItemsSource = lstTransferOrders;
+            }
+        }
+
+        private void LstvTransferReceiveOrders_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            var item = e.Item as ListOfPurchaseReceive;
+            lstTransferOrderLines = lstInternalTransferReceiveDB.Where(x => x.docNo == item.docNo && x.shop == obj.shopLocationID).ToList();
+            if (lstTransferOrderLines.Any())
+            {
+                foreach (var p in lstTransferOrderLines)
+                {
+                    var itemInfo = lstInternalRecordDB.Where(x => x.itemCode == p.itemCode).ToList();
+                    if (itemInfo.Any())
+                    {
+                        p.itemDesc = itemInfo.First().itemDesc;
+                        p.barCode = itemInfo.First().barCode;
+                    }
+                }
+                //PrepareTransferReceiveOrderLines();
+            }
+
+        }
+        private void btnTransferReceiveOrdersReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entTransferReceiveOrders.Text = "";
+        }
+
+
+
+        #endregion
+
+        #region stkTransferReceiveOrderLines
+        public void PrepareTransferReceiveOrderLines()
+        {
+            CollapseAllStackPanels.Collapse(this);
+            stkTransferReceiveOrderLines.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "TransferReceiveOrderLines";
+            lblTransferReceiveOrderLinesHeader.Text = "ÜLEVIIMISTARNE READ";
+
+            if (obj.operatingSystem == "UWP")
+            {
+                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+            }
+            if (obj.operatingSystem == "Android")
+            {
+                grdMain.ScaleX = 1.0;
+                grdMain.ScaleY = 1.0;
+            }
+            focusedEditor = "";
+            LstvTransferReceiveOrderLines.ItemsSource = null;
+            LstvTransferReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderLines)) : new DataTemplate(typeof(vcTransferOrderLines));
+            LstvTransferReceiveOrderLines.ItemsSource = lstTransferOrderLines;
+            focusedEditor = "entTransferReceiveOrderLines";
+
+
+            //entPurchaseReceiveOrders.BackgroundColor = Color.Yellow;
+            //ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+        }
+        private void LstvTransferReceiveOrderLines_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            try
+            {
+                var item = e.Item as ListOfTransferReceive;
+                lstTransferOrderQuantityInsertInfo = new List<ListOfTransferReceive>();
+                lstTransferOrderQuantityInsertInfo.Add(item);
+                PreparePurchaseOrderQuantityInsert();
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("LstvTransferReceiveOrderLines_ItemTapped", ex.Message, "OK");
+            }
+        }
+
+        private void btnTransferReceiveOrderLinesSearch_Clicked(object sender, EventArgs e)
+        {
+            SearchTransferReceiveOrderLines();
+        }
+
+        public void SearchTransferReceiveOrderLines()
+        {
+            Debug.WriteLine(entTransferReceiveOrderLines.Text);
+            if (!string.IsNullOrEmpty(entTransferReceiveOrderLines.Text))
+            {
+                string searchValue = entTransferReceiveOrderLines.Text.ToUpper();
+                var result = lstTransferOrderLines.Where(x =>
+                x.itemCode.ToUpper().Contains(searchValue) ||
+                x.itemDesc.ToUpper().Contains(searchValue) ||
+                x.barCode.ToUpper().Contains(searchValue));
+
+                if (result.Any())
+                {
+                    DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
+                }
+                {
+                    if (result.Count() == 1)
+                    {
+
+                    }
+                }
+                LstvTransferReceiveOrderLines.ItemsSource = result;
+
+            }
+            else
+            {
+                LstvTransferReceiveOrderLines.ItemsSource = lstTransferOrderLines;
+            }
+        }
+
+        private void btnTransferReceiveOrderLinesReadCodeClear_Clicked(object sender, EventArgs e)
+        {
+            entTransferReceiveOrderLines.Text = "";
+        }
+        #endregion
+
+        #region stkTransferOrderQuantityInsert
+        public async void PrepareTransferOrderQuantityInsert()
+        {
+            bool proceed = true;
+            decimal previouslyReadQty = 0;
+            if (lstPurchaseOrderPickedQuantities.Any())
+            {
+                var previousRead = lstTransferOrderPickedQuantities.Where(x => x.dokno == lstTransferOrderQuantityInsertInfo.First().docNo && x.dokreanr == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.pood == obj.shopLocationID);
+                if (previousRead.Any())
+                {
+                    if (!await YesNoDialog("OSTU VASTUVÕTT", lstTransferOrderQuantityInsertInfo.First().docNo + " RIDA " + lstTransferOrderQuantityInsertInfo.First().docLineNo + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                    {
+                        proceed = false;
+                    }
+                    else
+                    {
+                        previouslyReadQty = previousRead.First().pickedQty;
+                        purchReceiveRecordID = previousRead.First().recordID;
+                    }
+                }
+            }
+            if (proceed)
+            {
+                CollapseAllStackPanels.Collapse(this);
+                stkTransferOrderQuantityInsert.IsVisible = true;
+                obj.mainOperation = "";
+                obj.currentLayoutName = "TransferOrderQuantityInsert";
+                lblTransferOrderQuantityInsertHeader.Text = "ÜLEVIIMISE REA KOGUS";
+
+                if (obj.operatingSystem == "UWP")
+                {
+                    stkOperations.Margin = new Thickness(-10, 0, 0, 0);
+                }
+                if (obj.operatingSystem == "Android")
+                {
+                    grdMain.ScaleX = 1.0;
+                    grdMain.ScaleY = 1.0;
+                }
+                focusedEditor = "";
+                LstvTransferOrderQuantityInsertInfo.ItemsSource = null;
+                LstvTransferOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo));
+                LstvTransferOrderQuantityInsertInfo.ItemsSource = lstPurchaseOrderQuantityInsertInfo;
+                focusedEditor = "entPurchaseOrderQuantityInsertQuantity";
+
+                lblTransferOrderQuantityInsertQuantityUOM.Text = lstTransferOrderQuantityInsertInfo.First().magnitude;
+
+
+
+
+                lstTransferOrderQuantityInsertQuantities = new List<ListOfTRFRCVToExport>();
+                var row = new ListOfTRFRCVToExport
+                {
+                    initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                    pickedQty = previouslyReadQty,
+                    remainingQty = (lstTransferOrderQuantityInsertInfo.First().initialQty - previouslyReadQty),
+                    magnitude = lstTransferOrderQuantityInsertInfo.First().magnitude
+                };
+                lstTransferOrderQuantityInsertQuantities.Add(row);
+                LstvTransferOrderQuantityInsertQuantityInfo.ItemsSource = null;
+                if (obj.showTransferReceiveQty)
+                {
+                    LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull));
+                }
+                else
+                {
+                    LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo));
+                }
+                LstvTransferOrderQuantityInsertQuantityInfo.ItemsSource = lstTransferOrderQuantityInsertQuantities;
+
+                if (previouslyReadQty > 0)
+                {
+                    entTransferOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                }
+                else
+                {
+                    entTransferOrderQuantityInsertQuantity.Text = "";
+                }
+                entTransferOrderQuantityInsertQuantity.BackgroundColor = Color.Yellow;
+                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+            }
+        }
+
+        private async void btnTransferOrderQuantityInsertQuantityOK_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                bool proceed = true;
+                decimal quantity = 0;
+                if (!string.IsNullOrEmpty(entTransferOrderQuantityInsertQuantity.Text))
+                {
+                    quantity = TryParseDecimal.Parse(entTransferOrderQuantityInsertQuantity.Text);
+                }
+                if (string.IsNullOrEmpty(lstTransferOrderQuantityInsertInfo.First().itemCode))
+                {
+                    proceed = false;
+                    DisplayFailMessage("KAUPA POLE VALITUD!");
+                }
+                if (quantity == 0)
+                {
+                    if (!await YesNoDialog("ÜLEVIIMISE TARNE", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
+                    {
+                        proceed = false;
+                    }
+                }
+
+                if (proceed)
+                {
+                    if (quantity > -1)
+                    {
+                        Debug.WriteLine("X2");
+                        if (transferReceiveRecordID == 0)
+                        {
+                            int lastRecordID = 0;
+                            if (lstTransferOrderPickedQuantities.Any())
+                            {
+                                lastRecordID = lstTransferOrderPickedQuantities.OrderBy(x => x.recordID).Take(1).First().recordID;
+                            }
+                            lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
+                            {
+                                dokno = lstTransferOrderQuantityInsertInfo.First().docNo,
+                                dokreanr = lstTransferOrderQuantityInsertInfo.First().docLineNo,
+                                initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                                pickedQty = quantity,
+                                recordDate = DateTime.Now,
+                                pood = lstTransferOrderQuantityInsertInfo.First().shop,
+                                recordID = lastRecordID + 1
+                            });
+
+                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data);
+                            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                            {
+                                DisplaySuccessMessage("SALVESTATUD!");
+                                PrepareTransferReceiveOrderLines();
+                            }
+                            else
+                            {
+                                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                            }
+                        }
+                        else
+                        {
+                            if (quantity == 0)
+                            {
+                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data);
+                                    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                    {
+                                        transferReceiveRecordID = 0;
+                                        DisplaySuccessMessage("SALVESTATUD!");
+                                        PrepareTransferReceiveOrderLines();
+                                    }
+                                    else
+                                    {
+                                        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Debug.WriteLine("X3 " + transferReceiveRecordID);
+                                Debug.WriteLine("AA " + lstTransferOrderPickedQuantities.First().recordID);
+                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    record.First().pickedQty = quantity;
+                                    record.First().recordDate = DateTime.Now;
+
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data);
+                                    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                    {
+                                        DisplaySuccessMessage("SALVESTATUD!");
+                                        PrepareTransferReceiveOrderLines();
+                                    }
+                                    else
+                                    {
+                                        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+                    else
+                    {
+                        DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+        #endregion
     }
 }
     

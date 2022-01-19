@@ -94,7 +94,37 @@ namespace BauhofWMS.StackPanelOperations
                         mp.stkItemInfo.IsVisible = true;
                     }
                     break;
-                    
+                case "PurchaseReceiveOrders":
+                    {
+                        mp.PrepareOperations();
+                    }
+                    break;
+
+                case "PurchaseReceiveOrderLines":
+                    {
+                        mp.PreparePurchaseReceiveOrders();
+                    }
+                    break;
+                case "PurchaseOrderQuantityInsert":
+                    {
+                        mp.PreparePurchaseReceiveOrderLines();
+                    }
+                    break;
+                case "TransferReceiveOrders":
+                    {
+                        mp.PrepareOperations();
+                    }
+                    break;
+                case "TransferReceiveOrderLines":
+                    {
+                        mp.PrepareTransferReceiveOrderLines();
+                    }
+                    break;
+                case "TransferOrderQuantityInsert":
+                    {
+                        mp.PrepareTransferReceiveOrderLines();
+                    }
+                    break;
             }
         }
     }

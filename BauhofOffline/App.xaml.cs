@@ -22,7 +22,7 @@ namespace BauhofOffline
                 mArgs = arg;
                 //mArgs = "showUI=false convertfiles=true";
             }
-            //mArgs = "showUI=1%%%convertfiles=1";
+            mArgs = "showUI=1%%%convertfiles=1";
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
