@@ -152,6 +152,7 @@ namespace BauhofWMS
         public List<ListOfTRFRCVToExport> lstTransferOrderPickedQuantities = new List<ListOfTRFRCVToExport>();
         public List<ListOfTRFRCVToExport> lstTransferOrderPickedQuantitiesToExport = new List<ListOfTRFRCVToExport>();
         public List<ListOfMagnitudes> lstItemMagnitudes = new List<ListOfMagnitudes>();
+        public List<ListOfBarcodes> lstBarcodes = new List<ListOfBarcodes>();
         #endregion
 
 
@@ -320,7 +321,7 @@ namespace BauhofWMS
                                     Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
                                 }
 
-                                
+                               
 
                                 grdProgressBar.IsVisible = false;
                                 progressBarActive = false;
@@ -351,29 +352,29 @@ namespace BauhofWMS
                                                 });
 
 
-                                                var resultReadPurchaseReceivedbRecords = await ReadPurchaseReceiveRecords.Read(this);
-                                                if (resultReadPurchaseReceivedbRecords.Item1)
-                                                {
-                                                    Debug.WriteLine(resultReadPurchaseReceivedbRecords.Item2);
-                                                    if (!string.IsNullOrEmpty(resultReadPurchaseReceivedbRecords.Item2))
-                                                    {
-                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                                        lstInternalPurchaseReceiveDB = JsonConvert.DeserializeObject<List<ListOfPurchaseReceive>>(resultReadPurchaseReceivedbRecords.Item2, jSONsettings);
-                                                        progressBarActive = false;
-                                                    }
-                                                }
-                                                var resultReadTransferReceivedbRecords = await ReadTransferReceiveRecords.Read(this);
-                                                if (resultReadTransferReceivedbRecords.Item1)
-                                                {
-                                                    Debug.WriteLine(resultReadTransferReceivedbRecords.Item2);
-                                                    if (!string.IsNullOrEmpty(resultReadTransferReceivedbRecords.Item2))
-                                                    {
-                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                                        lstInternalTransferReceiveDB = JsonConvert.DeserializeObject<List<ListOfTransferReceive>>(resultReadTransferReceivedbRecords.Item2, jSONsettings);
-                                                        progressBarActive = false;
-                                                        complete = true;
-                                                    }
-                                                }
+                                                //var resultReadPurchaseReceivedbRecords = await ReadPurchaseReceiveRecords.Read(this);
+                                                //if (resultReadPurchaseReceivedbRecords.Item1)
+                                                //{
+                                                //    Debug.WriteLine(resultReadPurchaseReceivedbRecords.Item2);
+                                                //    if (!string.IsNullOrEmpty(resultReadPurchaseReceivedbRecords.Item2))
+                                                //    {
+                                                //        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                //        lstInternalPurchaseReceiveDB = JsonConvert.DeserializeObject<List<ListOfPurchaseReceive>>(resultReadPurchaseReceivedbRecords.Item2, jSONsettings);
+                                                //        progressBarActive = false;
+                                                //    }
+                                                //}
+                                                //var resultReadTransferReceivedbRecords = await ReadTransferReceiveRecords.Read(this);
+                                                //if (resultReadTransferReceivedbRecords.Item1)
+                                                //{
+                                                //    Debug.WriteLine(resultReadTransferReceivedbRecords.Item2);
+                                                //    if (!string.IsNullOrEmpty(resultReadTransferReceivedbRecords.Item2))
+                                                //    {
+                                                //        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                //        lstInternalTransferReceiveDB = JsonConvert.DeserializeObject<List<ListOfTransferReceive>>(resultReadTransferReceivedbRecords.Item2, jSONsettings);
+                                                //        progressBarActive = false;
+                                                //        complete = true;
+                                                //    }
+                                                //}
                                                 var resultReaddbRecords = await ReaddbRecords.Read(this);
                                                 if (resultReaddbRecords.Item1)
                                                 {
@@ -387,7 +388,35 @@ namespace BauhofWMS
                                                     }
                                                 }
 
-                                                
+                                                //Stopwatch sw = Stopwatch.StartNew();
+                                                //foreach (var n in lstInternalRecordDB)
+                                                //{
+                                                //    if (n.barCode.Contains(";"))
+                                                //    {
+                                                //        var barCodes = n.barCode.Split(new[] { ";" }, StringSplitOptions.None);
+                                                //        if (barCodes.Any())
+                                                //        {
+                                                //            foreach (var p in barCodes)
+                                                //            {
+                                                //                var row = new ListOfBarcodes { barCode = p, itemCode = n.itemCode };
+                                                //                lstBarcodes.Add(row);
+                                                //            }
+                                                //        }
+
+                                                //    }
+                                                //    else
+                                                //    {
+                                                //        var row = new ListOfBarcodes { barCode = n.barCode, itemCode = n.itemCode };
+                                                //        lstBarcodes.Add(row);
+                                                //    }
+
+                                                //}
+                                                //sw.Stop();
+                                                //Device.BeginInvokeOnMainThread(() =>
+                                                //{
+                                                //    DisplayAlert("barcode database", "Barcode Time elapsed : " + sw.Elapsed.TotalMilliseconds.ToString(), "OK");
+                                                //});
+
                                             }
                                         }
                                     }
@@ -1245,10 +1274,10 @@ namespace BauhofWMS
 
         public async void PrepareOperations()
         {
-            frmOperationsPurchaseReceive.IsVisible = true;
-            lblOperationspurchaseReceive.IsVisible = true;
-            frmOperationsTransferReceive.IsVisible = true;
-            lblOperationsTransferReceive.IsVisible = true;
+            frmOperationsPurchaseReceive.IsVisible = false;
+            lblOperationspurchaseReceive.IsVisible = false;
+            frmOperationsTransferReceive.IsVisible = false;
+            lblOperationsTransferReceive.IsVisible = false;
 
             frmOperationsExport.IsVisible = false;
             lblOperationsExport.IsVisible = false;
@@ -1538,64 +1567,71 @@ namespace BauhofWMS
         #region stkStockTake
         public async void PrepareStockTake()
         {
-            frmbtnStockTakeAddedRowsDelete.IsVisible = false;
-            CollapseAllStackPanels.Collapse(this);
-            stkStockTake.IsVisible = true;
-            obj.mainOperation = "";
-            obj.currentLayoutName = "StockTake";
-            lblStockTakeHeader.Text = "INVENTUUR -> " + obj.shopLocationCode;
-
-            if (obj.operatingSystem == "UWP")
+            try
             {
-                stkOperations.Margin = new Thickness(-10, 0, 0, 0);
-            }
-            if (obj.operatingSystem == "Android")
-            {
-                grdMain.ScaleX = 1.0;
-                grdMain.ScaleY = 1.0;
-            }
-            focusedEditor = "";
-            entStockTakeReadCode.Text = "";
-            entStockTakeQuantity.Text = "";
-            lblStockTakeQuantityUOM.Text = "";
+                frmbtnStockTakeAddedRowsDelete.IsVisible = false;
+                CollapseAllStackPanels.Collapse(this);
+                stkStockTake.IsVisible = true;
+                obj.mainOperation = "";
+                obj.currentLayoutName = "StockTake";
+                lblStockTakeHeader.Text = "INVENTUUR -> " + obj.shopLocationCode;
 
-            frmbtnStockTakeQuantityOK.IsVisible = false;
-            btnStockTakeQuantityOK.IsVisible = false;
-            lblStockTakeQuantityUOM.IsVisible = false;
-            frmentStockTakeQuantity.IsVisible = false;
-            entStockTakeQuantity.IsVisible = false;
-           
-
-
-            var resultReadInvRecords = await ReadInvRecords.Read(this);
-            if (resultReadInvRecords.Item1)
-            {
-                if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
+                if (obj.operatingSystem == "UWP")
                 {
-                    Debug.WriteLine(resultReadInvRecords.Item2);
-                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                    lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
-                    progressBarActive = false;
+                    stkOperations.Margin = new Thickness(-10, 0, 0, 0);
                 }
-            }
-            lblStockTakeAddedRowsValue.Text = "0";
-            if (lstInternalInvDB.Any())
-            {
-                lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
-            }
-            lstStockTakeInfo = new List<ListOfdbRecords>();
-            LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
-            if (lstStockTakeInfo.Any())
-            {
-                lstStockTakeInfo.First().showInvQty = obj.showInvQty;
-            }
-            LstvStockTakeInfo.ItemsSource = null;
-            LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+                if (obj.operatingSystem == "Android")
+                {
+                    grdMain.ScaleX = 1.0;
+                    grdMain.ScaleY = 1.0;
+                }
+                focusedEditor = "";
+                entStockTakeReadCode.Text = "";
+                entStockTakeQuantity.Text = "";
+                lblStockTakeQuantityUOM.Text = "";
+
+                frmbtnStockTakeQuantityOK.IsVisible = false;
+                btnStockTakeQuantityOK.IsVisible = false;
+                lblStockTakeQuantityUOM.IsVisible = false;
+                frmentStockTakeQuantity.IsVisible = false;
+                entStockTakeQuantity.IsVisible = false;
 
 
-            focusedEditor = "entStockTakeReadCode";
-            entStockTakeReadCode.BackgroundColor = Color.Yellow;
-            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+
+                var resultReadInvRecords = await ReadInvRecords.Read(this);
+                if (resultReadInvRecords.Item1)
+                {
+                    if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
+                    {
+                        Debug.WriteLine(resultReadInvRecords.Item2);
+                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                        lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
+                        progressBarActive = false;
+                    }
+                }
+                lblStockTakeAddedRowsValue.Text = "0";
+                if (lstInternalInvDB.Any())
+                {
+                    lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
+                }
+                lstStockTakeInfo = new List<ListOfdbRecords>();
+                LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+                if (lstStockTakeInfo.Any())
+                {
+                    lstStockTakeInfo.First().showInvQty = obj.showInvQty;
+                }
+                LstvStockTakeInfo.ItemsSource = null;
+                LstvStockTakeInfo.ItemsSource = lstStockTakeInfo;
+
+
+                focusedEditor = "entStockTakeReadCode";
+                entStockTakeReadCode.BackgroundColor = Color.Yellow;
+                ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+            }
+            catch(Exception ex)
+            {
+                DisplayAlert("PrepareStockTake", ex.Message, "OK");
+            }
         }
 
         private async void btnStockTakeAddedRowsDelete_Clicked(object sender, EventArgs e)
@@ -1746,7 +1782,6 @@ namespace BauhofWMS
         private  void btnStockTakeReadCode_Clicked(object sender, EventArgs e)
         {
             SearchEntStockTakeReadCode();
-
         }
 
         public async void SearchEntStockTakeReadCode()
@@ -1754,9 +1789,10 @@ namespace BauhofWMS
 
             try
             {
-                lstStockTakeInfo = new List<ListOfdbRecords>(); 
                 if (!string.IsNullOrEmpty(entStockTakeReadCode.Text))
                 {
+                    LstvStockTakeInfo.ItemsSource = null;
+                    lstStockTakeInfo = new List<ListOfdbRecords>();
                     if (entStockTakeReadCode.Text.Length > 4)
                     {
                         lstStockTakeInfo = new List<ListOfdbRecords>();
@@ -2229,6 +2265,8 @@ namespace BauhofWMS
         {
             if (!string.IsNullOrEmpty(entTransferReadCode.Text))
             {
+                LstvTransferInfo.ItemsSource = null;
+                lstTransferInfo = new List<ListOfdbRecords>();
                 if (entTransferReadCode.Text.Length > 4)
                 {
                     var result = lstInternalRecordDB.Where(x =>

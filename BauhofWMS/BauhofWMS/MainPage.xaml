@@ -355,8 +355,7 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                           <RowDefinition Height="25"/>
-                          <RowDefinition Height="55"/>
-                          <!--<RowDefinition Height="25"/>-->
+                          <RowDefinition Height="45"/>
                           <RowDefinition Height="175"/>
                           <RowDefinition Height="55"/>
                           <RowDefinition Height="55"/>
@@ -380,7 +379,7 @@
                             <ColumnDefinition Width="40"/>
                          </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
-                            <RowDefinition Height="55"/>
+                            <RowDefinition Height="45"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
                                     <Frame x:Name="frmbtnStockTakeReadCode" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
@@ -396,18 +395,18 @@
                                     <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-25,0,0">
+                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid Grid.Column="0" Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
                                     <ListView x:FieldModifier="public"  x:Name="LstvStockTakeInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                                 </Grid>
                          </Grid>
-                            <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
+                        <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="110"/>
@@ -436,7 +435,7 @@
                             </Frame>
                           </Grid>
                         </Grid>
-                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="5,-6,0,0">
+                        <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="5,-6,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="200"/>
@@ -467,7 +466,7 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                           <RowDefinition Height="25"/>
-                          <RowDefinition Height="55"/>
+                          <RowDefinition Height="45"/>
                           <RowDefinition Height="175"/>
                           <RowDefinition Height="50"/>
                           <RowDefinition Height="40"/>
@@ -491,7 +490,7 @@
                             <ColumnDefinition Width="40"/>
                           </Grid.ColumnDefinitions>
                           <Grid.RowDefinitions>
-                            <RowDefinition Height="55"/>
+                            <RowDefinition Height="45"/>
                           </Grid.RowDefinitions>
                           <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand" >
                             <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
@@ -507,7 +506,7 @@
                                     <Button ClassId="TransferReadCodeClear" x:Name="btnTransferReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnTransferReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-40,0,0">
+                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-6,0,0">
                           <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                           </Grid.ColumnDefinitions>
@@ -636,9 +635,9 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
-                                <RowDefinition Height="44"/>
-                                <RowDefinition Height="220"/>
-                                <RowDefinition Height="60"/>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="175"/>
+                                <RowDefinition Height="45"/>
                                 <RowDefinition Height="*"/>
 
                             </Grid.RowDefinitions>
@@ -661,7 +660,7 @@
                                     <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="55"/>
+                                    <RowDefinition Height="45"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="End" VerticalOptions="CenterAndExpand">
                                     <Frame BorderColor="LightGreen" HasShadow="False" Padding="1" CornerRadius="0">
@@ -677,7 +676,7 @@
                                     <Button ClassId="ItemInfoReadCodeClear" x:Name="btnItemInfoReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnItemInfoReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-10,0,0">
+                            <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
@@ -688,7 +687,7 @@
                                     <ListView x:FieldModifier="public"  x:Name="LstvItemInfo" SelectionMode="None" IsVisible="True" HorizontalOptions="FillAndExpand"  BackgroundColor="Transparent"  HasUnevenRows="True"/>
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="3" HorizontalOptions="StartAndExpand" VerticalOptions="Start" Margin="0,-45,0,0">
+                            <Grid Grid.Row="3" HorizontalOptions="StartAndExpand" VerticalOptions="Start" Margin="0,-16,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="60"/>
                                 </Grid.ColumnDefinitions>
@@ -702,7 +701,7 @@
                                 </Grid>
                                 
                             </Grid>
-                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-50,0,0">
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,-16,0,0">
                               <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                               </Grid.ColumnDefinitions>

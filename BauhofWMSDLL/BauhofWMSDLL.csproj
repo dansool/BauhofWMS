@@ -38,6 +38,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ListDefinitions\ListOfBarcodes.cs" />
     <Compile Include="ListDefinitions\ListOfdbRecords.cs" />
     <Compile Include="ListDefinitions\ListOfInvRecords.cs" />
     <Compile Include="ListDefinitions\ListOfInvToExport.cs" />
