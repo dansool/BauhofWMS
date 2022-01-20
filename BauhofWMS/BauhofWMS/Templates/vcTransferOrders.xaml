@@ -59,6 +59,8 @@
                                 <FormattedString>
                                     <Span Text="SAABUNUD POEST: " FontAttributes="Bold" FontSize="14" TextColor="Magenta"  />
                                     <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Magenta"/>
+                                    <Span Text=" " FontAttributes="Bold" FontSize="14" TextColor="Magenta"  />
+                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Magenta"/>
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>

@@ -117,7 +117,7 @@ namespace BauhofWMS.StackPanelOperations
                     break;
                 case "TransferReceiveOrderLines":
                     {
-                        mp.PrepareTransferReceiveOrderLines();
+                        mp.PrepareTransferReceiveOrders();
                     }
                     break;
                 case "TransferOrderQuantityInsert":
@@ -125,6 +125,29 @@ namespace BauhofWMS.StackPanelOperations
                         mp.PrepareTransferReceiveOrderLines();
                     }
                     break;
+
+                case "SelectMagnitude":
+                    {
+                        if (obj.previousLayoutName == "PurchaseOrderQuantityInsert")
+                        {
+                            mp.CollapseAllStackPanels.Collapse(mp);
+                            mp.stkPurchaseOrderQuantityInsert.IsVisible = true;
+                            obj.mainOperation = "";
+                            obj.currentLayoutName = "PurchaseOrderQuantityInsert";
+                            mp.lblPurchaseOrderQuantityInsertHeader.Text = "OSTUTARNE REA KOGUS";
+                            
+                        }
+                        if (obj.previousLayoutName == "TransferOrderQuantityInsert")
+                        {
+                            mp.CollapseAllStackPanels.Collapse(mp);
+                            mp.stkTransferOrderQuantityInsert.IsVisible = true;
+                            obj.mainOperation = "";
+                            obj.currentLayoutName = "TransferOrderQuantityInsert";
+                            mp.lblTransferOrderQuantityInsertHeader.Text = "ÜLEVIIMISTARNE REA KOGUS";
+                        }
+                    }
+                    break;
+                    
             }
         }
     }

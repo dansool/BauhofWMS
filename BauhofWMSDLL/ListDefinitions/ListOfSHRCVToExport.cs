@@ -10,14 +10,15 @@ namespace BauhofWMSDLL.ListDefinitions
     {
         public int recordID { get; set; }
         public DateTime recordDate { get; set; }
-        public string pood { get; set; }
-        public string dokno { get; set; }
-        public string dokreanr { get; set; }
-        public DateTime tarnekp { get; set; }
-        public string kaup { get; set; }
+        public string shop { get; set; }
+        public string docNo { get; set; }
+        public string docLineNo { get; set; }
+        public DateTime shipmentDate { get; set; }
+        public string itemCode { get; set; }
         public decimal initialQty { get; set; }
         public decimal pickedQty { get; set; }
         public decimal remainingQty { get; set; }
         public string magnitude { get; set; }
+        public string barCode { get; set; }
     }
 }

@@ -118,6 +118,8 @@
     <Compile Include="Utils\WriteInvRecordsToExportFile.cs" />
     <Compile Include="Utils\WriteMovementRecordsToExportFile.cs" />
     <Compile Include="Utils\ReadWriteVersion.cs" />
+    <Compile Include="Utils\WritePurchaseReceiveRecordsToExportFile.cs" />
+    <Compile Include="Utils\WriteTransferReceiveRecordsToExportFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\FontAwesome5Brands.otf" />

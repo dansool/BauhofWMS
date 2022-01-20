@@ -21,7 +21,7 @@
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="20"/>
                     <RowDefinition Height="40"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="50"/>
                     <RowDefinition Height="2"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -71,7 +71,7 @@
                         <ColumnDefinition Width="252" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
-                        <Label Text="{Binding vendorCode}"  FontAttributes="Bold" FontSize="22" TextColor="Ivory" VerticalOptions="Start" />
+                        <Label Text="{Binding vendorCode}"  FontAttributes="Bold" FontSize="18" TextColor="Ivory" VerticalOptions="End" />
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
                         <Label Text="{Binding vendorName}" FontAttributes="Bold" FontSize="22" TextColor="Ivory" VerticalOptions="Start" />
@@ -104,7 +104,7 @@
                 </Grid>
                 <Grid Grid.Row="6">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="322" />

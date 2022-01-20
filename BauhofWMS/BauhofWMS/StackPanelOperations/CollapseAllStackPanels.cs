@@ -28,6 +28,7 @@ namespace BauhofWMS.StackPanelOperations
             mp.stkTransferReceiveOrders.IsVisible = false;
             mp.stkTransferReceiveOrderLines.IsVisible = false;
             mp.stkTransferOrderQuantityInsert.IsVisible = false;
+            mp.stkSelectMagnitude.IsVisible = false;
         }
     }
 }

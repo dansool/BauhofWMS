@@ -12,6 +12,7 @@ namespace BauhofWMSDLL.ListDefinitions
         public string docNo { get; set; }
         public string docLineNo { get; set; }
         public string receivedFromShop { get; set; }
+        public string receivedFromName { get; set; }
         public DateTime shipmentDate { get; set; }
         public string itemCode { get; set; }
         public string itemDesc { get; set; }

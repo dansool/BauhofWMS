@@ -1024,8 +1024,8 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
-                                <RowDefinition Height="185"/>
-                                <RowDefinition Height="80"/>
+                                <RowDefinition Height="215"/>
+                                <RowDefinition Height="60"/>
                                 <RowDefinition Height="55"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
@@ -1064,8 +1064,8 @@
                             <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="110"/>
-                                    <ColumnDefinition Width="60"/>
-                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="55"/>
@@ -1076,7 +1076,12 @@
                                     </Frame>
                                 </Grid>
                                 <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                                    <Label x:Name="lblPurchaseOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                    <Label x:Name="lblPurchaseOrderQuantityInsertQuantityUOM" IsVisible="false" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Frame x:Name="frmbtnPurchaseOrderQuantityInsertQuantityUOM" IsVisible="false" BorderColor="Orange" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OK" x:Name="btnPurchaseOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Clicked="btnPurchaseOrderQuantityInsertQuantityUOM_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="DarkOrange"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
                                 </Grid>
                                 <Grid Grid.Column="2" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
                                     <Frame x:Name="frmbtnPurchaseOrderQuantityInsertQuantityOK" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
@@ -1084,6 +1089,43 @@
                                     </Frame>
                                 </Grid>
                             </Grid>
+                        </Grid>
+                    </StackLayout>
+                      
+                    <StackLayout  x:Name="stkSelectMagnitude" x:FieldModifier="public" HorizontalOptions="Fill">
+                        <Grid HorizontalOptions="CenterAndExpand"  WidthRequest="350">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Label x:Name="lblSelectMagnitudeHeader" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="Red"  />
+                                </Grid>
+                            </Grid>
+
+                            <Grid Grid.Row="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvSelectMagnitude" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="White" ItemTapped="LstvSelectMagnitude_ItemTapped" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+
                         </Grid>
                     </StackLayout>
 
@@ -1219,8 +1261,8 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="25"/>
-                                <RowDefinition Height="185"/>
-                                <RowDefinition Height="80"/>
+                                <RowDefinition Height="205"/>
+                                <RowDefinition Height="60"/>
                                 <RowDefinition Height="55"/>
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
@@ -1259,8 +1301,8 @@
                             <Grid  Grid.Row="3" HorizontalOptions="CenterAndExpand" Margin="0,-3,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="110"/>
-                                    <ColumnDefinition Width="60"/>
-                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="55"/>
@@ -1271,7 +1313,12 @@
                                     </Frame>
                                 </Grid>
                                 <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                                    <Label x:Name="lblTransferOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                    <Label x:Name="lblTransferOrderQuantityInsertQuantityUOM" IsVisible="false" x:FieldModifier="public" Text="" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                                    <Frame x:Name="frmbtnTransferOrderQuantityInsertQuantityUOM" IsVisible="false" BorderColor="Orange" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">
+                                        <Button Text="OK" x:Name="btnTransferOrderQuantityInsertQuantityUOM" x:FieldModifier="public" Clicked="btnTransferOrderQuantityInsertQuantityUOM_Clicked"  HeightRequest="60" WidthRequest="80"  BackgroundColor="DarkOrange"  FontSize="24"  TextColor="White"  Padding="-5" FontAttributes="Bold"  />
+                                    </Frame>
                                 </Grid>
                                 <Grid Grid.Column="2" Grid.Row="0" HorizontalOptions="End" VerticalOptions="CenterAndExpand">
                                     <Frame x:Name="frmbtnTransferOrderQuantityInsertQuantityOK" BorderColor="LightGreen" x:FieldModifier="public"  HasShadow="False" Padding="1" CornerRadius="0">

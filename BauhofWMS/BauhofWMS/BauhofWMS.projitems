@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeDefault.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDateTimeLong.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDecimalSpaces.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDefaultMagnitude.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertSKUColor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ListViewSelectedColorConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IAppVersion.cs" />
@@ -46,6 +47,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteInvRecordsToExportFileUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteMovementRecordsToExportFileAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteMovementRecordsToExportFileUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWritePurchaseReceiveRecordsToExportFileAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWritePurchaseReceiveRecordsToExportFileUWP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteTransferReceiveRecordsToExportFileAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IWriteTransferReceiveRecordsToExportFileUWP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\CharacterReceived.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\KeyBoardButtonPress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Keyboard\ShiftSwitch.cs" />
@@ -106,6 +111,10 @@
       <DependentUpon>vcPurchaseOrders.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Templates\vcSelectMagnitude.xaml.cs">
+      <DependentUpon>vcSelectMagnitude.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderLines.xaml.cs">
       <DependentUpon>vcTransferOrderLines.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -149,8 +158,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteMovementRecordsToExportFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WritePurchaseOrderPickedQuantitiesRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WritePurchaseReceiveRecordsToExportFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteTransferOrderPickedQuantitiesRecords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WriteTransferReceiveRecordsToExportFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YesNo.xaml.cs">
       <DependentUpon>YesNo.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -260,6 +271,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcTransferOrderQuantityInsertQuantityInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Templates\vcSelectMagnitude.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

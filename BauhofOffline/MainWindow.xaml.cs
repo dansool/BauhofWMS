@@ -1113,16 +1113,21 @@ namespace BauhofOffline
                     string sourceFileName = str;
                     int index = str.LastIndexOf("\\");
                     string fileName = str.Substring(index + 1);
-                    
+
+
                     if (fileName.ToUpper().StartsWith("SHRCVDBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
                     {
-                        File.Delete(str);
+                        File.Delete(lstSettings.First().jsonFolder +  fileName);
                     }
                 }
                 string json = JsonConvert.SerializeObject(values);
                 File.WriteAllText(lstSettings.First().jsonFolder + "SHRCVDBRECORDS_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".TXT", json);
                 convertProcessLog = convertProcessLog + "\r\n" + "Purchase receive created!";
 
+                if (File.Exists(lstSettings.First().csvArchiveFolder + inputFileName))
+                {
+                    File.Delete(lstSettings.First().csvArchiveFolder + inputFileName);
+                }
                 File.Move(lstSettings.First().csvFolder + inputFileName, lstSettings.First().csvArchiveFolder + inputFileName);
                 convertProcessLog = convertProcessLog + "\r\n" + "Purchase receive csv file archived!";
                 return "";
@@ -1161,13 +1166,17 @@ namespace BauhofOffline
 
                     if (fileName.ToUpper().StartsWith("TRFRCVDBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
                     {
-                        File.Delete(str);
+                        File.Delete(lstSettings.First().jsonFolder + fileName);
                     }
                 }
                 string json = JsonConvert.SerializeObject(values);
                 File.WriteAllText(lstSettings.First().jsonFolder + "TRFRCVDBRECORDS_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".TXT", json);
                 convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive created!";
 
+                if (File.Exists(lstSettings.First().csvArchiveFolder + inputFileName))
+                {
+                    File.Delete(lstSettings.First().csvArchiveFolder + inputFileName);
+                }
                 File.Move(lstSettings.First().csvFolder + inputFileName, lstSettings.First().csvArchiveFolder + inputFileName);
                 convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive csv file archived!";
                 return "";
@@ -2274,41 +2283,41 @@ namespace BauhofOffline
                     decimal temp = 0;
                     
                     string[] values = csvLine.Split("\"" + "," + "\"");
-                    string x = "pood " + values[0];
-                    x = x + "\r\n" + "dokno " + values[1];
-                    x = x + "\r\n" + "dokreanr " + values[2];
-                    x = x + "\r\n" + "hankijakood " + values[3];
-                    x = x + "\r\n" + "hankijanimi " + values[4];
-                    x = x + "\r\n" + "hankijaviide " + values[5];
-                    x = x + "\r\n" + "tarnekp " + values[6];
-                    x = x + "\r\n" + "kaup " + values[7];
-                    x = x + "\r\n" + "kogus " + values[8];
+                    string x = "shop " + values[0];
+                    x = x + "\r\n" + "docNo " + values[1];
+                    x = x + "\r\n" + "docLineNo " + values[2];
+                    x = x + "\r\n" + "vendorCode " + values[3];
+                    x = x + "\r\n" + "vendorName " + values[4];
+                    x = x + "\r\n" + "vendorReference " + values[5];
+                    x = x + "\r\n" + "shipmentDate " + values[6];
+                    x = x + "\r\n" + "itemCode " + values[7];
+                    x = x + "\r\n" + "initialQty " + values[8];
                     x = x + "\r\n" + "magnitude " + values[9];
 
                     //MessageBox.Show(x);
                     step = 2;
-                    lst.pood = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
+                    lst.shop = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
 
                     step = 3;
-                    lst.dokno = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
+                    lst.docNo = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
 
                     step = 4;
-                    lst.dokreanr = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
+                    lst.docLineNo = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
 
                     step = 5;
-                    lst.hankijakood = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
+                    lst.vendorCode = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
 
                     step = 6;
-                    lst.hankijanimi = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
+                    lst.vendorName = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
 
                     step = 7;
-                    lst.hankijaviide = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
+                    lst.vendorReference = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
 
                     step = 8;
-                    lst.tarnekp = string.IsNullOrEmpty(values[6]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[6].Replace("\"", ""));
+                    lst.shipmentDate = string.IsNullOrEmpty(values[6]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[6].Replace("\"", ""));
 
                     step = 9;
-                    lst.kaup = string.IsNullOrEmpty(values[7]) ? "" : values[7].Replace("\"", "");
+                    lst.itemCode = string.IsNullOrEmpty(values[7]) ? "" : values[7].Replace("\"", "");
 
 
                     step = 10;
@@ -2318,11 +2327,11 @@ namespace BauhofOffline
                     values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
                     try
                     {
-                        lst.kogus = decimal.Parse(values[8], cultureInfo);
+                        lst.initialQty = decimal.Parse(values[8], cultureInfo);
                     }
                     catch (Exception ex)
                     {
-                        lst.kogus = 0;
+                        lst.initialQty = 0;
                         Debug.WriteLine("kogus " + ex.Message);
                     }
                     step = 11;
@@ -2378,34 +2387,34 @@ namespace BauhofOffline
                     decimal temp = 0;
 
                     string[] values = csvLine.Split("\"" + "," + "\"");
-                    string x = "pood " + values[0];
-                    x = x + "\r\n" + "dokno " + values[1];
-                    x = x + "\r\n" + "dokreanr " + values[2];
-                    x = x + "\r\n" + "lähetaja " + values[3];
-                    x = x + "\r\n" + "tarnekp " + values[4];
-                    x = x + "\r\n" + "kaup " + values[5];
-                    x = x + "\r\n" + "kogus " + values[6];
+                    string x = "shop " + values[0];
+                    x = x + "\r\n" + "docNo " + values[1];
+                    x = x + "\r\n" + "docLineNo " + values[2];
+                    x = x + "\r\n" + "receivedFromShop " + values[3];
+                    x = x + "\r\n" + "shipmentDate " + values[4];
+                    x = x + "\r\n" + "itemCode " + values[5];
+                    x = x + "\r\n" + "initialQty " + values[6];
                     x = x + "\r\n" + "magnitude " + values[7];
 
                     //MessageBox.Show(x);
                     step = 2;
-                    lst.pood = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
+                    lst.shop = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
 
                     step = 3;
-                    lst.dokno = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
+                    lst.docNo = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
 
                     step = 4;
-                    lst.dokreanr = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
+                    lst.docLineNo = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
 
                     step = 5;
-                    lst.lähetaja = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
+                    lst.receivedFromShop = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
 
                     
                     step = 6;
-                    lst.tarnekp = string.IsNullOrEmpty(values[4]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[4].Replace("\"", ""));
+                    lst.shipmentDate = string.IsNullOrEmpty(values[4]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[4].Replace("\"", ""));
 
                     step = 7;
-                    lst.kaup = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
+                    lst.itemCode = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
 
 
                     step = 8;
@@ -2415,11 +2424,11 @@ namespace BauhofOffline
                     values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
                     try
                     {
-                        lst.kogus = decimal.Parse(values[6], cultureInfo);
+                        lst.initialQty = decimal.Parse(values[6], cultureInfo);
                     }
                     catch (Exception ex)
                     {
-                        lst.kogus = 0;
+                        lst.initialQty = 0;
                         Debug.WriteLine("kogus " + ex.Message);
                     }
                     step = 9;

@@ -57,7 +57,16 @@
                         <ColumnDefinition Width="322" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
-                        <Label Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Magenta" VerticalOptions="Start" />
+                        <Label  FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="SAABUS POEST: " FontAttributes="Bold" FontSize="14" TextColor="Ivory"  />
+                                    <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Ivory"/>
+                                    <Span Text=" " FontAttributes="Bold" FontSize="22" TextColor="Ivory"/>
+                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Ivory"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </Grid>
                 </Grid>
                 <Grid Grid.Row="2" BackgroundColor="LightGray">
@@ -93,7 +102,7 @@
                         <ColumnDefinition Width="322" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
-                        <Label Text="{Binding barCode}"  FontAttributes="Bold" FontSize="14" TextColor="SaddleBrown" VerticalOptions="Start" />
+                        <Label Text="{Binding barCode}"  FontAttributes="Bold" FontSize="14" TextColor="Orange" VerticalOptions="Start" />
                     </Grid>
 
                 </Grid>
