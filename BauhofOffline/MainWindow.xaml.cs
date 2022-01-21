@@ -237,11 +237,15 @@ namespace BauhofOffline
 
         private void CheckVersion()
         {
+            int step = 0;
             try
             {
+                
                 if (ui)
                 {
+                    step = 1;
                     WriteLog("CheckVersion started", 1);
+                    
                     txtBkLatestVersionValue.Text = "";
                     txtBkScannerVersionValue.Text = "";
                     btnUpdate.Visibility = Visibility.Collapsed;
@@ -251,64 +255,88 @@ namespace BauhofOffline
 
                     WriteLog("trying to connect...", 2);
                     var devices = MediaDevice.GetDevices();
+                    step = 2;
                     if (devices.Any())
                     {
+                        step = 3;
                         if (devices.Count() == 1)
                         {
+                            step = 4;
                             device = devices.First();
+                            step = 5;
                             DeviceNameAsSeenInMyComputer = devices.First().Description;
+                            step = 6;
                             WriteLog("CheckVersion DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer, 2);
+                            step = 7;
                         }
                         else
                         {
-
+                            step = 8;
                             txtBkStatus.Text = "LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!";
+                            step = 9;
                             WriteLog("CheckVersion " + txtBkStatus.Text, 2);
+                            step = 10;
                             MessageBox.Show("LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!");
+                            step = 11;
                         }
                     }
                     else
                     {
+                        step = 12;
                         txtBkStatus.Text = "VÄLIST SEADET EI LEITUD!";
+                        step = 13;
                         WriteLog("CheckVersion " + txtBkStatus.Text, 2);
+                        step = 14;
                         MessageBox.Show("VÄLIST SEADET EI LEITUD!");
+                        step = 15;
                     }
 
 
-
+                    step = 16;
                     Debug.WriteLine("DeviceNameAsSeenInMyComputer " + DeviceNameAsSeenInMyComputer);
                     if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                     {
+                        step = 17;
                         bool proceed = true;
                         int count = 0;
                         try
                         {
                             bool fileExists = false;
                             device.Connect();
+                            step = 18;
                             WriteLog("CheckVersion device connected", 2);
 
                             WriteLog(@"CheckVersion looking for files in " + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download", 2);
+
                             var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download");
+                            step = 19;
                             var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                            step = 20;
                             foreach (var file in files)
                             {
+                                step = 21;
                                 WriteLog(@"CheckVersion found " + file.Name + @" in " + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download", 2);
                                 if (file.Name.ToUpper().StartsWith("VERSION_") && file.Name.ToUpper().EndsWith("_.TXT"))
                                 {
+                                    step = 22;
                                     var textSplit = file.Name.ToUpper().Split(new[] { "_" }, StringSplitOptions.None);
+                                    step = 23;
                                     txtBkScannerVersionValue.Text = textSplit[1];
+                                    step = 24;
                                     fileExists = true;
                                 }
                             }
 
-
+                            step = 25;
                             if (!fileExists)
                             {
+                                step = 26;
                                 txtBkScannerVersionValue.Text = "PUUDUB";
                             }
-
+                            step = 27;
                             if (proceed)
                             {
+                                step = 28;
                                 //string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
                                 //if (File.Exists(destinationLatestFileName))
                                 //{
@@ -319,9 +347,13 @@ namespace BauhofOffline
                                 try
                                 {
                                     WebClient webClient = new WebClient();
+                                    step = 29;
                                     byte[] myDataBuffer = webClient.DownloadData((new Uri("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt")));
+                                    step = 30;
                                     string download = Encoding.ASCII.GetString(myDataBuffer);
+                                    step = 31;
                                     destinationLatestFileNameText = download;
+                                    step = 32;
 
                                     //webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
                                     //WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
@@ -329,23 +361,29 @@ namespace BauhofOffline
                                 catch (Exception ex)
                                 {
                                     proceed = false;
-                                    WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
-                                    MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD!" + "\r\n" + ex.Message);
+                                    WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
+                                    MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD! step: " + step + "  " + "\r\n" + ex.Message);
                                 }
-
+                                step = 33;
                                 if (proceed)
                                 {
+                                    step = 34;
                                     if (!string.IsNullOrEmpty(destinationLatestFileNameText))
                                     {
-                                        
-                                            var textSplit = destinationLatestFileNameText.Split(new[] { "#_#" }, StringSplitOptions.None);
+                                        step = 35;
+                                        var textSplit = destinationLatestFileNameText.Split(new[] { "#_#" }, StringSplitOptions.None);
+                                        step = 36;
                                         if (textSplit.Any())
                                         {
+                                            step = 37;
                                             foreach (var s in textSplit)
                                             {
+                                                step = 38;
                                                 if (s.StartsWith("MAJOR:"))
                                                 {
+                                                    step = 39;
                                                     txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
+                                                    step = 40;
                                                     WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
                                                 }
                                             }
@@ -353,51 +391,71 @@ namespace BauhofOffline
                                     }
                                     else
                                     {
+                                        step = 41;
                                         proceed = false;
-                                        WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD", 2);
-                                        MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"c:\windows\temp\BauhofWMSVersion.txt EI LEITUD");
+                                        WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI", 2);
+                                        MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI");
                                     }
                                 }
                             }
+                            step = 41;
                             if (proceed)
                             {
+                                step = 42;
                                 Debug.WriteLine(txtBkLatestVersionValue.Text + "  " + txtBkScannerVersionValue.Text);
                                 if (txtBkScannerVersionValue.Text == "PUUDUB")
                                 {
+                                    step = 43;
                                     if (MessageBox.Show("NÄIB, ET SKÄNNERIL EI OLE VEEL TARKVARA INSALLEERITUD. KAS KOPEERIN INSTALLATSIOONIFAILI " + txtBkLatestVersionValue.Text + " SKÄNNERISSE ? ", "SKÄNNERITARKVARA", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                     {
+                                        step = 44;
                                         DownloadAPK();
+                                        step = 45;
                                     }
                                 }
                                 else
                                 {
+                                    step = 46;
                                     if (!string.IsNullOrEmpty(txtBkLatestVersionValue.Text) && !string.IsNullOrEmpty(txtBkScannerVersionValue.Text))
                                     {
+                                        step = 47;
                                         var splitversionValueLatest = txtBkLatestVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                        step = 48;
                                         var versionValueLatest = Convert.ToInt32(splitversionValueLatest[2]);
+                                        step = 49;
 
                                         var splitversionValueScanner = txtBkScannerVersionValue.Text.Split(new[] { "." }, StringSplitOptions.None);
+                                        step = 50;
                                         var versionValueScanner = Convert.ToInt32(splitversionValueScanner[2]);
+                                        step = 51;
 
                                         if (versionValueLatest > versionValueScanner)
                                         {
+                                            step = 52;
                                             btnUpdate.Visibility = Visibility.Visible;
+                                            step = 53;
                                             txtBkStatus.Text = "LEITI UUS VERSIOON!";
                                             WriteLog(@"CheckVersion " + txtBkStatus.Text, 2);
                                         }
                                     }
                                 }
                             }
+                            step = 54;
                             if (proceed)
                             {
+                                step = 55;
                                 device.Connect();
+                                step = 56;
                                 WriteLog("CheckVersion device connected", 2);
                                 var DCIMDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\");
+                                step = 57;
                                 var folders = DCIMDir.EnumerateDirectories("*.*", SearchOption.TopDirectoryOnly);
                                 {
+                                    step = 58;
                                     bool exists = false;
                                     foreach (var s in folders)
                                     {
+                                        step = 59;
                                         if (s.Name == "Export")
                                         {
                                             exists = true;
@@ -405,23 +463,32 @@ namespace BauhofOffline
                                     }
                                     if (!exists)
                                     {
+                                        step = 60;
                                         device.CreateDirectory(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
+                                        step = 61;
                                         WriteLog(@"CheckVersion device \" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export folder created", 2);
                                     }
                                 }
-
+                                step = 62;
                                 var exportDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
+                                step = 63;
                                 var exportFiles = exportDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                                step = 64;
                                 if (exportFiles.Count() < 3)
                                 {
+                                    step = 65;
                                     foreach (var file in exportFiles)
                                     {
+                                        step = 66;
                                         txtBkDownloadFiles.Text = txtBkDownloadFiles.Text + file.Name + "\r\n";
+                                        step = 67;
                                         WriteLog(@"CheckVersion found " + txtBkDownloadFiles.Text, 2);
                                     }
                                 }
                             }
+                            step = 68;
                             device.Disconnect();
+                            step = 69;
                             WriteLog(@"CheckVersion device disconnect", 2);
                         }
                         catch (Exception ex)
@@ -438,13 +505,16 @@ namespace BauhofOffline
                                 MessageBox.Show("CheckVersion  " + ex.Message);
                             }
                         }
+                        step = 100;
                     }
+                    step = 200;
                 }
+                step = 300;
             }
             catch (Exception ex)
             {
-                WriteError("CheckVersion " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("CheckVersion  " + ex.Message);
+                WriteError("CheckVersion step: " + step + "  "  + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+                MessageBox.Show("CheckVersion  step: " + step + "  " +  ex.Message);
             }
         }
 
@@ -758,16 +828,16 @@ namespace BauhofOffline
                     }
                 }
 
-                string destinationFile = @"c:\windows\temp\BauhofWMS." + androidVersion + ".apk";
+                string destinationFile = lstSettings.First().apkFolder + @"\BauhofWMS." + androidVersion + ".apk";
 
                 try
                 {
-                    if (File.Exists(destinationFile))
+                    if (!File.Exists(destinationFile))
                     {
-                        File.Delete(destinationFile);
+                        WebClient webClient = new WebClient();
+                        webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMS" + androidVersion + ".apk", destinationFile);
                     }
-                    WebClient webClient = new WebClient();
-                    webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMS" + androidVersion + ".apk", destinationFile);
+                    
                 }
                 catch (Exception ex)
                 {

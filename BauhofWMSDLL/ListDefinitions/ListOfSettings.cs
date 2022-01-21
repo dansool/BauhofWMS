@@ -22,6 +22,7 @@ namespace BauhofWMSDLL.ListDefinitions
         public int debugLevel { get; set; }
         
         public string senderEmail { get; set; }
+        public string apkFolder { get; set; }
         public string shopFileFolder { get; set; }
         public string csvArchiveFolder { get; set; }
 
