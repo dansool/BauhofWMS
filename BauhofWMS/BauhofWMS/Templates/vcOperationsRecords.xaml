@@ -62,17 +62,17 @@
                 </Grid>
 
 
-                <Grid Grid.Column="0" Grid.Row="5" IsVisible="false">
+                <Grid Grid.Column="0" Grid.Row="5" IsVisible="True">
                     <Label Text="Ostutarne kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
                 </Grid>
-                <Grid Grid.Column="1" Grid.Row="5" IsVisible="false">
+                <Grid Grid.Column="1" Grid.Row="5" IsVisible="True">
                     <Label Text="{Binding purchaseReceiveRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
                 </Grid>
 
-                <Grid Grid.Column="0" Grid.Row="6" IsVisible="false">
+                <Grid Grid.Column="0" Grid.Row="6" IsVisible="True">
                     <Label Text="Ülev.tarne kirjeid:" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
                 </Grid>
-                <Grid Grid.Column="1" Grid.Row="6" IsVisible="false">
+                <Grid Grid.Column="1" Grid.Row="6" IsVisible="True">
                     <Label Text="{Binding transferReceiveRecords}" Margin="0,-4,0,0" FontAttributes="Bold" FontSize="16" TextColor="Yellow" VerticalOptions="Start" />
                 </Grid>
 

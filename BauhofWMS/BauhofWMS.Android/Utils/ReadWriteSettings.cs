@@ -21,8 +21,10 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWriteSettings : IReadWriteSettingsAndroid
     {
-        public async Task<string> SaveSettingsAsync(string settings)
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> SaveSettingsAsync(string settings, string shopLocationID, string deviceSerial)
         {
+            string result = "";
             try
             {
                 Console.WriteLine("line settings: " + settings);
@@ -30,42 +32,45 @@ namespace BauhofWMS.Droid.Utils
                 using (var writer = File.CreateText(backingFile))
                 {
                     await writer.WriteLineAsync(settings);
-                    
-                    return null;
                 }
+                return result;
             }
             catch (Exception ex)
             {
-                return "SaveSettingsAsync " + ex.Message;
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
             }
         }
 
-        public async Task<string> ReadSettingsAsync()
+        public async Task<string> ReadSettingsAsync(string shopLocationID, string deviceSerial)
         {
             var result = "";
-            Console.WriteLine("line start: ");
-            var backingFile = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "BauhofWMSSettings.txt");
-
-            if (backingFile == null || !File.Exists(backingFile))
+            try
             {
-                return null;
-            }
+                var backingFile = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "BauhofWMSSettings.txt");
 
-
-            using (var reader = new StreamReader(backingFile, true))
-            {
-                string line;
-                while ((line = await reader.ReadLineAsync()) != null)
+                if (backingFile == null || !File.Exists(backingFile))
                 {
-                    Console.WriteLine("line: " + line);
-                    result = line;
+                    return null;
                 }
+                using (var reader = new StreamReader(backingFile, true))
+                {
+                    string line;
+                    while ((line = await reader.ReadLineAsync()) != null)
+                    {
+                        Console.WriteLine("line: " + line);
+                        result = line;
+                    }
+                }
+                return result;
             }
-
-           
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
-
-       
     }
 }

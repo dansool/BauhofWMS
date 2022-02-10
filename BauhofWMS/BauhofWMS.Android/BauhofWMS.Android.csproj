@@ -116,6 +116,7 @@
     <Compile Include="Utils\ReadWriteTransferOrderPickedQuantitiesRecords.cs" />
     <Compile Include="Utils\Version_Android.cs" />
     <Compile Include="Utils\WriteInvRecordsToExportFile.cs" />
+    <Compile Include="Utils\WriteLog.cs" />
     <Compile Include="Utils\WriteMovementRecordsToExportFile.cs" />
     <Compile Include="Utils\ReadWriteVersion.cs" />
     <Compile Include="Utils\WritePurchaseReceiveRecordsToExportFile.cs" />

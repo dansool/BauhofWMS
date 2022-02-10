@@ -19,36 +19,47 @@ using BauhofWMS.Droid.Utils;
 
 namespace BauhofWMS.Droid.Utils
 {
+   
     public class ReadWriteInvRecords : IReadWriteInvRecordsAndroid
     {
-        public async Task<string> ReadInvRecordsAsync()
-        {
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> ReadInvRecordsAsync(string shopLocationID, string deviceSerial)
+        {           
             var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
+            try
             {
-                if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
                 {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                    if (r.Name.ToUpper().StartsWith("INVRECORDSDB.TXT"))
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    if (backingFile == null || !File.Exists(backingFile))
-                    {
-                        return null;
-                    }
-                    using (var reader = new StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
+                        if (backingFile == null || !File.Exists(backingFile))
                         {
-                            result = result + line;
+                            return null;
+                        }
+                        using (var reader = new StreamReader(backingFile, true))
+                        {
+                            string line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                result = result + line;
+                            }
                         }
                     }
                 }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
 
-        public async Task<string> WriteInvRecordsAsync(string data)
+        public async Task<string> WriteInvRecordsAsync(string data, string shopLocationID, string deviceSerial)
         {
             var result = "";
             try
@@ -76,13 +87,14 @@ namespace BauhofWMS.Droid.Utils
                         }
                     }
                 }
+                return result;
             }
             catch (Exception ex)
             {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
                 return result;
             }
-
-            return result;
         }
     }
 }

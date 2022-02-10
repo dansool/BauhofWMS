@@ -7,7 +7,7 @@ namespace BauhofWMS
 {
     public interface IReadWriteSettingsAndroid
     {
-        Task<string> SaveSettingsAsync(string settings);
-        Task<string> ReadSettingsAsync();
+        Task<string> SaveSettingsAsync(string settings, string shopID, string deviceID);
+        Task<string> ReadSettingsAsync(string shopID, string deviceID);
     }
 }

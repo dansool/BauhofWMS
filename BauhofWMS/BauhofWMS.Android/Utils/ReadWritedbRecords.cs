@@ -22,39 +22,48 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWritedbRecords : IReadWritedbRecordsAndroid
     {
-
-        public async Task<string> ReaddbRecordsAsync()
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> ReaddbRecordsAsync(string shopLocationID, string deviceSerial)
         {
             var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
+            try
             {
-                
-                if (r.Name.ToUpper().StartsWith("DBRECORDS") && r.Name.ToUpper().EndsWith(".TXT"))
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
                 {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    if (backingFile == null || !File.Exists(backingFile))
+                    if (r.Name.ToUpper().StartsWith("DBRECORDS") && r.Name.ToUpper().EndsWith(".TXT"))
                     {
-                        return null;
-                    }
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    int i = 0;
-                    Stopwatch sw = Stopwatch.StartNew();
-                    const Int32 BufferSize = 81920;
-                    using (var reader = new StreamReader(backingFile, Encoding.UTF8, true, BufferSize))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
+                        if (backingFile == null || !File.Exists(backingFile))
                         {
-                            result = result + line;
+                            return null;
                         }
+
+                        int i = 0;
+                        Stopwatch sw = Stopwatch.StartNew();
+                        const Int32 BufferSize = 81920;
+                        using (var reader = new StreamReader(backingFile, Encoding.UTF8, true, BufferSize))
+                        {
+                            string line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                result = result + line;
+                            }
+                        }
+                        sw.Stop();
+                        System.Diagnostics.Debug.WriteLine("Time elapsed : " + sw.Elapsed.TotalMilliseconds.ToString() + " ms.");
                     }
-                    sw.Stop();
-                    System.Diagnostics.Debug.WriteLine("Time elapsed : " + sw.Elapsed.TotalMilliseconds.ToString() + " ms.");
                 }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
     }
 }

@@ -16,14 +16,14 @@ namespace BauhofWMS.Utils
 {
     public class ReadPurchaseOrderPickedQuantitiesRecords
     {
-        public async Task<Tuple<bool, string>> Read(MainPage mp)
+        public async Task<Tuple<bool, string>> Read(MainPage mp, string shopID, string deviceID)
         {
             try
             {
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWritePurchaseOrderPickedQuantitiesRecordsAndroid>().ReadPurchaseOrderPickedQuantitiesRecordsAsync();
+                    var settingsRead = await DependencyService.Get<IReadWritePurchaseOrderPickedQuantitiesRecordsAndroid>().ReadPurchaseOrderPickedQuantitiesRecordsAsync(shopID, deviceID);
                     if (!string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);

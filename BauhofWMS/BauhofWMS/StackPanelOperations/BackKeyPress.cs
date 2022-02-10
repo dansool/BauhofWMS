@@ -102,6 +102,7 @@ namespace BauhofWMS.StackPanelOperations
 
                 case "PurchaseReceiveOrderLines":
                     {
+                        
                         mp.PreparePurchaseReceiveOrders();
                     }
                     break;

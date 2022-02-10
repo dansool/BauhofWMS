@@ -7,6 +7,6 @@ namespace BauhofWMS
 {
     public interface IWriteInvRecordsToExportFileAndroid
     {
-        Task<string> WriteInvRecordsToExportFileAsync(string data, string exportFile);
+        Task<string> WriteInvRecordsToExportFileAsync(string data, string exportFile, string shopID, string deviceID);
     }
 }

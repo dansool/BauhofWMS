@@ -20,8 +20,10 @@ namespace BauhofWMS.Droid.Utils
 {
     public class WritePurchaseReceiveRecordsToExportFile : IWritePurchaseReceiveRecordsToExportFileAndroid
     {
-        public async Task<string> WritePurchaseReceiveRecordsToExportFileAsync(string data, string exportFileStamp)
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> WritePurchaseReceiveRecordsToExportFileAsync(string data, string exportFileStamp, string shopID, string deviceID)
         {
+            string result = "";
             string exportFileName = "PURCRCV_" + exportFileStamp + ".TXT";
             try
             {
@@ -55,11 +57,13 @@ namespace BauhofWMS.Droid.Utils
 
                 var _folderBackupTimeStampFile2 = Path.Combine(_folderBackupTimeStamp, exportFileName);
                 File.Copy(exportFile, _folderBackupTimeStampFile2);
-                return null;
+                return result;
             }
             catch (Exception ex)
             {
-                return "WritePurchaseReceiveRecordsToExportFileAsync " + ex.Message + "  " + exportFileStamp;
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopID, deviceID);
+                return result;
             }
         }
     }

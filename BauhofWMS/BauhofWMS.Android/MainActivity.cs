@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
@@ -19,7 +18,6 @@ using Xamarin.Forms;
 using BauhofWMS.Droid.Scanner;
 using BauhofWMS.Droid.Utils;
 using Android.Content;
-
 using Android.Views.InputMethods;
 using Android.Support.V4.Content;
 using Android.Support.V4.App;
@@ -66,17 +64,8 @@ namespace BauhofWMS.Droid
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
-            //Intent intent = new Intent();
-            //intent.SetAction("WRITE_EXTERNAL_STORAGE");
-            //StartActivity(intent);
-
-            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 1); }
-            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 1); }
             ScannerInit.OpenBarcodeReader();
             LaunchStart();
-            //requestpermission();
-            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.WriteExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.WriteExternalStorage }, 0); }
-            //if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) != (int)Permission.Granted) { ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 0); }
         }
 
         private void CheckAppPermissions()
@@ -97,7 +86,6 @@ namespace BauhofWMS.Droid
         }
         public async void LaunchStart()
         {
-            
             var result = await GetDeviceSerial.Get();
             if (result.Item1)
             {

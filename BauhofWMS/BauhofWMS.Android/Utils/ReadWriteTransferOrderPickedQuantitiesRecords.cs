@@ -21,7 +21,7 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWriteTransferOrderPickedQuantitiesRecords : IReadWriteTransferOrderPickedQuantitiesRecordsAndroid
     {
-        public async Task<string> ReadTransferOrderPickedQuantitiesRecordsAsync()
+        public async Task<string> ReadTransferOrderPickedQuantitiesRecordsAsync(string shopID, string deviceID)
         {
             var result = "";
             var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
@@ -48,7 +48,7 @@ namespace BauhofWMS.Droid.Utils
             return result;
         }
 
-        public async Task<string> WriteTransferOrderPickedQuantitiesRecordsAsync(string data)
+        public async Task<string> WriteTransferOrderPickedQuantitiesRecordsAsync(string data, string shopID, string deviceID)
         {
             var result = "";
             try

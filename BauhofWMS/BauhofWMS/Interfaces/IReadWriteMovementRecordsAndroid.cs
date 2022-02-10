@@ -7,8 +7,8 @@ namespace BauhofWMS
 {
     interface IReadWriteMovementRecordsAndroid
     {
-        Task<string> ReadMovementRecordsAsync();
+        Task<string> ReadMovementRecordsAsync(string shopID, string deviceID);
 
-        Task<string> WriteMovementRecordsAsync(string data);
+        Task<string> WriteMovementRecordsAsync(string data, string shopID, string deviceID);
     }
 }

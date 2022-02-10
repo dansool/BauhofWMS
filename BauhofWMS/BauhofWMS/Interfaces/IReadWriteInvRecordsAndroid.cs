@@ -7,7 +7,7 @@ namespace BauhofWMS
 {
     interface IReadWriteInvRecordsAndroid
     {
-        Task<string> ReadInvRecordsAsync();
-        Task<string> WriteInvRecordsAsync(string data);
+        Task<string> ReadInvRecordsAsync(string shopID, string deviceID);
+        Task<string> WriteInvRecordsAsync(string data, string shopID, string deviceID);
     }
 }

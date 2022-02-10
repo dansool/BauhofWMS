@@ -92,8 +92,7 @@ namespace BauhofOffline
                 WriteLog("InitializeComponent done", 1);
                 prgRing.Visibility = Visibility.Hidden;
                 WriteLog("prgRing visible", 1);
-
-
+                Debug.WriteLine("PROCEED BHERE");
                 string DeviceNameAsSeenInMyComputer = "";
                 MediaDevice device = null;
                 var devices = MediaDevice.GetDevices();
@@ -156,6 +155,7 @@ namespace BauhofOffline
                             }
                             else
                             {
+                               
                                 if (lstStartupArguments.First().showUI)
                                 {
                                     GetConfiguration();
@@ -582,6 +582,56 @@ namespace BauhofOffline
                                 device.DeleteFile(file.FullName);
                             }
                         }
+
+
+                        var logsDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Logs");
+                        var logFiles = logsDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                        foreach (var file in logFiles)
+                        {
+                            Debug.WriteLine(file.Name);
+                            count = count + 1;
+                            string shopIDFromFileName = "";
+                            string deviceIDFromFileName = "";
+                            DateTime logDateFromFileName = DateTime.MinValue;
+                            var splitFileName = file.Name.Split(new[] { "_" }, StringSplitOptions.None);
+                            if (splitFileName.Any())
+                            {
+                                shopIDFromFileName = splitFileName[0];
+                                Debug.WriteLine(shopIDFromFileName);
+                                deviceIDFromFileName = splitFileName[1];
+                                Debug.WriteLine(deviceIDFromFileName);
+                                logDateFromFileName = DateTime.Parse(splitFileName[2]);
+                                Debug.WriteLine(logDateFromFileName.ToString());
+                            }
+                            if (!Directory.Exists(lstSettings.First().logFolder + @"\" + shopIDFromFileName))
+                            {
+                                Directory.CreateDirectory(lstSettings.First().logFolder + @"\" + shopIDFromFileName);
+                            }
+
+                            if (!Directory.Exists(lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName))
+                            {
+                                Directory.CreateDirectory(lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName);
+                            }
+                            string destinationFileName = lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName + @"\" + file.Name;
+                            if (File.Exists(destinationFileName))
+                            {
+                                File.Delete(destinationFileName);
+                                
+                            }
+                            using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
+                            {
+                                device.DownloadFile(file.FullName, fs);
+                                WriteLog(@"btnDownload_Click downloaded " + file.FullName, 2);
+                            }
+                            if (logDateFromFileName != DateTime.Now.Date)
+                            {
+                                if (File.Exists(destinationFileName))
+                                {
+                                    device.DeleteFile(file.FullName);
+                                }
+                            }
+                        }
+
                         device.Disconnect();
                         WriteLog(@"btnDownload_Click device disconnected", 2);
                     }
@@ -1172,7 +1222,10 @@ namespace BauhofOffline
                 string filename = folderPath + inputFileName;
                 convertProcessLog = convertProcessLog + "\r\n" + "Purchase receive read started";
                 List<ListOfPurchaseReceive> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromPurchaseReceiveCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail, lstSettings.First().senderEmail, lstSettings.First().smtpServer)).ToList();
-                lstPurchaseReceive = values;
+                Debug.WriteLine("values " + values.Count());
+                lstPurchaseReceive = values.Where(x => !string.IsNullOrEmpty(x.docNo)).ToList();
+                Debug.WriteLine("lstPurchaseReceive " +lstPurchaseReceive.Count());
+
                 convertProcessLog = convertProcessLog + "\r\n" + "Purchase receive read done. Total records " + lstPurchaseReceive.Count();
                 Debug.WriteLine("lstShopRelations.Count() " + lstPurchaseReceive.Count());
 
@@ -1190,7 +1243,7 @@ namespace BauhofOffline
                         File.Delete(lstSettings.First().jsonFolder +  fileName);
                     }
                 }
-                string json = JsonConvert.SerializeObject(values);
+                string json = JsonConvert.SerializeObject(lstPurchaseReceive);
                 File.WriteAllText(lstSettings.First().jsonFolder + "SHRCVDBRECORDS_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".TXT", json);
                 convertProcessLog = convertProcessLog + "\r\n" + "Purchase receive created!";
 
@@ -1219,36 +1272,66 @@ namespace BauhofOffline
         {
             try
             {
+                bool proceed = true;
                 convertProcessLog = convertProcessLog + "\r\n" + "Convert of transfer receive started";
                 string filename = folderPath + inputFileName;
                 convertProcessLog = convertProcessLog + "\r\n" + "transfer receive read started";
                 List<ListOfTransferReceive> values = File.ReadAllLines(folderPath + inputFileName).Skip(1).Select(v => FromTransferReceiveCsv(v, inputFileName, lstSettings.First().logFolder, lstSettings.First().adminEmail, lstSettings.First().senderEmail, lstSettings.First().smtpServer)).ToList();
                 lstTransferReceive = values;
-                convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive read done. Total records " + lstPurchaseReceive.Count();
-
-                string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
-                foreach (string str in dirs)
+                var groupedShops = lstTransferReceive.GroupBy(x => x.receivedFromShop).Select(x => x).ToList();
+                if (groupedShops.Any())
                 {
-
-                    string sourceFileName = str;
-                    int index = str.LastIndexOf("\\");
-                    string fileName = str.Substring(index + 1);
-
-                    if (fileName.ToUpper().StartsWith("TRFRCVDBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
+                    foreach (var p in lstShopRelations)
                     {
-                        File.Delete(lstSettings.First().jsonFolder + fileName);
+                        Debug.WriteLine("SHOPID: " + p.shopID + "  "+  p.shopName);
+                    }
+                    foreach (var p in groupedShops)
+                    {
+                        Debug.WriteLine(p.First().receivedFromShop);
+                        string shopID = p.First().receivedFromShop;
+                        var isShopExisting = lstShopRelations.Where(x => x.shopID == shopID);
+                        if (!isShopExisting.Any())
+                        {
+                            proceed = false;
+                            if (ui)
+                            {
+                                MessageBox.Show("TRANSFERORDER FAILI KONVERTEERIMINE: POE ID " + shopID + " PUUDUB SEADISTUSFAILIST! KONVERTEERIMINE KATKESTATUD");
+                            }
+                            SendMail("TRANSFERORDER FAILI KONVERTEERIMINE: POE ID " + shopID + " PUUDUB SEADISTUSFAILIST! KONVERTEERIMINE KATKESTATUD");
+                            return "TRANSFERORDER FAILI KONVERTEERIMINE: POE ID " + shopID + " PUUDUB SEADISTUSFAILIST! KONVERTEERIMINE KATKESTATUD";
+                        }
                     }
                 }
-                string json = JsonConvert.SerializeObject(values);
-                File.WriteAllText(lstSettings.First().jsonFolder + "TRFRCVDBRECORDS_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".TXT", json);
-                convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive created!";
 
-                if (File.Exists(lstSettings.First().csvArchiveFolder + inputFileName))
+                if (proceed)
                 {
-                    File.Delete(lstSettings.First().csvArchiveFolder + inputFileName);
+                    convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive read done. Total records " + lstPurchaseReceive.Count();
+
+                    string[] dirs = Directory.GetFiles(lstSettings.First().jsonFolder);
+                    foreach (string str in dirs)
+                    {
+
+                        string sourceFileName = str;
+                        int index = str.LastIndexOf("\\");
+                        string fileName = str.Substring(index + 1);
+
+                        if (fileName.ToUpper().StartsWith("TRFRCVDBRECORDS") && fileName.ToUpper().EndsWith(".TXT"))
+                        {
+                            File.Delete(lstSettings.First().jsonFolder + fileName);
+                        }
+                    }
+                    string json = JsonConvert.SerializeObject(values);
+                    File.WriteAllText(lstSettings.First().jsonFolder + "TRFRCVDBRECORDS_" + String.Format("{0:yyyyMMdd_HHmmss}", DateTime.Now) + ".TXT", json);
+                    convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive created!";
+
+                    if (File.Exists(lstSettings.First().csvArchiveFolder + inputFileName))
+                    {
+                        File.Delete(lstSettings.First().csvArchiveFolder + inputFileName);
+                    }
+                    File.Move(lstSettings.First().csvFolder + inputFileName, lstSettings.First().csvArchiveFolder + inputFileName);
+                    convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive csv file archived!";
+                    return "";
                 }
-                File.Move(lstSettings.First().csvFolder + inputFileName, lstSettings.First().csvArchiveFolder + inputFileName);
-                convertProcessLog = convertProcessLog + "\r\n" + "Transfer receive csv file archived!";
                 return "";
             }
             catch (Exception ex)
@@ -1336,6 +1419,7 @@ namespace BauhofOffline
 
         private void ConvertFiles()
         {
+           
             try
             {                
                 GetLatestDBFile();
@@ -1354,7 +1438,7 @@ namespace BauhofOffline
                             prgRing.Visibility = Visibility.Visible;
                         }));
                     }
-
+                   
                     csvFolderPath = lstSettings.First().csvFolder;
                     shopFileFolder = lstSettings.First().shopFileFolder;
                     csvArchiveFolder = lstSettings.First().csvArchiveFolder;
@@ -1379,6 +1463,7 @@ namespace BauhofOffline
                         }
                     }
 
+                    
                     if (proceed)
                     {
                         bool receiveReceiveFileExists = false;
@@ -1399,12 +1484,14 @@ namespace BauhofOffline
                                         isInFolder = true;
                                     }
                                     //ETAPP 2
-                                    if (fileName.ToUpper().StartsWith("SHRCV_") && fileName.ToUpper().EndsWith(".CSV"))
+                                    if (fileName.ToUpper().StartsWith("PDA_PURCHASEORDER_") && fileName.ToUpper().EndsWith(".CSV"))
                                     {
+                                        Debug.WriteLine("PURCHASEORDER_ exists");
                                         receiveReceiveFileExists = true;
                                     }
-                                    if (fileName.ToUpper().StartsWith("TRFRCV_") && fileName.ToUpper().EndsWith(".CSV"))
+                                    if (fileName.ToUpper().StartsWith("PDA_TRANSFERORDER_") && fileName.ToUpper().EndsWith(".CSV"))
                                     {
+                                        Debug.WriteLine("TRANSFERORDER_ exists");
                                         transferReceiveFileExists = true;
                                     }
 
@@ -1418,11 +1505,13 @@ namespace BauhofOffline
                         }
                         if (receiveReceiveFileExists)
                         {
+                            Debug.WriteLine("receiveReceiveFileExists");
                             ConvertPurchaseReceiveFiles();
                         }
 
                         if (transferReceiveFileExists)
                         {
+                            Debug.WriteLine("transferReceiveFileExists");
                             ConvertTransferReceiveFiles();
                         }
 
@@ -1870,14 +1959,14 @@ namespace BauhofOffline
                                 string sourceFileName = str;
                                 int index = str.LastIndexOf("\\");
                                 string fileName = str.Substring(index + 1);
-                                if (fileName.StartsWith("SHRCV_"))
+                                if (fileName.ToUpper().StartsWith("PDA_PURCHASEORDER_"))
                                 {
                                     isInFolder = true;
                                 }
                             }
                             if (!isInFolder)
                             {
-                                convertProcessLog = convertProcessLog + "\r\n" + "SHRCV csv file was not found";                                
+                                convertProcessLog = convertProcessLog + "\r\n" + "PURCHASEORDEER csv file was not found";                                
                                 proceed = false;
                             }
                         }
@@ -1900,7 +1989,7 @@ namespace BauhofOffline
                                     WriteLog("Lock exists, convert operations skipped", 1);
                                     proceed = false;
                                 }
-                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.Contains("SHRCV_"))
+                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.ToUpper().Contains("PDA_PURCHASEORDER_"))
                                 {
                                     shrcvfilesExist = true;
                                 }
@@ -1935,7 +2024,7 @@ namespace BauhofOffline
 
                                             if (proceed)
                                             {
-                                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.Contains("SHRCV_"))
+                                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.ToUpper().Contains("PDA_PURCHASEORDER_"))
                                                 {
                                                     var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
                                                     var prefixToSearch = fileNameSplitPrefix[0];
@@ -1947,7 +2036,7 @@ namespace BauhofOffline
                                                         Debug.WriteLine("fileName is " + str2);
                                                         int index2 = str2.LastIndexOf("\\");
                                                         string fileName2 = str2.Substring(index2 + 1);
-                                                        if (fileName2.ToUpper().EndsWith(".CSV") && fileName2.Contains("SHRCV_"))
+                                                        if (fileName2.ToUpper().EndsWith(".CSV") && fileName2.ToUpper().Contains("PDA_PURCHASEORDER_"))
                                                         {
                                                             if (fileName2 != fileName)
                                                             {
@@ -1957,7 +2046,7 @@ namespace BauhofOffline
                                                     }
                                                     if (!File.Exists(jsonFolderPath + fileName))
                                                     {
-                                                        var fileNameSplit = fileName.Split(new[] { "SHRCV_" }, StringSplitOptions.None);
+                                                        var fileNameSplit = fileName.ToUpper().Split(new[] { "PDA_PURCHASEORDER_" }, StringSplitOptions.None);
                                                         string datePart = fileNameSplit[1].ToUpper().Replace(".CSV", "").Replace("-", "");
                                                         string formatstring = "yyyyMMddHHmmss";
                                                         DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
@@ -2043,14 +2132,14 @@ namespace BauhofOffline
                                 string sourceFileName = str;
                                 int index = str.LastIndexOf("\\");
                                 string fileName = str.Substring(index + 1);
-                                if (fileName.StartsWith("TRFRCV_"))
+                                if (fileName.ToUpper().StartsWith("PDA_TRANSFERORDER_"))
                                 {
                                     isInFolder = true;
                                 }
                             }
                             if (!isInFolder)
                             {
-                                convertProcessLog = convertProcessLog + "\r\n" + "TRFRCV csv file was not found";
+                                convertProcessLog = convertProcessLog + "\r\n" + "PDA_TRANSFERORDER csv file was not found";
                                 proceed = false;
                             }
                         }
@@ -2073,7 +2162,7 @@ namespace BauhofOffline
                                     WriteLog("Lock exists, convert operations skipped", 1);
                                     proceed = false;
                                 }
-                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.Contains("TRFRCV_"))
+                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.ToUpper().Contains("PDA_TRANSFERORDER_"))
                                 {
                                     shrcvfilesExist = true;
                                 }
@@ -2108,7 +2197,7 @@ namespace BauhofOffline
 
                                             if (proceed)
                                             {
-                                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.Contains("TRFRCV_"))
+                                                if (fileName.ToUpper().EndsWith(".CSV") && fileName.ToUpper().Contains("PDA_TRANSFERORDER_"))
                                                 {
                                                     var fileNameSplitPrefix = fileName.Split(new[] { "_" }, StringSplitOptions.None);
                                                     var prefixToSearch = fileNameSplitPrefix[0];
@@ -2120,7 +2209,7 @@ namespace BauhofOffline
                                                         Debug.WriteLine("fileName is " + str2);
                                                         int index2 = str2.LastIndexOf("\\");
                                                         string fileName2 = str2.Substring(index2 + 1);
-                                                        if (fileName2.ToUpper().EndsWith(".CSV") && fileName2.Contains("TRFRCV_"))
+                                                        if (fileName2.ToUpper().EndsWith(".CSV") && fileName2.ToUpper().Contains("PDA_TRANSFERORDER_"))
                                                         {
                                                             if (fileName2 != fileName)
                                                             {
@@ -2130,7 +2219,7 @@ namespace BauhofOffline
                                                     }
                                                     if (!File.Exists(jsonFolderPath + fileName))
                                                     {
-                                                        var fileNameSplit = fileName.Split(new[] { "TRFRCV_" }, StringSplitOptions.None);
+                                                        var fileNameSplit = fileName.ToUpper().Split(new[] { "PDA_TRANSFERORDER_" }, StringSplitOptions.None);
                                                         string datePart = fileNameSplit[1].ToUpper().Replace(".CSV", "").Replace("-", "");
                                                         string formatstring = "yyyyMMddHHmmss";
                                                         DateTime fileDate = DateTime.ParseExact(datePart, formatstring, null);
@@ -2353,38 +2442,40 @@ namespace BauhofOffline
                     decimal temp = 0;
                     
                     string[] values = csvLine.Split("\"" + "," + "\"");
-                    string x = "shop " + values[0];
-                    x = x + "\r\n" + "docNo " + values[1];
-                    x = x + "\r\n" + "docLineNo " + values[2];
-                    x = x + "\r\n" + "vendorCode " + values[3];
-                    x = x + "\r\n" + "vendorName " + values[4];
-                    x = x + "\r\n" + "vendorReference " + values[5];
-                    x = x + "\r\n" + "shipmentDate " + values[6];
-                    x = x + "\r\n" + "itemCode " + values[7];
-                    x = x + "\r\n" + "initialQty " + values[8];
-                    x = x + "\r\n" + "magnitude " + values[9];
+                    string x = "pood " + values[0];
+                    x = x + "\r\n" + "dokno " + values[1];
+                    x = x + "\r\n" + "hankijakood " + values[2];
+                    x = x + "\r\n" + "hankijanimi " + values[3];
+                    x = x + "\r\n" + "hankijaviide " + values[4];
+                    x = x + "\r\n" + "tarnekp " + values[5];
+                    x = x + "\r\n" + "dokreanr " + values[6];
+                    x = x + "\r\n" + "kaubakood " + values[7];
+                    x = x + "\r\n" + "kogus " + values[9];
+                    x = x + "\r\n" + "ühikud " + values[10];
 
-                    //MessageBox.Show(x);
+                    ////MessageBox.Show(x);
                     step = 2;
                     lst.shop = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
 
                     step = 3;
                     lst.docNo = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
 
+
+
                     step = 4;
-                    lst.docLineNo = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
+                    lst.vendorCode = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
 
                     step = 5;
-                    lst.vendorCode = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
+                    lst.vendorName = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
 
                     step = 6;
-                    lst.vendorName = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
+                    lst.vendorReference = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
 
                     step = 7;
-                    lst.vendorReference = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
+                    lst.shipmentDate = string.IsNullOrEmpty(values[5]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[5].Replace("\"", ""));
 
                     step = 8;
-                    lst.shipmentDate = string.IsNullOrEmpty(values[6]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[6].Replace("\"", ""));
+                    lst.docLineNo = string.IsNullOrEmpty(values[6]) ? "" : values[6].Replace("\"", "");
 
                     step = 9;
                     lst.itemCode = string.IsNullOrEmpty(values[7]) ? "" : values[7].Replace("\"", "");
@@ -2393,11 +2484,11 @@ namespace BauhofOffline
                     step = 10;
                     var cultureInfo = CultureInfo.InvariantCulture;
                     NumberStyles styles = NumberStyles.AllowDecimalPoint;
-
-                    values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
+                    //Debug.WriteLine("kogus " + values[9] + "  " + values[1] + "  " + values[7]);
+                    values[9] = string.IsNullOrEmpty(values[9]) ? "0" : (values[9].StartsWith(",") ? "0" : values[9].Replace(",", ".").Replace("\"", ""));
                     try
                     {
-                        lst.initialQty = decimal.Parse(values[8], cultureInfo);
+                        lst.initialQty = decimal.Parse(values[9], cultureInfo);
                     }
                     catch (Exception ex)
                     {
@@ -2405,9 +2496,29 @@ namespace BauhofOffline
                         Debug.WriteLine("kogus " + ex.Message);
                     }
                     step = 11;
-                    lst.magnitude = string.IsNullOrEmpty(values[9]) ? "" : values[9].Replace("\"", "");
+                    lst.magnitude = string.IsNullOrEmpty(values[10]) ? "" : values[10].Replace(";","%%%").Replace("\"", "");
+
+                    //string y = "pood " + lst.shop;
+                    //y = y + "\r\n" + "dokno " + lst.docNo;
+                    //y = y + "\r\n" + "hankijakood " +lst.vendorCode;
+                    //y = y + "\r\n" + "hankijanimi " + lst.vendorName;
+                    //y = y + "\r\n" + "hankijaviide " + lst.vendorReference;
+                    //y = y + "\r\n" + "tarnekp " + lst.shipmentDate;
+                    //y = y + "\r\n" + "dokreanr " + lst.docLineNo;
+                    //y = y + "\r\n" + "kaubakood " +lst.itemCode;
+                    //y = y + "\r\n" + "kogus " + lst.initialQty;
+                    //y = y + "\r\n" + "ühikud " + lst.magnitude;
+                    //MessageBox.Show(y);
+
                     
-                    return lst;
+                    if (lst.shipmentDate > Convert.ToDateTime("2022-01-01 00:00:00"))
+                    {
+                        return lst;
+                    }
+                    else
+                    {
+                        return new ListOfPurchaseReceive();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -2457,14 +2568,16 @@ namespace BauhofOffline
                     decimal temp = 0;
 
                     string[] values = csvLine.Split("\"" + "," + "\"");
-                    string x = "shop " + values[0];
-                    x = x + "\r\n" + "docNo " + values[1];
-                    x = x + "\r\n" + "docLineNo " + values[2];
-                    x = x + "\r\n" + "receivedFromShop " + values[3];
-                    x = x + "\r\n" + "shipmentDate " + values[4];
-                    x = x + "\r\n" + "itemCode " + values[5];
-                    x = x + "\r\n" + "initialQty " + values[6];
-                    x = x + "\r\n" + "magnitude " + values[7];
+                    string x = "pood " + values[0];
+                    x = x + "\r\n" + "dokNo " + values[1];
+                   
+                    x = x + "\r\n" + "lähetaja " + values[2];
+                    x = x + "\r\n" + "tarnekp " + values[3];
+                    x = x + "\r\n" + "dokreanr " + values[4];
+
+                    x = x + "\r\n" + "kaubakood " + values[5];
+                    x = x + "\r\n" + "kogus " + values[7];
+                    x = x + "\r\n" + "ühik " + values[8];
 
                     //MessageBox.Show(x);
                     step = 2;
@@ -2473,15 +2586,18 @@ namespace BauhofOffline
                     step = 3;
                     lst.docNo = string.IsNullOrEmpty(values[1]) ? "" : values[1].Replace("\"", "");
 
-                    step = 4;
-                    lst.docLineNo = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
-
                     step = 5;
-                    lst.receivedFromShop = string.IsNullOrEmpty(values[3]) ? "" : values[3].Replace("\"", "");
-
+                    lst.receivedFromShop = string.IsNullOrEmpty(values[2]) ? "" : values[2].Replace("\"", "");
                     
+
+
+
                     step = 6;
-                    lst.shipmentDate = string.IsNullOrEmpty(values[4]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[4].Replace("\"", ""));
+                    lst.shipmentDate = string.IsNullOrEmpty(values[3]) ? Convert.ToDateTime("1753-01-01 00:00:00") : Convert.ToDateTime(values[3].Replace("\"", ""));
+
+                    step = 4;
+                    lst.docLineNo = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
+
 
                     step = 7;
                     lst.itemCode = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
@@ -2491,10 +2607,10 @@ namespace BauhofOffline
                     var cultureInfo = CultureInfo.InvariantCulture;
                     NumberStyles styles = NumberStyles.AllowDecimalPoint;
 
-                    values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
+                    values[6] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
                     try
                     {
-                        lst.initialQty = decimal.Parse(values[6], cultureInfo);
+                        lst.initialQty = decimal.Parse(values[7], cultureInfo);
                     }
                     catch (Exception ex)
                     {
@@ -2502,7 +2618,7 @@ namespace BauhofOffline
                         Debug.WriteLine("kogus " + ex.Message);
                     }
                     step = 9;
-                    lst.magnitude = string.IsNullOrEmpty(values[7]) ? "" : values[7].Replace("\"", "");
+                    lst.magnitude = string.IsNullOrEmpty(values[8]) ? "" : values[8].Replace("\"", "");
 
                     return lst;
                 }

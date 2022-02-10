@@ -30,11 +30,11 @@ namespace BauhofWMS.Utils
             {
                 if (r.Name.ToUpper().EndsWith(".APK"))
                 {
-                    latestVersion = r.Name.ToUpper().Replace("BAUHOFWMS.","").Replace("X","").Replace(".APK","");
+                    latestVersion = r.Name.ToUpper().Replace("BAUHOFWMS.", "").Replace("X", "").Replace(".APK", "");
                     latestFilePath = r.Name;
                 }
             }
-            
+
 
 
             var versionCheck = await mp.CheckNewVersion.Check(company, pin);

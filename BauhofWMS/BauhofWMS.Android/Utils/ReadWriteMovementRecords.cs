@@ -21,60 +21,79 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWriteMovementRecords : IReadWriteMovementRecordsAndroid
     {
-        public async Task<string> ReadMovementRecordsAsync()
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> ReadMovementRecordsAsync(string shopLocationID, string deviceSerial)
         {
             var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
+            try
             {
-                if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
                 {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                    if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    if (backingFile == null || !File.Exists(backingFile))
-                    {
-                        return null;
-                    }
-                    using (var reader = new StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
+                        if (backingFile == null || !File.Exists(backingFile))
                         {
-                            result = result + line;
+                            return null;
+                        }
+                        using (var reader = new StreamReader(backingFile, true))
+                        {
+                            string line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                result = result + line;
+                            }
                         }
                     }
                 }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
 
-        public async Task<string> WriteMovementRecordsAsync(string data)
+        public async Task<string> WriteMovementRecordsAsync(string data, string shopLocationID, string deviceSerial)
         {
             var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
+            try
             {
-                if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
                 {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-                    File.Move(Path.Combine(dir.AbsolutePath, r.Name), Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
-                    using (StreamWriter writer = new StreamWriter(backingFile))
+                    if (r.Name.ToUpper().StartsWith("MOVEMENTRECORDSDB.TXT"))
                     {
-                        writer.Write(data);
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
+                        File.Move(Path.Combine(dir.AbsolutePath, r.Name), Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
+                        }
+                        File.Delete(Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
                     }
-                    File.Delete(Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
-                }
-                else
-                {
-                    var backingFile = Path.Combine(dir.AbsolutePath, "MOVEMENTRECORDSDB.TXT");
+                    else
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, "MOVEMENTRECORDSDB.TXT");
 
-                    using (StreamWriter writer = new StreamWriter(backingFile))
-                    {
-                        writer.Write(data);
+                        using (StreamWriter writer = new StreamWriter(backingFile))
+                        {
+                            writer.Write(data);
+                        }
                     }
                 }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
     }
 }

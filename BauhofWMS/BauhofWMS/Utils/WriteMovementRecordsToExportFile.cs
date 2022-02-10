@@ -17,14 +17,14 @@ namespace BauhofWMS.Utils
 {
     public class WriteMovementRecordsToExportFile
     {
-        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFileStamp)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFileStamp, string shopID, string deviceID)
         {
             try
             {
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IWriteMovementRecordsToExportFileAndroid>().WriteMovementRecordsToExportFileAsync(data, exportFileStamp);
+                    var settingsRead = await DependencyService.Get<IWriteMovementRecordsToExportFileAndroid>().WriteMovementRecordsToExportFileAsync(data, exportFileStamp, shopID, deviceID);
                     if (string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);

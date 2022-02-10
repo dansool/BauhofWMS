@@ -332,7 +332,7 @@
 
                                         <Grid Grid.Column="4" Grid.Row="5" HorizontalOptions="Center">
                                             <Frame x:Name="frmOperationsTransferReceive" BorderColor="LightBlue" HasShadow="False" Padding="1" CornerRadius="0">
-                                                <Button Text="&#xf4ce;" FontFamily="{StaticResource FaSolid}" WidthRequest="55" HeightRequest="55" x:Name="btnOperationsTransferReceive" x:FieldModifier="public" Clicked="btnOperationsTransferReceive_Clicked" BackgroundColor="#FF0862FF"  FontSize="30"  TextColor="White"  FontAttributes="Bold" />
+                                                <Button Text="&#xf4ce;" FontFamily="{StaticResource FaSolid}" WidthRequest="55" HeightRequest="55" x:Name="btnOperationsTransferReceive" x:FieldModifier="public" Clicked="btnOperationsTransferReceive_Clicked" BackgroundColor="#FF0862FF"  FontSize="26"  TextColor="White"  FontAttributes="Bold" />
                                             </Frame>
                                         </Grid>
                                         <Grid Grid.Column="5" Grid.Row="5" HorizontalOptions="Start">
@@ -963,6 +963,7 @@
                                 <RowDefinition Height="25"/>
                                 <RowDefinition Height="40"/>
                                 <RowDefinition Height="6"/>
+                                <RowDefinition Height="80"/>
                                 <RowDefinition Height="*"/>
 
                             </Grid.RowDefinitions>
@@ -1001,7 +1002,18 @@
                                     <Button ClassId="ItemPurchaseReceiveOrderLinesReadCodeClear" x:Name="btnPurchaseReceiveOrderLinesReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnPurchaseReceiveOrderLinesReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvPurchaseReceiveOrderLinesInfo" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="Transparent" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>

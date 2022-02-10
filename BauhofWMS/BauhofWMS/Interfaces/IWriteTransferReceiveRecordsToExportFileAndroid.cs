@@ -7,6 +7,6 @@ namespace BauhofWMS
 {
     public interface IWriteTransferReceiveRecordsToExportFileAndroid
     {
-        Task<string> WriteTransferReceiveRecordsToExportFileAsync(string data, string exportFile);
+        Task<string> WriteTransferReceiveRecordsToExportFileAsync(string data, string exportFile, string shopID, string deviceID);
     }
 }

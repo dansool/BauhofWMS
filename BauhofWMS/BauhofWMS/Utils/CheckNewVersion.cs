@@ -11,6 +11,7 @@ namespace BauhofWMS.Utils
 {
     public class CheckNewVersion
     {
+        private App obj = App.Current as App;
         ParseVersionToList ParseVersionToList = new ParseVersionToList();
         public GetPublishedVersion GetPublishedVersion = new GetPublishedVersion();
         public async Task<Tuple<bool, string, string, string, string>> Check(string company, string pin)
@@ -31,7 +32,7 @@ namespace BauhofWMS.Utils
                     var version = DependencyService.Get<IAppVersion>().GetVersion();
                     currentVersion = build + ".0." + version;
                     p = 3;
-                    var versionWrite = await DependencyService.Get<IReadWriteVersionAndroid>().WriteVersionAsync(currentVersion);
+                    var versionWrite = await DependencyService.Get<IReadWriteVersionAndroid>().WriteVersionAsync(currentVersion, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
                     if (versionWrite.Any())
                     {
                         Debug.WriteLine("Check: " + versionWrite);

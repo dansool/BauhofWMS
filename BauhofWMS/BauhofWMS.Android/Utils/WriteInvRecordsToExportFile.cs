@@ -21,8 +21,10 @@ namespace BauhofWMS.Droid.Utils
 {
     public class WriteInvRecordsToExportFile : IWriteInvRecordsToExportFileAndroid
     {
-        public async Task<string> WriteInvRecordsToExportFileAsync(string data, string exportFileStamp)
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> WriteInvRecordsToExportFileAsync(string data, string exportFileStamp, string shopLocationID, string deviceSerial)
         {
+            string result = "";
             string exportFileName = "inv_" + exportFileStamp + ".txt";
             try
             {
@@ -56,11 +58,13 @@ namespace BauhofWMS.Droid.Utils
 
                 var _folderBackupTimeStampFile2 = Path.Combine(_folderBackupTimeStamp, exportFileName);
                 File.Copy(exportFile, _folderBackupTimeStampFile2);
-                return null;
+                return result;
             }
             catch (Exception ex)
             {
-                return "WriteInvRecordsAsync " + ex.Message + "  " + exportFileStamp;
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
             }
         }
     }

@@ -23,7 +23,7 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWriteVersion : IReadWriteVersionAndroid
     {
-        public async Task<string> ReadVersionAsync()
+        public async Task<string> ReadVersionAsync(string shopID, string deviceID)
         {
             var result = "";
             string DownloadsPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, Android.OS.Environment.DirectoryDownloads);
@@ -55,7 +55,7 @@ namespace BauhofWMS.Droid.Utils
             return result;
         }
 
-        public async Task<string> WriteVersionAsync(string data)
+        public async Task<string> WriteVersionAsync(string data, string shopID, string deviceID)
         {
             try
             {

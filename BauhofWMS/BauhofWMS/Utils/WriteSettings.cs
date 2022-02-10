@@ -17,7 +17,7 @@ namespace BauhofWMS.Utils
     public class WriteSettings
     {
         private App obj = App.Current as App;
-        public async Task<Tuple<bool, string>> Write(bool pEnv, string address, string shopLocationCode, bool showInvQty, bool showPurchaseReceiveQty, bool showTransferReceiveQty, MainPage mp)
+        public async Task<Tuple<bool, string>> Write(bool pEnv, string address, string shopLocationCode, bool showInvQty, bool showPurchaseReceiveQty, bool showTransferReceiveQty, string shopID, string deviceID, MainPage mp)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace BauhofWMS.Utils
                 string settingsWrite = "";
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    settingsWrite = await DependencyService.Get<IReadWriteSettingsAndroid>().SaveSettingsAsync(input);
+                    settingsWrite = await DependencyService.Get<IReadWriteSettingsAndroid>().SaveSettingsAsync(input, shopID, deviceID);
                 }
                 else
                 {

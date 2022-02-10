@@ -7,6 +7,6 @@ namespace BauhofWMS
 {
     public interface IWriteMovementRecordsToExportFileAndroid
     {
-        Task<string> WriteMovementRecordsToExportFileAsync(string data, string exportFile);
+        Task<string> WriteMovementRecordsToExportFileAsync(string data, string exportFile, string shopID, string deviceID);
     }
 }

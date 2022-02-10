@@ -8,6 +8,6 @@ namespace BauhofWMS
 {
     public interface iReadTransferReveiveRecordsAndroid
     {
-        Task<string> ReadRecordsAsync();
+        Task<string> ReadRecordsAsync(string shopID, string deviceID);
     }
 }

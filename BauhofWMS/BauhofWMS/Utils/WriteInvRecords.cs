@@ -16,7 +16,7 @@ namespace BauhofWMS.Utils
 {
     public class WriteInvRecords
     {
-        public async Task<Tuple<bool, string>> Write(MainPage mp, string data)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string shopID, string deviceID)
         {
             try
             {
@@ -24,7 +24,7 @@ namespace BauhofWMS.Utils
                 if (Device.RuntimePlatform == Device.Android)
                 {
                     
-                    var settingsRead = await DependencyService.Get<IReadWriteInvRecordsAndroid>().WriteInvRecordsAsync(data);
+                    var settingsRead = await DependencyService.Get<IReadWriteInvRecordsAndroid>().WriteInvRecordsAsync(data, shopID, deviceID);
                     if (string.IsNullOrEmpty(settingsRead))
                     {
                         Debug.WriteLine("settingsRead " + settingsRead);

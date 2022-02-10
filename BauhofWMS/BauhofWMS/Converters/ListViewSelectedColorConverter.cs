@@ -17,8 +17,8 @@ namespace BauhofWMS.Converters
             {
                 Color rw = Color.White;
                 Color redw = Color.LightGreen;
-                int isSelected = (int)value;
-                if (isSelected == 1)
+                bool isSelected = (bool)value;
+                if (isSelected == true)
                 {
                     return redw;
                 }

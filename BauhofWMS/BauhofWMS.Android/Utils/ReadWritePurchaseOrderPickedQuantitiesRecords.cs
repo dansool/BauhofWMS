@@ -21,39 +21,48 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadWritePurchaseOrderPickedQuantitiesRecords : IReadWritePurchaseOrderPickedQuantitiesRecordsAndroid
     {
-        public async Task<string> ReadPurchaseOrderPickedQuantitiesRecordsAsync()
-        {
-            var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
-            {
-                if (r.Name.ToUpper().StartsWith("PURCRCVRECORDSDB.TXT"))
-                {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-
-                    if (backingFile == null || !File.Exists(backingFile))
-                    {
-                        return null;
-                    }
-                    using (var reader = new StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
-                        {
-                            result = result + line;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        public async Task<string> WritePurchaseOrderPickedQuantitiesRecordsAsync(string data)
+        WriteLog WriteLog = new WriteLog();
+        public async Task<string> ReadPurchaseOrderPickedQuantitiesRecordsAsync(string shopLocationID, string deviceSerial)
         {
             var result = "";
             try
             {
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
+                {
+                    if (r.Name.ToUpper().StartsWith("PURCRCVRECORDSDB.TXT"))
+                    {
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
+                        if (backingFile == null || !File.Exists(backingFile))
+                        {
+                            return null;
+                        }
+                        using (var reader = new StreamReader(backingFile, true))
+                        {
+                            string line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                result = result + line;
+                            }
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
+        }
+
+        public async Task<string> WritePurchaseOrderPickedQuantitiesRecordsAsync(string data, string shopLocationID, string deviceSerial)
+        {
+            var result = "";
+            try
+            {
                 var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
                 foreach (var r in dir.ListFiles())
                 {
@@ -76,13 +85,14 @@ namespace BauhofWMS.Droid.Utils
                         }
                     }
                 }
+                return result;
             }
             catch (Exception ex)
             {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
                 return result;
             }
-
-            return result;
         }
     }
 }

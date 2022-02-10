@@ -21,32 +21,42 @@ namespace BauhofWMS.Droid.Utils
 {
     public class ReadShopRelationRecordsAsync : IReadShopRelationRecordsAndroid
     {
-        public async Task<string> ReadRecordsAsync()
+        public async Task<string> ReadRecordsAsync(string shopLocationID, string deviceSerial)
         {
+            WriteLog WriteLog = new WriteLog();
             var result = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
-            foreach (var r in dir.ListFiles())
+            try
             {
-                if (r.Name.ToUpper().Contains("SHOPRELATIONS") && r.Name.ToUpper().EndsWith(".TXT"))
+                var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                foreach (var r in dir.ListFiles())
                 {
-                    var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
-
-                    if (backingFile == null || !File.Exists(backingFile))
+                    if (r.Name.ToUpper().Contains("SHOPRELATIONS") && r.Name.ToUpper().EndsWith(".TXT"))
                     {
-                        return null;
-                    }
+                        var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
 
-                    using (var reader = new StreamReader(backingFile, true))
-                    {
-                        string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
+                        if (backingFile == null || !File.Exists(backingFile))
                         {
-                            result = result + line;
+                            return null;
+                        }
+
+                        using (var reader = new StreamReader(backingFile, true))
+                        {
+                            string line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                result = result + line;
+                            }
                         }
                     }
                 }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                result = this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteLog.Write(result, shopLocationID, deviceSerial);
+                return result;
+            }
         }
     }
 }

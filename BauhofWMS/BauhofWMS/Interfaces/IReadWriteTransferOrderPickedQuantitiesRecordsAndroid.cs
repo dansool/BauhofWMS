@@ -7,7 +7,7 @@ namespace BauhofWMS
 {
     interface IReadWriteTransferOrderPickedQuantitiesRecordsAndroid
     {
-        Task<string> ReadTransferOrderPickedQuantitiesRecordsAsync();
-        Task<string> WriteTransferOrderPickedQuantitiesRecordsAsync(string data);
+        Task<string> ReadTransferOrderPickedQuantitiesRecordsAsync(string shopID, string deviceID);
+        Task<string> WriteTransferOrderPickedQuantitiesRecordsAsync(string data, string shopID, string deviceID);
     }
 }

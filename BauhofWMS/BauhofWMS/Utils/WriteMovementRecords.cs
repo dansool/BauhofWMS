@@ -16,14 +16,14 @@ namespace BauhofWMS.Utils
 {
     public class WriteMovementRecords
     {
-        public async Task<Tuple<bool, string>> Write(MainPage mp, string data)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string shopID, string deviceID)
         {
             try
             {
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWriteMovementRecordsAndroid>().WriteMovementRecordsAsync(data);
+                    var settingsRead = await DependencyService.Get<IReadWriteMovementRecordsAndroid>().WriteMovementRecordsAsync(data, shopID , deviceID);
                     if (string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);

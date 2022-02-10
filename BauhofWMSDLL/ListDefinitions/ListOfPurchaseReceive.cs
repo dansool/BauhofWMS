@@ -20,5 +20,13 @@ namespace BauhofWMSDLL.ListDefinitions
         public string barCode { get; set; }
         public decimal initialQty { get; set; }
         public string magnitude { get; set; }
+        public int purchasePickedRowCount { get; set; }
+        public int purchaseRowCount { get; set; }
+        public bool purchaseOrderPicked { get; set; }
+
+        public int shipToday { get; set; }
+        public decimal pickedQty { get; set; }
+        public decimal remaininQty { get; set; }
+        public bool showPurchaseReceiveQty { get; set; }
     }
 }

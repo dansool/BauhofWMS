@@ -18,13 +18,13 @@ namespace BauhofWMS.Utils
     public class ReadSettings
     {
 
-        public async Task<Tuple<bool, string, List<ListOfSettings>>> Read(MainPage mp)
+        public async Task<Tuple<bool, string, List<ListOfSettings>>> Read(MainPage mp, string shopID, string deviceID)
         {
             try
             {
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWriteSettingsAndroid>().ReadSettingsAsync();
+                    var settingsRead = await DependencyService.Get<IReadWriteSettingsAndroid>().ReadSettingsAsync(shopID, deviceID);
                     if (!string.IsNullOrEmpty(settingsRead))
                     {
                         var lstSettings = JsonConvert.DeserializeObject<List<ListOfSettings>>(settingsRead);

@@ -16,14 +16,14 @@ namespace BauhofWMS.Utils
 {
     public class WriteInvRecordsToExportFile
     {
-        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFile)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFile, string shopID, string deviceID)
         {
             try
             {
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IWriteInvRecordsToExportFileAndroid>().WriteInvRecordsToExportFileAsync(data, exportFile);
+                    var settingsRead = await DependencyService.Get<IWriteInvRecordsToExportFileAndroid>().WriteInvRecordsToExportFileAsync(data, exportFile, shopID, deviceID);
                     if (string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);

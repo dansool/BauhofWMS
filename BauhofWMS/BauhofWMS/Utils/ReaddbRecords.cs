@@ -17,7 +17,7 @@ namespace BauhofWMS.Utils
 {
     public class ReaddbRecords
     {
-        public async Task<Tuple<bool, string>> Read(MainPage mp)
+        public async Task<Tuple<bool, string>> Read(MainPage mp, string shopID, string deviceID)
         {
             int x = 0;
             try
@@ -25,7 +25,7 @@ namespace BauhofWMS.Utils
 
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                    var settingsRead = await DependencyService.Get<IReadWritedbRecordsAndroid>().ReaddbRecordsAsync();
+                    var settingsRead = await DependencyService.Get<IReadWritedbRecordsAndroid>().ReaddbRecordsAsync(shopID, deviceID);
                     if (!string.IsNullOrEmpty(settingsRead))
                     {
                         return new Tuple<bool, string>(true, settingsRead);

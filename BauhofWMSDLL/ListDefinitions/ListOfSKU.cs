@@ -13,7 +13,7 @@ namespace BauhofWMSDLL.ListDefinitions
         public string SKUBin { get; set; }
         public string SKUBin2 { get; set; }
         public string itemMagnitude { get; set; }
-        public int SKUCurrentShop { get; set; }
+        public bool SKUCurrentShop { get; set; }
         public string SKUShopName { get; set; }
     }
 }

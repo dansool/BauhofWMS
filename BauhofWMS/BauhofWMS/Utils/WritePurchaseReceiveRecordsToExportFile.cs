@@ -16,7 +16,7 @@ namespace BauhofWMS.Utils
 {
     public class WritePurchaseReceiveRecordsToExportFile
     {
-        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFile)
+        public async Task<Tuple<bool, string>> Write(MainPage mp, string data, string exportFile, string shopID, string deviceID)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace BauhofWMS.Utils
                 {
                     Debug.WriteLine("data " + data);
                     Debug.WriteLine("exportFile " + exportFile);
-                    var settingsRead = await DependencyService.Get<IWritePurchaseReceiveRecordsToExportFileAndroid>().WritePurchaseReceiveRecordsToExportFileAsync(data, exportFile);
+                    var settingsRead = await DependencyService.Get<IWritePurchaseReceiveRecordsToExportFileAndroid>().WritePurchaseReceiveRecordsToExportFileAsync(data, exportFile, shopID, deviceID);
                     Debug.WriteLine("settingsRead");
                     if (string.IsNullOrEmpty(settingsRead))
                     {

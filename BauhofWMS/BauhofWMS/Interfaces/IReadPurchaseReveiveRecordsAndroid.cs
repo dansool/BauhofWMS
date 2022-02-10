@@ -7,6 +7,6 @@ namespace BauhofWMS
 {
     public interface IReadPurchaseReceiveRecordsAndroid
     {
-        Task<string> ReadRecordsAsync();
+        Task<string> ReadRecordsAsync(string shopID, string deviceID);
     }
 }

@@ -16,10 +16,12 @@ namespace BauhofWMS.Droid.Utils
    
     public class CloseApplication : ICloseApplication
     {
+        private App obj = App.Current as App;
         public void closeApplication()
         {
-            var activity = (Activity)Forms.Context;
-            //activity.FinishAffinity();
+            WriteLog WriteLog = new WriteLog();
+            WriteLog.Write("Closing app!", obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB");
+            var activity = (Activity)Forms.Context;            
             activity.FinishAndRemoveTask();
         }
     }
