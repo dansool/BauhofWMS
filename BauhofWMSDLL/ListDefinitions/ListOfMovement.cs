@@ -15,6 +15,7 @@ namespace BauhofWMSDLL.ListDefinitions
         public string barCode { get; set; }
         public decimal quantity { get; set; }
         public string uom { get; set; }
+        public string config { get; set; }
 
     }
 }

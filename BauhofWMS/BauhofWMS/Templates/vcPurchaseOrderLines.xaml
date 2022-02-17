@@ -30,13 +30,26 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="222" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="120" />
                         <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
                         <Label Text="{Binding itemCode}"  FontAttributes="Bold" FontSize="20" TextColor="Black" VerticalOptions="Start" />
                     </Grid>
-                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0" >
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
+                        <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="RIDA:" FontAttributes="Bold" FontSize="12" TextColor="Pink"  />
+                                    <Span Text=" " FontAttributes="Bold" FontSize="18" TextColor="White"  />
+                                    <Span Text="{Binding docLineNo}" FontAttributes="Bold" FontSize="16" TextColor="Pink" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                    
+                    <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,0" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="24"/>
                         </Grid.RowDefinitions>

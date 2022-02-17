@@ -1503,7 +1503,7 @@ namespace BauhofWMS
                             }
                         }
 
-                        dataRowPurchaseReceive = dataRowPurchaseReceive + p.docNo + ";" + p.docLineNo + ";" + p.itemCode + ";" + barCode + ";" + p.pickedQty + ";" + p.magnitude + "\r\n";
+                        dataRowPurchaseReceive = dataRowPurchaseReceive + p.docNo + ";" + p.docLineNo + ";" + p.itemCode + ";" + p.pickedQty + ";" + p.magnitude + "\r\n";
                     }
                     var write = await WritePurchaseReceiveRecordsToExportFile.Write(this, dataRowPurchaseReceive, exportFileNameStamp, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
                     if (write.Item1)
@@ -1537,7 +1537,7 @@ namespace BauhofWMS
                             }
                         }
 
-                        dataRowTransferReceive = dataRowTransferReceive + p.docNo + ";" + p.docLineNo + ";" + p.itemCode + ";" + barCode + ";" + p.pickedQty + ";" + p.magnitude + "\r\n";
+                        dataRowTransferReceive = dataRowTransferReceive + p.docNo + ";" + p.docLineNo + ";" + p.itemCode + ";" + p.pickedQty + ";" + p.magnitude + "\r\n";
                     }
                     var write = await WriteTransferReceiveRecordsToExportFile.Write(this, dataRowTransferReceive, exportFileNameStamp, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
                     if (write.Item1)
@@ -1754,6 +1754,7 @@ namespace BauhofWMS
                                 quantity = quantity,
                                 recordDate = DateTime.Now,
                                 uom = lblStockTakeQuantityUOM.Text,
+                                config = lstStockTakeInfo.First().config,
                                 recordID = lastRecordID + 1
                             });
                             step = 11;
@@ -2272,6 +2273,7 @@ namespace BauhofWMS
                                 quantity = quantity,
                                 recordDate = DateTime.Now,
                                 uom = lstTransferInfo.First().itemMagnitude,
+                                config = lstTransferInfo.First().config,
                                 recordID = lastRecordID + 1
                             });
 
@@ -3470,7 +3472,7 @@ namespace BauhofWMS
                 }
 
 
-                LstvPurchaseReceiveOrderLines.ItemsSource = lstPurchaseOrderLines;
+                LstvPurchaseReceiveOrderLines.ItemsSource = lstPurchaseOrderLines.OrderBy(x => x.docLineNo) ;
                 focusedEditor = "entPurchaseReceiveOrderLines";
                 ShowKeyBoard.Hide(this);
             }

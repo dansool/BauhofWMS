@@ -231,6 +231,7 @@ namespace BauhofOffline
                 MessageBox.Show(ex.Message);
             }
         }
+
         public void CloseWindow()
         {
             Environment.Exit(0);
@@ -1340,8 +1341,6 @@ namespace BauhofOffline
             }
         }
 
-
-
         public void ConvertFilesStart()
         {
             try
@@ -2405,6 +2404,7 @@ namespace BauhofOffline
             Debug.WriteLine(sKUCounter + ": " + re);
             return re; 
         }
+
         public string GetSKUString(IGrouping<string, ListOfdbRecords> s, int countOfConcat)
         {
             try
