@@ -2461,6 +2461,7 @@ namespace BauhofWMS
                                                 SKUBin2 = sKUs2,
                                                 soodushind = result.First().soodushind,
                                                 sortiment = result.First().sortiment,
+                                                config = result.First().config
 
                                             });
                                             lblTransferQuantityUOM.Text = result.First().itemMagnitude;
@@ -2553,6 +2554,7 @@ namespace BauhofWMS
                                             SKUBin2 = sKUs2,
                                             soodushind = result.First().soodushind,
                                             sortiment = result.First().sortiment,
+                                            config = result.First().config
 
                                         });
                                         lblTransferQuantityUOM.Text = result.First().itemMagnitude;
@@ -2630,6 +2632,7 @@ namespace BauhofWMS
                                         SKUBin2 = sKUs2,
                                         soodushind = result.First().soodushind,
                                         sortiment = result.First().sortiment,
+                                        config = result.First().config
 
                                     });
                                     lblTransferQuantityUOM.Text = result.First().itemMagnitude;
@@ -2865,6 +2868,7 @@ namespace BauhofWMS
         {
             try
             {
+                Debug.WriteLine("step 1");
                 lstBins = new List<ListOfSKU>();
                 if (!string.IsNullOrEmpty(row.SKU))
                 {
@@ -2881,7 +2885,10 @@ namespace BauhofWMS
                                     Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
                                     var cultureInfo = CultureInfo.InvariantCulture;
                                     row.SKUqty = decimal.Parse(uniqueSKU[2].Replace(",", "."), cultureInfo);
-
+                                    row.price = decimal.Parse(uniqueSKU[3].Replace(",", "."), cultureInfo);
+                                    row.meistriklubihind = decimal.Parse(uniqueSKU[4].Replace(",", "."), cultureInfo);
+                                    row.profiklubihind = decimal.Parse(uniqueSKU[5].Replace(",", "."), cultureInfo);
+                                    row.soodushind = decimal.Parse(uniqueSKU[6].Replace(",", "."), cultureInfo);
                                     lstBins.Add(new ListOfSKU
                                     {
                                         SKU = uniqueSKU[0],
@@ -2895,7 +2902,7 @@ namespace BauhofWMS
                         }
                     }
                 }
-
+                Debug.WriteLine("step 2");
                 var skuBin = "";
                 var skuBin2 = "";
                 int skuBinCount = 0;
@@ -2918,10 +2925,10 @@ namespace BauhofWMS
                         }
                     }
                 }
-
+                Debug.WriteLine("step 3");
                 row.SKUBin = skuBin.TrimStart().TrimEnd();
                 row.SKUBin2 = skuBin2.TrimStart().TrimEnd();
-
+                Debug.WriteLine("step 4");
                 var lst = new List<ListOfdbRecords>();
                 lst.Add(row);
                 LstvItemInfo.ItemsSource = null;
@@ -2937,6 +2944,7 @@ namespace BauhofWMS
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message);
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
@@ -3017,7 +3025,6 @@ namespace BauhofWMS
         {
             entItemInfoReadCode.Text = "";
         }
-
 
         private void btnItemInfoBins_Clicked(object sender, EventArgs e)
         {

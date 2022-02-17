@@ -22,6 +22,6 @@ namespace BauhofWMSDLL.ListDefinitions
         public decimal profiklubihind { get; set; }
         public string sortiment { get; set; }
         public decimal soodushind { get; set; }
-
+        public string config { get; set; }
     }
 }

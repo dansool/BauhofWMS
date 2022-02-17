@@ -25,6 +25,9 @@ namespace BauhofWMSDLL.ListDefinitions
         public decimal soodushind { get; set; }
         public bool showInvQty { get; set; }
 
+        public string config { get; set; }
+
+        public int isConfig { get; set; }
 
     }
 }

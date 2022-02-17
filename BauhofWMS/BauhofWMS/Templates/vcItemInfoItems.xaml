@@ -22,7 +22,26 @@
                     <ColumnDefinition Width="322" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
-                    <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="16" TextColor="Magenta" VerticalOptions="Start" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="202" />
+                        <ColumnDefinition Width="130" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding itemCode}" FontAttributes="Bold" FontSize="16" TextColor="Magenta" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="KONF: " FontAttributes="Bold" FontSize="14" TextColor="Navy"  />
+                                    <Span Text="{Binding config}" FontAttributes="Bold" FontSize="14" TextColor="Navy"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
                 </Grid>
                 <Grid Grid.Column="0" Grid.Row="1" Margin="0,-4,0,0">
                     <Label Text="{Binding itemDesc}"  FontAttributes="Bold" FontSize="16" TextColor="Green" VerticalOptions="Start" />

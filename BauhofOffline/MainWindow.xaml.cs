@@ -36,6 +36,7 @@ namespace BauhofOffline
     public partial class MainWindow : Window
     {
         public int sKUCounter = 0;
+        public int sKUCounter2 = 0;
         private readonly BackgroundWorker bw = new BackgroundWorker();
         private string startupArgs = App.mArgs;
         public bool ui = true;
@@ -337,13 +338,7 @@ namespace BauhofOffline
                             if (proceed)
                             {
                                 step = 28;
-                                //string destinationLatestFileName = $@"c:\windows\temp\BauhofWMSVersion.txt";
-                                //if (File.Exists(destinationLatestFileName))
-                                //{
-                                //    File.Delete(destinationLatestFileName);
-                                //    WriteLog(@"CheckVersion deleted c:\windows\temp\BauhofWMSVersion.txt", 2);
-                                //}
-
+                                
                                 try
                                 {
                                     WebClient webClient = new WebClient();
@@ -355,8 +350,6 @@ namespace BauhofOffline
                                     destinationLatestFileNameText = download;
                                     step = 32;
 
-                                    //webClient.DownloadFile("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", destinationLatestFileName);
-                                    //WriteLog(@"CheckVersion file downloaded from http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt", 2);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1007,8 +1000,8 @@ namespace BauhofOffline
             try
             {
                 convertProcessLog = convertProcessLog + "\r\n" + "Processing " + inputFileName;
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
+                //Stopwatch stopWatch = new Stopwatch();
+                //stopWatch.Start();
                 string filename = folderPath + inputFileName;
                 if (!Directory.Exists(lstSettings.First().csvArchiveFolder))
                 {                    
@@ -1555,7 +1548,7 @@ namespace BauhofOffline
                                             fileCounter = fileCounter + 1;
                                             Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
                                             {
-                                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count() - 1);
+                                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Loen faili " + fileCounter + "/" + (dirs.Count());
                                             }));
 
                                             string sourceFileName = str;
@@ -1638,7 +1631,6 @@ namespace BauhofOffline
                                     txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan loetud failide sisu";
                                 }));
                             }
-
                             if (lstDB02.Any())
                             {
                                 var d1 = dbconcat.Concat(lstDB02);
@@ -1825,6 +1817,7 @@ namespace BauhofOffline
 
                         var lstOfConcat = dbconcat.ToList();
                         convertProcessLog = convertProcessLog + "\r\n" + "Inputfiles merge complete. Total records: " + lstOfConcat.Count();
+                        Debug.WriteLine("lstOfConcat.Count() " + lstOfConcat.Count());
                         WriteLog("Inputfiles merge complete. Total records: " + lstOfConcat.Count(), 1);
                         List<ListOfdbRecords> finalDB = null;
                         sKUCounter = 0;
@@ -1832,10 +1825,29 @@ namespace BauhofOffline
                         {
                             txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
                         }));
-                        var countOfConcat = lstOfConcat.GroupBy(x => x.itemCode).ToList().Count();
-                        convertProcessLog = convertProcessLog + "\r\n" + "dbconcat grouping complete. Total records: " +  countOfConcat;
-                        WriteLog("dbconcat grouping complete. Total records: " + countOfConcat, 1);
-                        finalDB = FillSKUData(lstOfConcat, countOfConcat);
+                        var fifinalDB = lstOfConcat.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords
+                        {
+                            itemCode = s.First().itemCode,
+                            itemDesc = s.First().itemDesc,
+                            barCode = s.First().barCode,
+                            fileDate = s.First().fileDate,
+                            fileName = s.First().fileName,
+                            itemMagnitude = s.First().itemMagnitude,
+                            meistriklubihind = s.First().meistriklubihind,
+                            price = s.First().price,
+                            profiklubihind = s.First().profiklubihind,
+                            SKU = s.First().SKU,
+                            SKUBin = s.First().SKUBin,
+                            SKUqty = s.First().SKUqty,
+                            soodushind = s.First().soodushind,
+                            sortiment = s.First().sortiment,
+                            config = s.First().config
+                        }).ToList();
+
+                        Debug.WriteLine("lstOfConcat.Count() " + lstOfConcat.Count());
+                        convertProcessLog = convertProcessLog + "\r\n" + "dbconcat grouping complete. Total records: " + fifinalDB.Count();
+                        WriteLog("dbconcat grouping complete. Total records: " + fifinalDB.Count(), 1);
+                        finalDB = FillSKUData(fifinalDB, fifinalDB.Count());
                         convertProcessLog = convertProcessLog + "\r\n" + "finalDB done. Total records: " + finalDB.Count();
                         WriteLog("finalDB done. Total records: " + finalDB.Count(), 1);
 
@@ -1918,6 +1930,108 @@ namespace BauhofOffline
                     SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
                 }
                 MessageBox.Show(error);
+            }
+        }
+
+        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecords> lstOfConcat, int countOfConcat)
+        {
+            DateTime stamp = DateTime.Now;
+            var lstOfConfigItems = new List<ListOfdbRecords>();
+            if (ui)
+            {
+                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                {
+                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin config kirjeid.";
+                }));
+            }
+
+            var duplicates2 = lstOfConcat.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords { itemCode = s.First().itemCode, itemDesc = s.Count().ToString() }).ToList();
+            var dup2 = duplicates2.GroupBy(x => x.itemCode).Where(s => s.Count() > 1).Select(a => new ListOfdbRecords { itemCode = a.First().itemCode, itemDesc = a.Count().ToString() });
+
+            if (ui)
+            {
+                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                {
+                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Tekitan config andmekogu";
+                }));
+            }
+            foreach (var p in dup2)
+            {
+                var r = lstOfConcat.Where(x => x.itemCode == p.itemCode).ToList();
+                foreach (var a in r)
+                {
+                    a.isConfig = 1;
+                    lstOfConfigItems.Add(a);
+                    lstOfConcat.Remove(a);
+                }
+                
+                Debug.WriteLine(p.itemCode + "  " + p.itemDesc);
+            }
+
+            if (ui)
+            {
+                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                {
+                    txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Töötlen config andmeid";
+                }));
+            }
+            var ep = lstOfConfigItems.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords
+            {
+                fileDate = stamp,
+                itemCode = s.First().itemCode,
+                SKU = GetSKUString2(lstOfConfigItems, s.First().itemCode, s.First().config),
+                barCode = s.First().barCode,
+                itemDesc = s.First().itemDesc,
+                itemMagnitude = s.First().itemMagnitude,
+                meistriklubihind = s.First().meistriklubihind,
+                price = s.First().price,
+                profiklubihind = s.First().profiklubihind,
+                soodushind = s.First().soodushind,
+                sortiment = s.First().sortiment,
+                config = s.First().config
+            });
+
+           
+            try
+            {
+               
+                int countOflstOfConcat = lstOfConcat.Count() + ep.Count();
+                var finalD = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                {
+                    fileDate = stamp,
+                    itemCode = s.First().itemCode,
+                    SKU = GetSKUString(s, countOflstOfConcat),
+                    barCode = s.First().barCode,
+                    itemDesc = s.First().itemDesc,
+                    itemMagnitude = s.First().itemMagnitude,
+                    meistriklubihind = s.First().meistriklubihind,
+                    price = s.First().price,
+                    profiklubihind = s.First().profiklubihind,
+                    soodushind = s.First().soodushind,
+                    sortiment = s.First().sortiment,
+                    config = s.First().config
+                }).ToList();
+                if (ui)
+                {
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    {
+                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan config kirjed";
+                    }));
+                }
+                var finalDB = finalD.Concat(ep).ToList(); 
+                return finalDB;
+
+            }
+            catch (Exception ex)
+            {
+                string error = "FillSKUData " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+                return new List<ListOfdbRecords>();
             }
         }
 
@@ -2267,97 +2381,60 @@ namespace BauhofOffline
             }
         }
 
-        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecordsImport> lstOfConcat, int countOfConcat)
+        public string GetSKUString2(List<ListOfdbRecords> lst, string itemCode,  string config)
         {
-            try
+            var re = "";
+            sKUCounter = sKUCounter + 1;
+            Console.WriteLine(sKUCounter + ": " + re);
+            var f = lst.Where(x => x.itemCode == itemCode && x.config == config).ToList();
+            //var f = s.Where(x => x.config == config).ToList();
+            foreach (var o in f)
             {
-                //foreach (var r in lstOfConcat)
-                //{
-                //    if (r.itemCode == "701222")
-                //    {
-                //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
-                //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
-                //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
-                //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
-                //    }
-                //}
-                DateTime stamp = DateTime.Now;
-                var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                if (o.config == config)
                 {
-                    fileDate = stamp,
-                    itemCode = s.First().itemCode,
-                    SKU = GetSKUString(s, countOfConcat),
-                    barCode = s.First().barCode,
-                    itemDesc = s.First().itemDesc,
-                    itemMagnitude = s.First().itemMagnitude,
-                    meistriklubihind = s.First().meistriklubihind,
-                    price = s.First().price,
-                    profiklubihind = s.First().profiklubihind,
-                    soodushind = s.First().soodushind,
-                    sortiment = s.First().sortiment,
-                }).ToList();
-
-                //var p = finalDB.Where(x => x.itemCode == "701222").ToList();
-                //if (p.Any())
-                //{
-                //    if (ui)
-                //    {
-                //        MessageBox.Show(p.First().price.ToString());
-                //    }
-                //    else
-                //    {
-                //        Debug.WriteLine("701222 " + p.First().price.ToString());
-                //    }
-                //}
-                
-                return finalDB;
-            }
-            catch (Exception ex)
-            {
-                string error = "FillSKUData " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
-                WriteError(error);
-                if (!string.IsNullOrEmpty(convertProcessLog))
-                {
-                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                    re = re + o.SKU + "###" + 
+                        (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" +
+                        (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "###" + 
+                        (o.price == 0 ? "0" : o.price.ToString("#.###")) + "###" + 
+                        (o.meistriklubihind == 0 ? "0" : o.meistriklubihind.ToString("#.###")) + "###" + 
+                        (o.profiklubihind == 0 ? "0" : o.profiklubihind.ToString("#.###")) + "###" +
+                        (o.soodushind == 0 ? "0" : o.soodushind.ToString("#.###")) + "###" +
+                        "%%%";
                 }
-                MessageBox.Show(error);
-                return new List<ListOfdbRecords>();
             }
-
-            //foreach (var r in finalDB)
-            //{
-            //    if (r.itemCode == "701222")
-            //    {
-            //        Debug.WriteLine("r.item             " + r.itemCode + "   r.price            " + r.price);
-            //        Debug.WriteLine("r.profiklubihind   " + r.itemCode + "   r.profiklubihind   " + r.profiklubihind);
-            //        Debug.WriteLine("r.soodushind       " + r.itemCode + "   r.soodushind       " + r.profiklubihind);
-            //        Debug.WriteLine("r.meistriklubihind " + r.itemCode + "   r.meistriklubihind " + r.profiklubihind);
-            //    }
-            //}
-            
+            Debug.WriteLine(sKUCounter + ": " + re);
+            return re; 
         }
-
-        public string GetSKUString(IGrouping<string, ListOfdbRecordsImport> s, int countOfConcat)
+        public string GetSKUString(IGrouping<string, ListOfdbRecords> s, int countOfConcat)
         {
             try
             {
                 sKUCounter = sKUCounter + 1;
-               
+
                 var f = s.ToList();
                 var re = "";
                 foreach (var o in f)
                 {
-                    re = re + o.SKU + "###" + (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" + (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "%%%";
+                    re = re + o.SKU + "###" +
+                     (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" +
+                     (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "###" +
+                     (o.price == 0 ? "0" : o.price.ToString("#.###")) + "###" +
+                     (o.meistriklubihind == 0 ? "0" : o.meistriklubihind.ToString("#.###")) + "###" +
+                     (o.profiklubihind == 0 ? "0" : o.profiklubihind.ToString("#.###")) + "###" +
+                     (o.soodushind == 0 ? "0" : o.soodushind.ToString("#.###")) + "###" +
+                     "%%%";
                 }
-                if (sKUCounter.ToString().EndsWith("0000") || sKUCounter.ToString().EndsWith("00000") || sKUCounter.ToString().EndsWith("000000"))
+                if (ui)
                 {
-                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    if (sKUCounter.ToString().EndsWith("0000") || sKUCounter.ToString().EndsWith("00000") || sKUCounter.ToString().EndsWith("000000"))
                     {
-                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
-                    }));
-                    
-                    //WriteLog("sKUCounter: " + sKUCounter, 1);
-                    Debug.WriteLine(sKUCounter + ": " + re);
+                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        {
+                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu. Kirje " + sKUCounter + "/" + countOfConcat;
+                        }));
+
+                        Debug.WriteLine(sKUCounter + ": " + re);
+                    }
                 }
                 return re;
             }
@@ -2701,6 +2778,9 @@ namespace BauhofOffline
                     lst.SKU = string.IsNullOrEmpty(values[4]) ? "" : values[4].Replace("\"", "");
 
                     step = 8;
+                    lst.config = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
+
+                    step = 9;
                     values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
                     try
                     {
@@ -2712,8 +2792,8 @@ namespace BauhofOffline
                         Debug.WriteLine("SKUqty " + ex.Message);
                     }
 
-                    step = 9;
-                    values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
+                    step = 10;
+                    values[7] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("-", "0").Replace("\"", "");
                     try
                     {
                         lst.meistriklubihind = decimal.Parse(values[7], cultureInfo);
@@ -2724,7 +2804,7 @@ namespace BauhofOffline
                         Debug.WriteLine("meistriklubihind "  + values[7]  + " "  + ex.Message);
                     }
 
-                    step = 10;
+                    step = 11;
                     values[8] = string.IsNullOrEmpty(values[8]) ? "0" : values[8].Replace(",", ".").Replace("\"", "");
                     try
                     {
@@ -2736,7 +2816,7 @@ namespace BauhofOffline
                         Debug.WriteLine("soodushind " + ex.Message);
                     }
 
-                    step = 11;
+                    step = 12;
                     values[9] = string.IsNullOrEmpty(values[9]) ? "0" : values[9].Replace(",", ".").Replace("\"", "");
                     try
                     {
@@ -2748,16 +2828,16 @@ namespace BauhofOffline
                         Debug.WriteLine("profiklubihind " + ex.Message);
                     }
 
-                    step = 12;
+                    step = 13;
                     lst.sortiment = string.IsNullOrEmpty(values[10]) ? "" : values[10].Replace("\"", "");
 
-                    step = 13;
+                    step = 14;
                     lst.SKUBin = string.IsNullOrEmpty(values[12]) ? "" : values[12].Replace("\"", "");
 
-                    step = 14;
+                    step = 15;
                     lst.barCode = string.IsNullOrEmpty(values[13]) ? "" : values[13].Replace("\"", "");
 
-                    //if (values[0].Contains("701222"))
+                    //if (values[0].Contains("000193"))
                     //{
                     //    Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
                     //    Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
@@ -2774,8 +2854,9 @@ namespace BauhofOffline
                     //    Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
                     //    Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
 
-                    step = 15;
-                    //    }
+                        
+                    //}
+                    step = 16;
                     return lst;
                 }
                 catch (Exception ex)

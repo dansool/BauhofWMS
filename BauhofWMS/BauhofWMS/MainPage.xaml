@@ -395,7 +395,7 @@
                                     <Button ClassId="StockTakeReadCodeClear" x:Name="btnStockTakeReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnStockTakeReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-6,0,0">
+                        <Grid Grid.Row="2" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="-20,-6,-20,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
