@@ -2560,8 +2560,6 @@ namespace BauhofOffline
 
                     step = 10;
                     var cultureInfo = CultureInfo.InvariantCulture;
-                    NumberStyles styles = NumberStyles.AllowDecimalPoint;
-                    //Debug.WriteLine("kogus " + values[9] + "  " + values[1] + "  " + values[7]);
                     values[9] = string.IsNullOrEmpty(values[9]) ? "0" : (values[9].StartsWith(",") ? "0" : values[9].Replace(",", ".").Replace("\"", ""));
                     try
                     {
@@ -2681,10 +2679,9 @@ namespace BauhofOffline
 
 
                     step = 8;
-                    var cultureInfo = CultureInfo.InvariantCulture;
-                    NumberStyles styles = NumberStyles.AllowDecimalPoint;
 
-                    values[6] = string.IsNullOrEmpty(values[7]) ? "0" : values[7].Replace(",", ".").Replace("\"", "");
+                    var cultureInfo = CultureInfo.InvariantCulture;
+                    values[7] = string.IsNullOrEmpty(values[7]) ? "0" : (values[7].StartsWith(",") ? "0" : values[7].Replace(",", ".").Replace("\"", ""));
                     try
                     {
                         lst.initialQty = decimal.Parse(values[7], cultureInfo);

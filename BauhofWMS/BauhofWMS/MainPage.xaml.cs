@@ -51,8 +51,11 @@ namespace BauhofWMS
         public ReadPurchaseReceiveRecords ReadPurchaseReceiveRecords = new ReadPurchaseReceiveRecords();
         public ReadTransferReceiveRecords ReadTransferReceiveRecords = new ReadTransferReceiveRecords();
         public ReadPurchaseOrderPickedQuantitiesRecords ReadPurchaseOrderPickedQuantitiesRecords = new ReadPurchaseOrderPickedQuantitiesRecords();
+        public ReadTransferOrderPickedQuantitiesRecords ReadTransferOrderPickedQuantitiesRecords = new ReadTransferOrderPickedQuantitiesRecords();
+
         public WritePurchaseOrderPickedQuantitiesRecords WritePurchaseOrderPickedQuantitiesRecords = new WritePurchaseOrderPickedQuantitiesRecords();
         public WriteTransferOrderPickedQuantitiesRecords WriteTransferOrderPickedQuantitiesRecords = new WriteTransferOrderPickedQuantitiesRecords();
+
         public WritePurchaseReceiveRecordsToExportFile WritePurchaseReceiveRecordsToExportFile = new WritePurchaseReceiveRecordsToExportFile();
         public WriteTransferReceiveRecordsToExportFile WriteTransferReceiveRecordsToExportFile = new WriteTransferReceiveRecordsToExportFile();
         public WriteLog WriteLog = new WriteLog();
@@ -471,13 +474,24 @@ namespace BauhofWMS
                             {
                                 if (!string.IsNullOrEmpty(resultPurchaseOrderPickedQuantities.Item2))
                                 {
-                                    Debug.WriteLine(resultReadMovementRecords.Item2);
+                                    Debug.WriteLine(resultPurchaseOrderPickedQuantities.Item2);
                                     JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                     lstPurchaseOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfSHRCVToExport>>(resultPurchaseOrderPickedQuantities.Item2, jSONsettings);
                                     progressBarActive = false;
                                 }
                             }
-                            
+
+                            var resultTransferPickedQuantities = await ReadTransferOrderPickedQuantitiesRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                            if (resultTransferPickedQuantities.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultTransferPickedQuantities.Item2))
+                                {
+                                    Debug.WriteLine(resultTransferPickedQuantities.Item2);
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstTransferOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfTRFRCVToExport>>(resultTransferPickedQuantities.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
 
 
                             Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
@@ -1561,7 +1575,6 @@ namespace BauhofWMS
 
         private void btnOperationsTransferReceive_Clicked(object sender, EventArgs e)
         {
-            DisplayAlert("üleviimisread", lstInternalTransferReceiveDB.Count().ToString(), "OK");
             PrepareTransferReceiveOrders();
         }
 
@@ -3558,7 +3571,8 @@ namespace BauhofWMS
                     var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
                     if (previousRead.Any())
                     {
-                        if (!await YesNoDialog("OSTU VASTUVÕTT", lstPurchaseOrderQuantityInsertInfo.First().docNo + " RIDA " + lstPurchaseOrderQuantityInsertInfo.First().docLineNo + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                        var line = lstPurchaseOrderQuantityInsertInfo.First().docLineNo.Replace(".",",").Split(new[] { "," }, StringSplitOptions.None);
+                        if (!await YesNoDialog("OSTU VASTUVÕTT", lstPurchaseOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
                         {
                             proceed = false;
                         }
@@ -3667,6 +3681,7 @@ namespace BauhofWMS
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message);
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
@@ -3675,6 +3690,7 @@ namespace BauhofWMS
         {
             try
             {
+                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                 bool proceed = true;
                 decimal quantity = 0;
                 if (!string.IsNullOrEmpty(entPurchaseOrderQuantityInsertQuantity.Text))
@@ -3698,95 +3714,101 @@ namespace BauhofWMS
                 {
                     if (quantity > -1)
                     {
-                        if (purchReceiveRecordID == 0)
+                        int lastRecordID = 0;
+                        if (lstPurchaseOrderPickedQuantities.Any())
                         {
-                            int lastRecordID = 0;
-                            if (lstPurchaseOrderPickedQuantities.Any())
+                            var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                            if (previousRead.Any())
+                            {
+                                lastRecordID = previousRead.First().recordID;
+                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    if (quantity == 0)
+                                    {
+                                        if (record.Any())
+                                        {
+                                            lstPurchaseOrderPickedQuantities.Remove(record.Take(1).First());
+                                            string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                            var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                            if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                            {
+                                                purchReceiveRecordID = 0;
+                                                DisplaySuccessMessage("SALVESTATUD!");
+                                                ShowKeyBoard.Hide(this);
+                                                PreparePurchaseReceiveOrderLines();
+                                            }
+                                            else
+                                            {
+                                                DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        record.First().pickedQty = quantity;
+                                        record.First().magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text;
+                                        record.First().recordDate = DateTime.Now;
+                                        string data1 = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                        var writePurchaseOrderPickedQuantitiesDbToFile1 = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data1, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                        if (writePurchaseOrderPickedQuantitiesDbToFile1.Item1)
+                                        {
+                                            DisplaySuccessMessage("SALVESTATUD!");
+                                            ShowKeyBoard.Hide(this);
+                                            proceed = false;
+                                            PreparePurchaseReceiveOrderLines();
+                                        }
+                                        else
+                                        {
+                                            DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile1.Item2);
+                                        }
+                                    }
+                                }
+                            }
+                            else
                             {
                                 lastRecordID = lstPurchaseOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
                             }
-                            lstPurchaseOrderPickedQuantities.Add(new ListOfSHRCVToExport
-                            {
-                                docNo = lstPurchaseOrderQuantityInsertInfo.First().docNo,
-                                docLineNo = lstPurchaseOrderQuantityInsertInfo.First().docLineNo,
-                                initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
-                                pickedQty = quantity,
-                                recordDate = DateTime.Now,
-                                shop = lstPurchaseOrderQuantityInsertInfo.First().shop,
-                                itemCode= lstPurchaseOrderQuantityInsertInfo.First().itemCode,
-                                barCode = lstPurchaseOrderQuantityInsertInfo.First().barCode,
-                                magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text,
-                                recordID = lastRecordID + 1
-                            });
-
-                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                            string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
-
-                            var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                            if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
-                            {
-                                
-                                DisplaySuccessMessage("SALVESTATUD!");
-                                ShowKeyBoard.Hide(this);
-                                PreparePurchaseReceiveOrderLines();
-                            }
-                            else
-                            {
-                                DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
-                            }
                         }
-                        else
+                        if (proceed)
                         {
                             if (quantity == 0)
                             {
-                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
-                                if (record.Any())
-                                {
-                                    lstPurchaseOrderPickedQuantities.Remove(record.Take(1).First());
-                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                    string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
 
-                                    var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                    if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
-                                    {
-                                        purchReceiveRecordID = 0;
-                                        DisplaySuccessMessage("SALVESTATUD!");
-                                        ShowKeyBoard.Hide(this);
-                                        PreparePurchaseReceiveOrderLines();
-                                    }
-                                    else
-                                    {
-                                        DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
-                                    }
-                                }
                             }
                             else
                             {
-                                Debug.WriteLine("X3 " + purchReceiveRecordID);
-                                Debug.WriteLine("AA " + lstPurchaseOrderPickedQuantities.First().recordID);
-                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
-                                if (record.Any())
+                                lstPurchaseOrderPickedQuantities.Add(new ListOfSHRCVToExport
                                 {
-                                    record.First().pickedQty = quantity;
-                                    record.First().magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text;
-                                    record.First().recordDate = DateTime.Now;
+                                    docNo = lstPurchaseOrderQuantityInsertInfo.First().docNo,
+                                    docLineNo = lstPurchaseOrderQuantityInsertInfo.First().docLineNo,
+                                    initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
+                                    pickedQty = quantity,
+                                    recordDate = DateTime.Now,
+                                    shop = lstPurchaseOrderQuantityInsertInfo.First().shop,
+                                    itemCode = lstPurchaseOrderQuantityInsertInfo.First().itemCode,
+                                    barCode = lstPurchaseOrderQuantityInsertInfo.First().barCode,
+                                    magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text,
+                                    recordID = lastRecordID + 1
+                                });
 
-                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                    string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+                                //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
 
-                                    var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                    if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
-                                    {                                        
-                                        DisplaySuccessMessage("SALVESTATUD!");
-                                        ShowKeyBoard.Hide(this);
-                                        PreparePurchaseReceiveOrderLines();
-                                    }
-                                    else
-                                    {
-                                        DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
-                                    }
+                                var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                {
+
+                                    DisplaySuccessMessage("SALVESTATUD!");
+                                    ShowKeyBoard.Hide(this);
+                                    PreparePurchaseReceiveOrderLines();
                                 }
-                                //}
+                                else
+                                {
+                                    DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                }
                             }
                         }
                     }
@@ -3918,6 +3940,7 @@ namespace BauhofWMS
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
+
         private void btnTransferReceiveOrdersReadCodeClear_Clicked(object sender, EventArgs e)
         {
             entTransferReceiveOrders.Text = "";
@@ -4029,26 +4052,31 @@ namespace BauhofWMS
         {
             try
             {
+                Console.WriteLine("1");
                 bool proceed = true;
                 decimal previouslyReadQty = 0;
                 string previouslyReadMagnitude = "";
                 if (lstTransferOrderPickedQuantities.Any())
                 {
+                    Console.WriteLine("3");
                     var previousRead = lstTransferOrderPickedQuantities.Where(x => x.docNo == lstTransferOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
                     if (previousRead.Any())
                     {
-                        if (!await YesNoDialog("ÜLEVIIMISTARNE VASTUVÕTT", lstTransferOrderQuantityInsertInfo.First().docNo + " RIDA " + lstTransferOrderQuantityInsertInfo.First().docLineNo + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                        var line = lstTransferOrderQuantityInsertInfo.First().docLineNo.Replace(".",",").Split(new[] { "," }, StringSplitOptions.None);
+                        if (!await YesNoDialog("ÜLEVIIMISTARNE VASTUVÕTT", lstTransferOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
                         {
                             proceed = false;
                         }
                         else
                         {
+                            Console.WriteLine("5");
                             previouslyReadQty = previousRead.First().pickedQty;
                             transferReceiveRecordID = previousRead.First().recordID;
                             previouslyReadMagnitude = previousRead.First().magnitude;
                         }
                     }
                 }
+                Console.WriteLine("6 " + proceed);
                 if (proceed)
                 {
                     CollapseAllStackPanels.Collapse(this);
@@ -4162,6 +4190,7 @@ namespace BauhofWMS
         {
             try
             {
+                JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                 bool proceed = true;
                 decimal quantity = 0;
                 if (!string.IsNullOrEmpty(entTransferOrderQuantityInsertQuantity.Text))
@@ -4185,97 +4214,197 @@ namespace BauhofWMS
                 {
                     if (quantity > -1)
                     {
-                        Debug.WriteLine("X2");
-                        if (transferReceiveRecordID == 0)
+                        int lastRecordID = 0;
+                        if (lstTransferOrderPickedQuantities.Any())
                         {
-                            int lastRecordID = 0;
-                            if (lstTransferOrderPickedQuantities.Any())
+                            var previousRead = lstTransferOrderPickedQuantities.Where(x => x.docNo == lstTransferOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                            if (previousRead.Any())
+                            {
+                                lastRecordID = previousRead.First().recordID;
+                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                if (record.Any())
+                                {
+                                    if (quantity == 0)
+                                    {
+                                        if (record.Any())
+                                        {
+                                            lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
+                                            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                            {
+                                                transferReceiveRecordID = 0;
+                                                DisplaySuccessMessage("SALVESTATUD!");
+                                                ShowKeyBoard.Hide(this);
+                                                PrepareTransferReceiveOrderLines();
+                                            }
+                                            else
+                                            {
+                                                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        record.First().pickedQty = quantity;
+                                        record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : lblTransferOrderQuantityInsertQuantityUOM.Text;
+                                        record.First().recordDate = DateTime.Now;
+                                        string data1 = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                        var writeTransferOrderPickedQuantitiesDbToFile1 = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data1, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                        if (writeTransferOrderPickedQuantitiesDbToFile1.Item1)
+                                        {
+                                            DisplaySuccessMessage("SALVESTATUD!");
+                                            ShowKeyBoard.Hide(this);
+                                            proceed = false;
+                                            PrepareTransferReceiveOrderLines();
+                                        }
+                                        else
+                                        {
+                                            DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile1.Item2);
+                                        }
+                                    }
+                                }
+                            }
+                            else
                             {
                                 lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
                             }
-                            lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
-                            {
-                                docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
-                                docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
-                                initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
-                                pickedQty = quantity,
-                                recordDate = DateTime.Now,
-                                shop = lstTransferOrderQuantityInsertInfo.First().shop,
-                                recordID = lastRecordID + 1,
-                                barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
-                                itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
-                                magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
-                            });
-
-                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
-
-                            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                            {
-                                DisplaySuccessMessage("SALVESTATUD!");
-                                ShowKeyBoard.Hide(this);
-                                PrepareTransferReceiveOrderLines();
-                            }
-                            else
-                            {
-                                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                            }
                         }
-                        else
+                        if (proceed)
                         {
                             if (quantity == 0)
                             {
-                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
-                                if (record.Any())
-                                {
-                                    lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
-                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
-                                    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                                    {
-                                        transferReceiveRecordID = 0;
-                                        DisplaySuccessMessage("SALVESTATUD!");
-                                        ShowKeyBoard.Hide(this);
-                                        PrepareTransferReceiveOrderLines();
-                                    }
-                                    else
-                                    {
-                                        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                                    }
-                                }
                             }
                             else
                             {
-                                Debug.WriteLine("X3 " + transferReceiveRecordID);
-                                Debug.WriteLine("AA " + lstTransferOrderPickedQuantities.First().recordID);
-                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
-                                if (record.Any())
+                                lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
                                 {
-                                    record.First().pickedQty = quantity;
-                                    record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text;
-                                    record.First().recordDate = DateTime.Now;
+                                    docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
+                                    docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
+                                    initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                                    pickedQty = quantity,
+                                    recordDate = DateTime.Now,
+                                    shop = lstTransferOrderQuantityInsertInfo.First().shop,
+                                    itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
+                                    barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
+                                    magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
+                                    recordID = lastRecordID + 1
+                                });
 
-                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                                    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+                                //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
-                                    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                                    {
-                                        DisplaySuccessMessage("SALVESTATUD!");
-                                        ShowKeyBoard.Hide(this);
-                                        PrepareTransferReceiveOrderLines();
-                                    }
-                                    else
-                                    {
-                                        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                                    }
+                                var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                {
+
+                                    DisplaySuccessMessage("SALVESTATUD!");
+                                    ShowKeyBoard.Hide(this);
+                                    PrepareTransferReceiveOrderLines();
                                 }
-                                //}
+                                else
+                                {
+                                    DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                }
                             }
                         }
+
+
+
+                        //Debug.WriteLine("X2");
+                        //if (transferReceiveRecordID == 0)
+                        //{
+                        //    int lastRecordID = 0;
+                        //    if (lstTransferOrderPickedQuantities.Any())
+                        //    {
+                        //        lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                        //    }
+                        //    lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
+                        //    {
+                        //        docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
+                        //        docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
+                        //        initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                        //        pickedQty = quantity,
+                        //        recordDate = DateTime.Now,
+                        //        shop = lstTransferOrderQuantityInsertInfo.First().shop,
+                        //        recordID = lastRecordID + 1,
+                        //        barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
+                        //        itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
+                        //        magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
+                        //    });
+
+                        //    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                        //    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                        //    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                        //    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                        //    {
+                        //        DisplaySuccessMessage("SALVESTATUD!");
+                        //        ShowKeyBoard.Hide(this);
+                        //        PrepareTransferReceiveOrderLines();
+                        //    }
+                        //    else
+                        //    {
+                        //        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    if (quantity == 0)
+                        //    {
+                        //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                        //        if (record.Any())
+                        //        {
+                        //            lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
+                        //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                        //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                        //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                        //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                        //            {
+                        //                transferReceiveRecordID = 0;
+                        //                DisplaySuccessMessage("SALVESTATUD!");
+                        //                ShowKeyBoard.Hide(this);
+                        //                PrepareTransferReceiveOrderLines();
+                        //            }
+                        //            else
+                        //            {
+                        //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                        //            }
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        Debug.WriteLine("X3 " + transferReceiveRecordID);
+                        //        Debug.WriteLine("AA " + lstTransferOrderPickedQuantities.First().recordID);
+                        //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                        //        if (record.Any())
+                        //        {
+                        //            record.First().pickedQty = quantity;
+                        //            record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text;
+                        //            record.First().recordDate = DateTime.Now;
+
+                        //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                        //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                        //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                        //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                        //            {
+                        //                DisplaySuccessMessage("SALVESTATUD!");
+                        //                ShowKeyBoard.Hide(this);
+                        //                PrepareTransferReceiveOrderLines();
+                        //            }
+                        //            else
+                        //            {
+                        //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                        //            }
+                        //        }
+                        //        //}
+                        //    }
+                        //}
                     }
                     else
                     {

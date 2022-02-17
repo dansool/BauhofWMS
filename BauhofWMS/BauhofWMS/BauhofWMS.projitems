@@ -156,6 +156,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadPurchaseOrderPickedQuantitiesRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadPurchaseReceiveRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadTransferOrderPickedQuantitiesRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ReadTransferReceiveRecords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheck.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\VersionCheckLocal.cs" />
