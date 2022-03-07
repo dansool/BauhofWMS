@@ -872,8 +872,9 @@ namespace BauhofOffline
                     }
                 }
 
-                string destinationFile = lstSettings.First().apkFolder + @"\BauhofWMS." + androidVersion + ".apk";
-
+                string destinationFile = lstSettings.First().apkFolder + @"\BauhofWMS" + androidVersion + ".apk";
+                Debug.WriteLine(lstSettings.First().apkFolder);
+                Debug.WriteLine(lstSettings.First().logFolder);
                 try
                 {
                     if (!File.Exists(destinationFile))
@@ -1814,16 +1815,43 @@ namespace BauhofOffline
                     if (proceed)
                     {
 
-                        var lstOfConcat = dbconcat.ToList();
+                        //var lstOfConcat = dbconcat.ToList();
+
+                        var lstOfConcat = new List<ListOfdbRecords>();
+                        foreach (var s in dbconcat.ToList())
+                        {
+                            lstOfConcat.Add(new ListOfdbRecords
+                            {
+                                itemCode = s.itemCode,
+                                itemDesc = s.itemDesc,
+                                barCode = s.barCode,
+                                fileDate = s.fileDate,
+                                fileName = s.fileName,
+                                itemMagnitude = s.itemMagnitude,
+                                meistriklubihind = s.meistriklubihind,
+                                price = s.price,
+                                profiklubihind = s.profiklubihind,
+                                SKU = s.SKU,
+                                SKUBin = s.SKUBin,
+                                SKUqty = s.SKUqty,
+                                soodushind = s.soodushind,
+                                sortiment = s.sortiment,
+                                config = s.config
+                            });
+                        }
+
                         convertProcessLog = convertProcessLog + "\r\n" + "Inputfiles merge complete. Total records: " + lstOfConcat.Count();
                         Debug.WriteLine("lstOfConcat.Count() " + lstOfConcat.Count());
                         WriteLog("Inputfiles merge complete. Total records: " + lstOfConcat.Count(), 1);
                         List<ListOfdbRecords> finalDB = null;
                         sKUCounter = 0;
-                        Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                        if (ui)
                         {
-                            txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
-                        }));
+                            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                            {
+                                txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Grupeerin failide sisu";
+                            }));
+                        }
                         var fifinalDB = lstOfConcat.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords
                         {
                             itemCode = s.First().itemCode,
@@ -1843,10 +1871,11 @@ namespace BauhofOffline
                             config = s.First().config
                         }).ToList();
 
-                        Debug.WriteLine("lstOfConcat.Count() " + lstOfConcat.Count());
+                        
                         convertProcessLog = convertProcessLog + "\r\n" + "dbconcat grouping complete. Total records: " + fifinalDB.Count();
-                        WriteLog("dbconcat grouping complete. Total records: " + fifinalDB.Count(), 1);
-                        finalDB = FillSKUData(fifinalDB, fifinalDB.Count());
+                        Debug.WriteLine("lstOfConcat.Count() " + lstOfConcat.Count());
+                        finalDB = FillSKUData2(fifinalDB, lstOfConcat, fifinalDB.Count());
+
                         convertProcessLog = convertProcessLog + "\r\n" + "finalDB done. Total records: " + finalDB.Count();
                         WriteLog("finalDB done. Total records: " + finalDB.Count(), 1);
 
@@ -1931,8 +1960,51 @@ namespace BauhofOffline
                 MessageBox.Show(error);
             }
         }
+        public List<ListOfdbRecords> FillSKUData2(List<ListOfdbRecords> fifinalDB, List<ListOfdbRecords> lstOfConcat, int countOfConcat)
+        {
+            DateTime stamp = DateTime.Now;
+            var lstOfConfigItems = new List<ListOfdbRecords>();            
+            try
+            {
 
-        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecords> lstOfConcat, int countOfConcat)
+                var finalDB = lstOfConcat.GroupBy(x => x.itemCode).Select(s => new ListOfdbRecords
+                {
+                    fileDate = stamp,
+                    itemCode = s.First().itemCode.Replace("%%%" + s.First().config, ""),
+                    SKU = GetSKUString(s, countOfConcat),
+                    barCode = s.First().barCode,
+                    itemDesc = s.First().itemDesc,
+                    itemMagnitude = s.First().itemMagnitude,
+                    meistriklubihind = s.First().meistriklubihind,
+                    price = s.First().price,
+                    profiklubihind = s.First().profiklubihind,
+                    soodushind = s.First().soodushind,
+                    sortiment = s.First().sortiment,
+                    config = s.First().config
+                }).ToList();
+                if (ui)
+                {
+                    Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+                    {
+                        txtBkStatus.Text = "Konverteerin leitud andmebaasi skänneri andmebaasiks! " + "\r\n" + "Liidan config kirjed";
+                    }));
+                }
+                return finalDB;
+
+            }
+            catch (Exception ex)
+            {
+                string error = "FillSKUData " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null);
+                WriteError(error);
+                if (!string.IsNullOrEmpty(convertProcessLog))
+                {
+                    SendMail(convertProcessLog + "\r\n" + "\r\n" + "ERRROR: " + "\r\n" + error);
+                }
+                MessageBox.Show(error);
+                return new List<ListOfdbRecords>();
+            }
+        }
+        public List<ListOfdbRecords> FillSKUData(List<ListOfdbRecords> fifinalDB, List<ListOfdbRecords> lstOfConcat, int countOfConcat)
         {
             DateTime stamp = DateTime.Now;
             var lstOfConfigItems = new List<ListOfdbRecords>();
@@ -1944,7 +2016,7 @@ namespace BauhofOffline
                 }));
             }
 
-            var duplicates2 = lstOfConcat.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords { itemCode = s.First().itemCode, itemDesc = s.Count().ToString() }).ToList();
+            var duplicates2 = fifinalDB.GroupBy(x => new { x.itemCode, x.config }).Select(s => new ListOfdbRecords { itemCode = s.First().itemCode, itemDesc = s.Count().ToString() }).ToList();
             var dup2 = duplicates2.GroupBy(x => x.itemCode).Where(s => s.Count() > 1).Select(a => new ListOfdbRecords { itemCode = a.First().itemCode, itemDesc = a.Count().ToString() });
 
             if (ui)
@@ -1956,12 +2028,19 @@ namespace BauhofOffline
             }
             foreach (var p in dup2)
             {
-                var r = lstOfConcat.Where(x => x.itemCode == p.itemCode).ToList();
+                var r = fifinalDB.Where(x => x.itemCode == p.itemCode).ToList();
                 foreach (var a in r)
                 {
                     a.isConfig = 1;
                     lstOfConfigItems.Add(a);
-                    lstOfConcat.Remove(a);
+                    var removeConcatRow = lstOfConcat.Where(x => x.itemCode == p.itemCode).ToList();
+                    if (removeConcatRow.Any())
+                    {
+                        foreach (var m in removeConcatRow)
+                        {
+                            lstOfConcat.Remove(m);
+                        }
+                    }
                 }
                 
                 Debug.WriteLine(p.itemCode + "  " + p.itemDesc);
@@ -2415,14 +2494,17 @@ namespace BauhofOffline
                 var re = "";
                 foreach (var o in f)
                 {
-                    re = re + o.SKU + "###" +
-                     (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" +
-                     (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "###" +
-                     (o.price == 0 ? "0" : o.price.ToString("#.###")) + "###" +
-                     (o.meistriklubihind == 0 ? "0" : o.meistriklubihind.ToString("#.###")) + "###" +
-                     (o.profiklubihind == 0 ? "0" : o.profiklubihind.ToString("#.###")) + "###" +
-                     (o.soodushind == 0 ? "0" : o.soodushind.ToString("#.###")) + "###" +
-                     "%%%";
+                    if (o.SKUqty != 0)
+                    {
+                        re = re + o.SKU + "###" +
+                         (string.IsNullOrEmpty(o.SKUBin) ? "-" : o.SKUBin) + "###" +
+                         (o.SKUqty == 0 ? "0" : o.SKUqty.ToString("#.###")) + "###" +
+                         (o.price == 0 ? "0" : o.price.ToString("#.###")) + "###" +
+                         (o.meistriklubihind == 0 ? "0" : o.meistriklubihind.ToString("#.###")) + "###" +
+                         (o.profiklubihind == 0 ? "0" : o.profiklubihind.ToString("#.###")) + "###" +
+                         (o.soodushind == 0 ? "0" : o.soodushind.ToString("#.###")) + "###" +
+                         "%%%";
+                    }
                 }
                 if (ui)
                 {
@@ -2776,6 +2858,10 @@ namespace BauhofOffline
 
                     step = 8;
                     lst.config = string.IsNullOrEmpty(values[5]) ? "" : values[5].Replace("\"", "");
+                    if (lst.config != "-")
+                    {
+                        lst.itemCode = lst.itemCode + "%%%" + lst.config;
+                    }
 
                     step = 9;
                     values[6] = string.IsNullOrEmpty(values[6]) ? "0" : values[6].Replace(",", ".").Replace("\"", "");
@@ -2836,22 +2922,22 @@ namespace BauhofOffline
 
                     //if (values[0].Contains("000193"))
                     //{
-                    //    Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
-                    //    Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
-                    //    Debug.WriteLine("values[2] " + values[2] + "  lst.itemMagnitude:" + lst.itemMagnitude);
-                    //    Debug.WriteLine("values[3] " + values[3] + "  lst.price:" + lst.price);
-                    //    Debug.WriteLine("values[4] " + values[4] + "  lst.SKU:" + lst.SKU);
-                    //    Debug.WriteLine("values[5] " + values[5] + "  config");
-                    //    Debug.WriteLine("values[6] " + values[6] + "  lst.SKUqty:" + lst.SKUqty);
-                    //    Debug.WriteLine("values[7] " + values[7] + "  lst.soodushind:" + lst.meistriklubihind);
-                    //    Debug.WriteLine("values[8] " + values[8] + "  lst.soodushind:" + lst.soodushind);
-                    //    Debug.WriteLine("values[9] " + values[9] + "  lst.profiklubihind:" + lst.profiklubihind);
-                    //    Debug.WriteLine("values[10] " + values[10] + "  lst.sortiment:" + lst.sortiment);
-                    //    Debug.WriteLine("values[11] " + values[11] + "  lst.product");
-                    //    Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
-                    //    Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
+                    //Debug.WriteLine("values[0] " + values[0] + "  lst.itemCode:" + lst.itemCode);
+                    //Debug.WriteLine("values[1] " + values[1] + "  lst.itemDesc:" + lst.itemDesc);
+                    //Debug.WriteLine("values[2] " + values[2] + "  lst.itemMagnitude:" + lst.itemMagnitude);
+                    //Debug.WriteLine("values[3] " + values[3] + "  lst.price:" + lst.price);
+                    //Debug.WriteLine("values[4] " + values[4] + "  lst.SKU:" + lst.SKU);
+                    //Debug.WriteLine("values[5] " + values[5] + "  config");
+                    //Debug.WriteLine("values[6] " + values[6] + "  lst.SKUqty:" + lst.SKUqty);
+                    //Debug.WriteLine("values[7] " + values[7] + "  lst.soodushind:" + lst.meistriklubihind);
+                    //Debug.WriteLine("values[8] " + values[8] + "  lst.soodushind:" + lst.soodushind);
+                    //Debug.WriteLine("values[9] " + values[9] + "  lst.profiklubihind:" + lst.profiklubihind);
+                    //Debug.WriteLine("values[10] " + values[10] + "  lst.sortiment:" + lst.sortiment);
+                    //Debug.WriteLine("values[11] " + values[11] + "  lst.product");
+                    //Debug.WriteLine("values[12] " + values[12] + "  lst.SKUBin:" + lst.SKUBin);
+                    //Debug.WriteLine("values[13] " + values[13] + "  lst.barCode:" + lst.barCode);
 
-                        
+
                     //}
                     step = 16;
                     return lst;
@@ -2881,7 +2967,7 @@ namespace BauhofOffline
                         mail.Body = errroToWrite;
                         //SmtpServer.Send(mail);
                     }
-                    MessageBox.Show("FromCsv  " + ex.Message);
+                    MessageBox.Show("FromCsv  " + errroToWrite);
                     return lst;
                 }
             }
@@ -2945,6 +3031,11 @@ namespace BauhofOffline
                 {
                     row.adminEmail = confCollection["adminEmail"].Value.ToString();
                     WriteLog("GetConfiguration adminEmail = " + row.adminEmail, 2);
+                }
+                if (confCollection["apkFolder"] != null)
+                {
+                    row.apkFolder = confCollection["apkFolder"].Value.ToString();
+                    WriteLog("GetConfiguration apkFolder = " + row.apkFolder, 2);
                 }
                 if (confCollection["csvFolder"] != null)
                 {

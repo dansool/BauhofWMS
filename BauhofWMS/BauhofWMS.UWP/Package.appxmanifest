@@ -27,7 +27,15 @@
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="txt">
+          <uap:FileTypeAssociation Name="exm">
+            <uap:DisplayName>exm</uap:DisplayName>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.exm</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation>
             <uap:DisplayName>txt</uap:DisplayName>
             <uap:SupportedFileTypes>
               <uap:FileType>.txt</uap:FileType>

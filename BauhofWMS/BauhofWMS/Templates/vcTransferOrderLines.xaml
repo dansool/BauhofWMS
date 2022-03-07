@@ -10,14 +10,14 @@
                 <ResourceDictionary>
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
                     <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
+                    <converters:ConvertDecimalSpaces x:Key="ConvertDecimalSpaces"/>
                     <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
+                    <converters:ConvertDecimalSpacesToInt x:Key="ConvertDecimalSpacesToInt"/>
+                    
                 </ResourceDictionary>
             </Frame.Resources>
             <Grid Margin="0,0,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="20"/>
-                    <RowDefinition Height="1"/>
                     <RowDefinition Height="20"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
@@ -26,64 +26,52 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+
                 <Grid Grid.Row="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition Width="212" />
-                    </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
-                        <Label Text="{Binding docNo}" FontAttributes="Bold" FontSize="22" TextColor="Tomato" VerticalOptions="Start" />
-                    </Grid>
-                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
-                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="TARNEKP: " FontAttributes="Bold" FontSize="14" TextColor="Black"  />
-                                    <Span Text="{Binding shipmentDate, Mode=OneWay, Converter={StaticResource ConvertDateTimeDefault}}" FontAttributes="Bold" FontSize="22" TextColor="Black"/>
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-                    </Grid>
-                </Grid>
-
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="24"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="322" />
-                    </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
-                        <Label  FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" Margin="0,0,0,0">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="SAABUS POEST: " FontAttributes="Bold" FontSize="14" TextColor="Black"  />
-                                    <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Black"/>
-                                    <Span Text=" " FontAttributes="Bold" FontSize="22" TextColor="Black"/>
-                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Black"/>
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-                    </Grid>
-                </Grid>
-
-                <Grid Grid.Row="2" BackgroundColor="LightGray">
-                </Grid>
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="24"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="322" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
-                        <Label Text="{Binding itemCode}"  FontAttributes="Bold" FontSize="18" TextColor="Magenta" VerticalOptions="Start" />
+                        <Label Text="{Binding itemCode}"  FontAttributes="Bold" FontSize="20" TextColor="Black" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
+                        <Label   HorizontalTextAlignment="Start" VerticalTextAlignment="Start" VerticalOptions="Start" >
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="RIDA:" FontAttributes="Bold" FontSize="12" TextColor="Pink"  />
+                                    <Span Text=" " FontAttributes="Bold" FontSize="18" TextColor="White"  />
+                                    <Span Text="{Binding docLineNo, Converter={StaticResource ConvertDecimalSpacesToInt}}" FontAttributes="Bold" FontSize="16" TextColor="Pink" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+
+                    <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,0" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="47" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="67" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" Grid.Row="0" Margin="0,-4,0,0">
+                            <Label Text="{Binding pickedQty, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="20" TextColor="Green" VerticalOptions="Start" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                        </Grid>
+                        <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
+                            <Label Text="/" FontAttributes="Bold" FontSize="18" TextColor="Gray" VerticalOptions="Start" IsVisible="{Binding showPurchaseReceiveQty}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                        </Grid>
+                        <Grid Grid.Column="2" Grid.Row="0" Margin="0,-4,0,0">
+                            <Label Text="{Binding initialQty, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="20" TextColor="Magenta" VerticalOptions="Start" IsVisible="{Binding showPurchaseReceiveQty}" HorizontalOptions="StartAndExpand" HorizontalTextAlignment="Start"/>
+                        </Grid>
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="4">
+                <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
@@ -95,7 +83,7 @@
                     </Grid>
 
                 </Grid>
-                <Grid Grid.Row="5">
+                <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             IsEnabled="True"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
+             x:Class="BauhofWMS.Templates.vcTransferOrderLinesInfo">
+    <ViewCell.View>
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BackgroundColor="Transparent">
+            <Frame.Resources>
+                <ResourceDictionary>
+                    <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
+                    <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
+                </ResourceDictionary>
+            </Frame.Resources>
+            <Grid Margin="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="1"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="212" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding docNo}" FontAttributes="Bold" FontSize="22" TextColor="Tomato" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="TARNEKP: " FontAttributes="Bold" FontSize="14" TextColor="Yellow"  />
+                                    <Span Text="{Binding shipmentDate, Mode=OneWay, Converter={StaticResource ConvertDateTimeDefault}}" FontAttributes="Bold" FontSize="22" TextColor="Yellow"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="82" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="SAABUS POEST: " FontAttributes="Bold" FontSize="14" TextColor="Lime"  />
+                                    <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Lime"/>
+                                    <Span Text=" " FontAttributes="Bold" FontSize="22" TextColor="Lime"/>
+                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Lime"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding transferPickedRowCount, Mode=OneWay}" FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                    <Span Text="/ " FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                    <Span Text="{Binding transferRowCount, Mode=OneWay}" FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Frame>
+    </ViewCell.View>
+</ViewCell>

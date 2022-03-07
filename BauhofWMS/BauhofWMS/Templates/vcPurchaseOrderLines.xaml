@@ -11,7 +11,6 @@
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
                     <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                     <converters:ConvertDecimalSpaces x:Key="ConvertDecimalSpaces"/>
-                    
                     <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
                 </ResourceDictionary>
             </Frame.Resources>

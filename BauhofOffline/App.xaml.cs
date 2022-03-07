@@ -20,9 +20,9 @@ namespace BauhofOffline
             foreach (var arg in e.Args)
             {
                 mArgs = arg;
-                mArgs = "showUI=false convertfiles=true";
+                //mArgs = "showUI=false convertfiles=true";
             }
-            mArgs = "showUI=1%%%convertfiles=1";
+            //mArgs = "showUI=1%%%convertfiles=1";
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)

@@ -8,6 +8,7 @@
         <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
             <Frame.Resources>
                 <ResourceDictionary>
+                    
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
                     <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                     <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
@@ -51,16 +52,38 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="166" />
+                        <ColumnDefinition Width="166" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding transferPickedRowCount, Mode=OneWay}" FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                    <Span Text="/ " FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                    <Span Text="{Binding transferRowCount, Mode=OneWay}" FontAttributes="Bold" FontSize="18" TextColor="Magenta"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </Grid>
+
+                
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="322" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
                         <Label FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" Margin="0,0,0,0">
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="SAABUNUD POEST: " FontAttributes="Bold" FontSize="14" TextColor="Magenta"  />
-                                    <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Magenta"/>
-                                    <Span Text=" " FontAttributes="Bold" FontSize="14" TextColor="Magenta"  />
-                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Magenta"/>
+                                    <Span Text="SAABUNUD POEST: " FontAttributes="Bold" FontSize="14" TextColor="Green"  />
+                                    <Span Text="{Binding receivedFromShop}" FontAttributes="Bold" FontSize="22" TextColor="Green"/>
+                                    <Span Text=" " FontAttributes="Bold" FontSize="14" TextColor="Green"  />
+                                    <Span Text="{Binding receivedFromName}" FontAttributes="Bold" FontSize="22" TextColor="Green"/>
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>

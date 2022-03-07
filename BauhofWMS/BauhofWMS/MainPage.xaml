@@ -1212,6 +1212,7 @@
                                 <RowDefinition Height="25"/>
                                 <RowDefinition Height="40"/>
                                 <RowDefinition Height="6"/>
+                                <RowDefinition Height="60"/>
                                 <RowDefinition Height="*"/>
 
                             </Grid.RowDefinitions>
@@ -1250,7 +1251,18 @@
                                     <Button ClassId="ItemTransferReceiveOrderLinesReadCodeClear" x:Name="btnTransferReceiveOrderLinesReadCodeClear" Text="&#xf410;" x:FieldModifier="public" Margin="-10,-10,0,0" FontFamily="{StaticResource FaSolid}" Style="{StaticResource KeyboardButtonEntClearStyle}" HorizontalOptions="End" Pressed="btnTransferReceiveOrderLinesReadCodeClear_Clicked"/>
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
+                            <Grid Grid.Row="3" HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0"  HorizontalOptions="CenterAndExpand" VerticalOptions="Start">
+                                    <ListView x:FieldModifier="public"  x:Name="LstvTransferReceiveOrderLinesInfo" SelectionMode="Single" IsVisible="True" HorizontalOptions="FillAndExpand" BackgroundColor="Transparent" HasUnevenRows="True"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="4" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
