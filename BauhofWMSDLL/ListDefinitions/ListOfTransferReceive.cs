@@ -27,5 +27,6 @@ namespace BauhofWMSDLL.ListDefinitions
         public bool transferOrderPicked { get; set; }
         public decimal pickedQty { get; set; }
         public decimal remaininQty { get; set; }
+        public int completelyPicked { get; set; }
     }
 }

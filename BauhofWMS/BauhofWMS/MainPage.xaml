@@ -55,9 +55,7 @@
                                   <RowDefinition Height="5"/>
                                   <RowDefinition Height="25"/>
                                   <RowDefinition Height="40"/>
-                                  <RowDefinition Height="45"/>
-                                  <RowDefinition Height="45"/>
-                                  <RowDefinition Height="45"/>
+                                  <RowDefinition Height="60"/>
                                   <RowDefinition Height="60"/>
                                   <RowDefinition Height="60"/>
                                   <RowDefinition Height="*"/>
@@ -93,65 +91,16 @@
                               </Grid>
                               <Grid  Grid.Column="0" Grid.Row="4" HorizontalOptions="Center">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="45"/>
+                                    <RowDefinition Height="65"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0" Grid.Row="0">
-                                    <Label x:Name="lblInvQty" x:FieldModifier="public" Text="INVENTUURI
-                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
-                                </Grid>
-                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="JAH" x:Name="rbtnInvQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnInvQtyYes_CheckChanged"/>
-                                </Grid>
-                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="EI" x:Name="rbtnInvQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnInvQtyNo_CheckChanged"/>
+                                <Grid Grid.Column="0" Grid.Row="0" HorizontalOptions="Start" WidthRequest="322" HeightRequest="60">
+                                    <Button Text="MUUD SEADISTUSED" x:Name="btnSettingsOthers" x:FieldModifier="public" Clicked="btnSettingsOthers_Clicked" BackgroundColor="Orange"  FontSize="28"  TextColor="Black"  FontAttributes="Bold" />
                                 </Grid>
                             </Grid>
                               <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="45"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0" Grid.Row="0">
-                                    <Label x:Name="lblPurchaseReceiveQty" x:FieldModifier="public" Text="OSTUTARNE
-                                             KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
-                                </Grid>
-                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyYes_CheckChanged"/>
-                                </Grid>
-                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="EI" x:Name="rbtnPurchaseReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyNo_CheckChanged"/>
-                                </Grid>
-                            </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="6" HorizontalOptions="Center">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="45"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0" Grid.Row="0">
-                                    <Label x:Name="lblTransferReceiveQty" x:FieldModifier="public" Text="ÜLEVIIMSTARNE
-                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
-                                </Grid>
-                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnTransferReceiveQtyYes_CheckChanged"/>
-                                </Grid>
-                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="EI" x:Name="rbtnTransferReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnTransferReceiveQtyNo_CheckChanged"/>
-                                </Grid>
-                            </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="7" HorizontalOptions="Center">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="65"/>
                                     </Grid.RowDefinitions>
@@ -171,7 +120,7 @@
                                         <Button Text="&#xf0c7;" FontFamily="{StaticResource FaSolid}" x:Name="btnSettingsOK" x:FieldModifier="public" Clicked="btnSettingsOK_Clicked" BackgroundColor="#FF0862FF"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
                                     </Grid>
                                 </Grid>
-                              <Grid  Grid.Column="0" Grid.Row="8" HorizontalOptions="StartAndExpand">
+                              <Grid  Grid.Column="0" Grid.Row="6" HorizontalOptions="StartAndExpand">
 
                                   <Grid>
                                       <Grid.ColumnDefinitions>
@@ -200,6 +149,135 @@
                               </Grid>
                           </Grid>
                       </StackLayout>
+
+                    <StackLayout  x:Name="stkSettingsOthers"  x:FieldModifier="public" HorizontalOptions="Fill">
+                        <Grid x:Name="grdstkSettingsOthers" x:FieldModifier="public"  HorizontalOptions="CenterAndExpand">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="45"/>
+                                <RowDefinition Height="60"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="322"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid  Grid.Column="0" Grid.Row="0" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblInvQty" x:FieldModifier="public" Text="INVENTUURI
+                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnInvQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnInvQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnInvQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnInvQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Column="0" Grid.Row="1" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblPurchaseReceiveQty" x:FieldModifier="public" Text="OSTUTARNE
+                                             KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnPurchaseReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Column="0" Grid.Row="2" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblPurchaseReceiveQtySum" x:FieldModifier="public" Text="OSTUTARNE
+                                           KOGUS LIIDETAKSE" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtySumYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnPurchaseReceiveQtySumNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtySumNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Column="0" Grid.Row="3" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblTransferReceiveQty" x:FieldModifier="public" Text="ÜLEVIIMSTARNE
+                                           KOGUS" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtyYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnTransferReceiveQtyYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnTransferReceiveQtyNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnTransferReceiveQtyNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Column="0" Grid.Row="4" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="45"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0">
+                                    <Label x:Name="lblTransferReceiveQtySum" x:FieldModifier="public" Text="ÜLEVIIMSTARNE
+                                           KOGUS LIIDETAKSE" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
+                                </Grid>
+                                <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnTransferReceiveQtySumYes_CheckChanged"/>
+                                </Grid>
+                                <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
+                                    <input:CheckBox Text="EI" x:Name="rbtnTransferReceiveQtySumNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnTransferReceiveQtySumNo_CheckChanged"/>
+                                </Grid>
+                            </Grid>
+                            <Grid  Grid.Column="0" Grid.Row="5" HorizontalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="65"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="242"/>
+                                    <ColumnDefinition Width="82"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="1" Grid.Row="0" HorizontalOptions="End" WidthRequest="60" HeightRequest="60">
+                                    <Button Text="&#xf0c7;" FontFamily="{StaticResource FaSolid}" x:Name="btnSettingsOthersOK" x:FieldModifier="public" Clicked="btnSettingsOthersOK_Clicked" BackgroundColor="#FF0862FF"  FontSize="28"  TextColor="White"  FontAttributes="Bold" />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </StackLayout>
 
                     <StackLayout  x:Name="stkOperations" x:FieldModifier="public" HorizontalOptions="Fill">
                         <Grid HorizontalOptions="CenterAndExpand" >
@@ -1139,7 +1217,6 @@
 
                         </Grid>
                     </StackLayout>
-
 
                     <StackLayout  x:Name="stkTransferReceiveOrders" x:FieldModifier="public" HorizontalOptions="Fill" Margin="0,-4,0,0">
                         <Grid HorizontalOptions="CenterAndExpand" WidthRequest="350">

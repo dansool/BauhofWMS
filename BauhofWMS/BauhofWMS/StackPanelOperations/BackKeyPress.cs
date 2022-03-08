@@ -30,6 +30,14 @@ namespace BauhofWMS.StackPanelOperations
                         mp.PrepareOperations();
                     }
                     break;
+
+                case "SettingsOthers":
+                    {
+                        mp.PrepareSettings();
+                    }
+                    break;
+
+                    
                 case "Password":
                     {
                         mp.PrepareOperations();

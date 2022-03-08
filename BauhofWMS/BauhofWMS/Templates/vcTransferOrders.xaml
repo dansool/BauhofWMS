@@ -5,7 +5,7 @@
              xmlns:converters="clr-namespace:BauhofWMS.Converters"
              x:Class="BauhofWMS.Templates.vcTransferOrders">
     <ViewCell.View>
-        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="{Binding transferOrderPicked,  Converter={StaticResource ListViewSelectedColorConverter}}">
             <Frame.Resources>
                 <ResourceDictionary>
                     

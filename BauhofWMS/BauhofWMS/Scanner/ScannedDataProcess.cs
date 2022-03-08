@@ -92,11 +92,28 @@ namespace BauhofWMS.Scanner
                                 mp.PrepareItemInfo(scannedCode);
                             }
                             break;
+                        case "PurchaseReceiveOrders":
+                            {
+                                mp.SearchPurchaseReceiveOrders(scannedCode);
+                            }
+                            break;
                         case "PurchaseReceiveOrderLines":
                             {
                                 mp.ShowKeyBoard.Hide(mp);
                                 mp.entPurchaseReceiveOrderLines.Text = scannedCode;
                                 mp.SearchPurchaseReceiveOrderLines();
+                            }
+                            break;
+                        case "TransferReceiveOrders":
+                            {
+                                mp.SearchTransferReceiveOrders(scannedCode);
+                            }
+                            break;
+                        case "TransferReceiveOrderLines":
+                            {
+                                mp.ShowKeyBoard.Hide(mp);
+                                mp.entTransferReceiveOrderLines.Text = scannedCode;
+                                mp.SearchTransferReceiveOrderLines();
                             }
                             break;
                             

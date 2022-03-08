@@ -39,6 +39,10 @@ namespace BauhofWMSDLL.ListDefinitions
         public bool showPurchaseReceiveQty { get; set; }
         public bool showTransferReceiveQty { get; set; }
 
+        public bool showPurchaseReceiveQtySum { get; set; }
+        public bool showTransferReceiveQtySum { get; set; }
+        
+
         public string smtpServer { get; set; }
         public bool isSelected
         {

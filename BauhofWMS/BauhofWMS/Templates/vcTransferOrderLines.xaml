@@ -5,15 +5,15 @@
              xmlns:converters="clr-namespace:BauhofWMS.Converters"
              x:Class="BauhofWMS.Templates.vcTransferOrderLines">
     <ViewCell.View>
-        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="{Binding completelyPicked, Converter={StaticResource ConvertListViewPurchaseOrderColorByRemainingQty}}">
             <Frame.Resources>
                 <ResourceDictionary>
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
-                    <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                     <converters:ConvertDecimalSpaces x:Key="ConvertDecimalSpaces"/>
                     <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
                     <converters:ConvertDecimalSpacesToInt x:Key="ConvertDecimalSpacesToInt"/>
-                    
+                    <converters:ConvertListViewPurchaseOrderColorByRemainingQty x:Key="ConvertListViewPurchaseOrderColorByRemainingQty"/>
+                    <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                 </ResourceDictionary>
             </Frame.Resources>
             <Grid Margin="0,0,0,0">
@@ -64,10 +64,10 @@
                             <Label Text="{Binding pickedQty, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="20" TextColor="Green" VerticalOptions="Start" HorizontalOptions="End" HorizontalTextAlignment="End"/>
                         </Grid>
                         <Grid Grid.Column="1" Grid.Row="0" Margin="0,-4,0,0">
-                            <Label Text="/" FontAttributes="Bold" FontSize="18" TextColor="Gray" VerticalOptions="Start" IsVisible="{Binding showPurchaseReceiveQty}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                            <Label Text="/" FontAttributes="Bold" FontSize="18" TextColor="Gray" VerticalOptions="Start" IsVisible="{Binding showTransferReceiveQty}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
                         </Grid>
                         <Grid Grid.Column="2" Grid.Row="0" Margin="0,-4,0,0">
-                            <Label Text="{Binding initialQty, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="20" TextColor="Magenta" VerticalOptions="Start" IsVisible="{Binding showPurchaseReceiveQty}" HorizontalOptions="StartAndExpand" HorizontalTextAlignment="Start"/>
+                            <Label Text="{Binding initialQty, Converter={StaticResource ConvertDecimalSpaces}}" FontAttributes="Bold" FontSize="20" TextColor="Magenta" VerticalOptions="Start" IsVisible="{Binding showTransferReceiveQty}" HorizontalOptions="StartAndExpand" HorizontalTextAlignment="Start"/>
                         </Grid>
                     </Grid>
                 </Grid>

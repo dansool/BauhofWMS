@@ -21,6 +21,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDecimalSpaces.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDecimalSpacesToInt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertDefaultMagnitude.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertListViewPurchaseOrderColorByRemainingQty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertListViewTransferOrderColorByRemainingQty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ConvertSKUColor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ListViewPurchaseOrderColorConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ListViewSelectedColorConverter.cs" />

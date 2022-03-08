@@ -30,6 +30,8 @@ namespace BauhofWMS
         public bool showInvQty = false;
         public bool showPurchaseReceiveQty = false;
         public bool showTransferReceiveQty = false;
+        public bool showPurchaseReceiveQtySum = false;
+        public bool showTransferReceiveQtySum = false;
         public App()
         {
             InitializeComponent();

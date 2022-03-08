@@ -19,6 +19,7 @@ using BauhofWMS.Utils.Parsers;
 using ProgressRingControl.Forms.Plugin;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace BauhofWMS
 {
@@ -112,6 +113,8 @@ namespace BauhofWMS
 
         public string currentPurchaseOrder = "";
         public string currentTransferOrder = "";
+
+        public bool defaultvalueOverride;
 
         #endregion
         #region lists
@@ -230,7 +233,9 @@ namespace BauhofWMS
                         obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
                         obj.showInvQty = lstSettings.First().showInvQty; 
                         obj.showPurchaseReceiveQty = lstSettings.First().showPurchaseReceiveQty;
+                        obj.showPurchaseReceiveQtySum = lstSettings.First().showPurchaseReceiveQtySum;
                         obj.showTransferReceiveQty = lstSettings.First().showTransferReceiveQty;
+                        obj.showTransferReceiveQtySum = lstSettings.First().showTransferReceiveQtySum;
                         obj.pEnv = lstSettings.First().pEnv;
                         obj.companyName = null;
                         if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
@@ -268,6 +273,14 @@ namespace BauhofWMS
                             rbtnPurchaseReceiveQtyNo.IsChecked = true;
                         }
 
+                        if (obj.showPurchaseReceiveQtySum)
+                        {
+                            rbtnPurchaseReceiveQtySumYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnPurchaseReceiveQtySumNo.IsChecked = true;
+                        }
 
                         if (obj.showTransferReceiveQty)
                         {
@@ -277,6 +290,16 @@ namespace BauhofWMS
                         {
                             rbtnTransferReceiveQtyNo.IsChecked = true;
                         }
+
+                        if (obj.showTransferReceiveQtySum)
+                        {
+                            rbtnTransferReceiveQtySumYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnTransferReceiveQtySumNo.IsChecked = true;
+                        }
+
 
                         if (!string.IsNullOrEmpty(obj.shopLocationCode))
                         {
@@ -1214,6 +1237,7 @@ namespace BauhofWMS
             rbtnInvQtyYes.IsChecked = false;
             obj.showInvQty = false;
         }
+
         private void EnvironmentColorChange(Color environmentColor)
         {
             grdMain.BackgroundColor = environmentColor;
@@ -1240,7 +1264,7 @@ namespace BauhofWMS
                 obj.shopLocationID = p.First().shopID;                
 
 
-                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, obj.showPurchaseReceiveQty, obj.showTransferReceiveQty, obj.shopLocationID ?? "SHOPID-PUUDUB", obj.deviceSerial ?? "DEVICEID-PUUDUB", this);
+                var result = await WriteSettings.Write(pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, obj.showPurchaseReceiveQty, obj.showPurchaseReceiveQtySum, obj.showTransferReceiveQty, obj.showTransferReceiveQtySum, obj.shopLocationID ?? "SHOPID-PUUDUB", obj.deviceSerial ?? "DEVICEID-PUUDUB", this);
                 if (result.Item1)
                 {
                     DisplaySuccessMessage("SALVESTATUD!");
@@ -1260,6 +1284,55 @@ namespace BauhofWMS
                 DisplayAlert("VIGANE KAUPLUSE NIMI", shopLocationCode.Text + " EI LEITUD KAUPLUSTE NIMEKIRJAST!", "OK");
             }
             
+        }
+
+       
+        void LstvSettings_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            var item = e.Item as ListOfSettings;
+            lstSet.ForEach(x => x.isSelected = false);
+            item.isSelected = true;
+        }
+
+        private void btnSettingsOthers_Clicked(object sender, EventArgs e)
+        {
+            PrepareSettingsOthers();
+        }
+
+
+        #endregion
+
+        #region stkSettingsOthers
+        public void PrepareSettingsOthers()
+        {
+            CollapseAllStackPanels.Collapse(this);
+            stkSettingsOthers.IsVisible = true;
+            obj.mainOperation = "";
+            obj.currentLayoutName = "SettingsOthers";
+        }
+
+        private void rbtnPurchaseReceiveQtySumYes_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnPurchaseReceiveQtySumNo.IsChecked = false;
+            obj.showPurchaseReceiveQtySum = true;
+        }
+
+        private void rbtnPurchaseReceiveQtySumNo_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnPurchaseReceiveQtySumNo.IsChecked = false;
+            obj.showPurchaseReceiveQtySum = false;
+        }
+
+        private void rbtnTransferReceiveQtySumYes_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnTransferReceiveQtySumNo.IsChecked = false;
+            obj.showTransferReceiveQtySum = true;
+        }
+
+        private void rbtnTransferReceiveQtySumNo_CheckChanged(object sender, EventArgs e)
+        {
+            rbtnTransferReceiveQtySumYes.IsChecked = false;
+            obj.showTransferReceiveQtySum = false;
         }
 
         private void rbtnPurchaseReceiveQtyYes_CheckChanged(object sender, EventArgs e)
@@ -1285,11 +1358,23 @@ namespace BauhofWMS
             rbtnTransferReceiveQtyYes.IsChecked = false;
             obj.showTransferReceiveQty = false;
         }
-        void LstvSettings_ItemTapped(object sender, ItemTappedEventArgs e)
+
+        private async void btnSettingsOthersOK_Clicked(object sender, EventArgs e)
         {
-            var item = e.Item as ListOfSettings;
-            lstSet.ForEach(x => x.isSelected = false);
-            item.isSelected = true;
+            var result = await WriteSettings.Write(obj.pEnv, ediAddress.Text, obj.shopLocationCode, obj.showInvQty, obj.showPurchaseReceiveQty, obj.showPurchaseReceiveQtySum, obj.showTransferReceiveQty, obj.showTransferReceiveQtySum, obj.shopLocationID ?? "SHOPID-PUUDUB", obj.deviceSerial ?? "DEVICEID-PUUDUB", this);
+            if (result.Item1)
+            {
+                DisplaySuccessMessage("SALVESTATUD!");
+                obj.deviceSerial = null;
+                ShowKeyBoard.Hide(this);
+                PrepareSettings();
+                //BackKeyPress.Press(this);
+            }
+            else
+            {
+                DisplayFailMessage(result.Item2);
+            }
+            
         }
         #endregion
 
@@ -3364,14 +3449,14 @@ namespace BauhofWMS
                 }
 
 
-                var todayToBeShipped = lstPurchaseOrders.Where(x => x.shipmentDate == DateTime.Now.Date);
-                if (todayToBeShipped.Any())
-                {
-                    foreach (var p in todayToBeShipped)
-                    {
-                        p.shipToday = 1;
-                    }
-                }
+                //var todayToBeShipped = lstPurchaseOrders.Where(x => x.shipmentDate == DateTime.Now.Date);
+                //if (todayToBeShipped.Any())
+                //{
+                //    foreach (var p in todayToBeShipped)
+                //    {
+                //        p.shipToday = 1;
+                //    }
+                //}
 
                 LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders.OrderByDescending(x => x.shipToday).ThenBy(x => x.shipmentDate);
                 focusedEditor = "entPurchaseReceiveOrders";
@@ -3445,7 +3530,35 @@ namespace BauhofWMS
             entPurchaseReceiveOrders.Text = "";
         }
 
-
+        public void SearchPurchaseReceiveOrders(string scannedCode)
+        {
+            var lstPurchaseOrdersFiltered = new List<ListOfPurchaseReceive>();
+            var purchaseRowsForScanedItem = lstInternalRecordDB.Where(x=> x.barCode.Contains(scannedCode)).ToList();
+            if (purchaseRowsForScanedItem.Any())
+            {
+                foreach (var p in purchaseRowsForScanedItem)
+                {
+                    var lst = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.itemCode == p.itemCode);
+                    foreach (var l in lst)
+                    {
+                        if (lstPurchaseOrdersFiltered.Any())
+                        {
+                            var exists = lstPurchaseOrdersFiltered.Where(x => x.docNo == l.docNo);
+                            if (!exists.Any())
+                            {
+                                lstPurchaseOrdersFiltered.Add(l);
+                            }
+                        }
+                        else
+                        {
+                            lstPurchaseOrdersFiltered.Add(l);
+                        }
+                    }
+                }
+                LstvPurchaseReceiveOrders.ItemsSource = null;
+                LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrdersFiltered;
+            }
+        }
         #endregion
 
         #region stkPurchaseReceiveOrderLines
@@ -3504,6 +3617,16 @@ namespace BauhofWMS
                         p.pickedQty = lineInfo.First().pickedQty;
                         p.magnitude = lineInfo.First().magnitude;
                         p.remaininQty = p.initialQty - lineInfo.First().pickedQty;
+                       
+                        if (p.remaininQty == 0)
+                        {
+                            p.completelyPicked = 1;
+                            //DisplayAlert("e", p.itemCode + " " +  p.remaininQty.ToString(), "OK");
+                        }
+                        else
+                        {
+                            p.completelyPicked = 0;
+                        }
                     }
                     else
                     {
@@ -3516,6 +3639,7 @@ namespace BauhofWMS
 
                         p.magnitude = magnitudeToAddOnScreen;
                         p.pickedQty = 0;
+                        p.completelyPicked = 0;
                         //p.remaininQty = (p.initialQty ?? 0 )- lineInfo.First().pickedQty;
                     }
 
@@ -3564,7 +3688,7 @@ namespace BauhofWMS
                     var result = lstPurchaseOrderLines.Where(x =>
                     x.itemCode.ToUpper().Contains(searchValue) ||
                     x.itemDesc.ToUpper().Contains(searchValue) ||
-                    x.barCode.ToUpper().Contains(searchValue));
+                    x.barCode.ToUpper().Contains(searchValue)).ToList();
 
                     if (!result.Any())
                     {
@@ -3573,7 +3697,9 @@ namespace BauhofWMS
                     {
                         if (result.Count() == 1)
                         {
-
+                            lstPurchaseOrderQuantityInsertInfo = new List<ListOfPurchaseReceive>();
+                            lstPurchaseOrderQuantityInsertInfo = result;
+                            PreparePurchaseOrderQuantityInsert();
                         }
                     }
                     LstvPurchaseReceiveOrderLines.ItemsSource = result;
@@ -3619,6 +3745,7 @@ namespace BauhofWMS
                             previouslyReadQty = previousRead.First().pickedQty;
                             purchReceiveRecordID = previousRead.First().recordID;
                             previouslyReadMagnitude = previousRead.First().magnitude;
+                            
                         }
                     }
                 }
@@ -3707,15 +3834,24 @@ namespace BauhofWMS
 
                     if (previouslyReadQty > 0)
                     {
-                        entPurchaseOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                        if (obj.showPurchaseReceiveQtySum)
+                        {
+                            entPurchaseOrderQuantityInsertQuantity.Text = "1";
+                        }
+                        else
+                        {
+                            entPurchaseOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                        }
                     }
                     else
                     {
-                        entPurchaseOrderQuantityInsertQuantity.Text = "";
+                        entPurchaseOrderQuantityInsertQuantity.Text = "1";
+                        //entPurchaseOrderQuantityInsertQuantity.Text = "";
                     }
                     entPurchaseOrderQuantityInsertQuantity.BackgroundColor = Color.Yellow;
-                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                 }
+                defaultvalueOverride = true;
             }
             catch (Exception ex)
             {
@@ -3723,7 +3859,13 @@ namespace BauhofWMS
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
-        
+
+        private static bool IsTextAllowed(string text)
+        {
+            Regex regex = new Regex("[^0-9.-]+");
+            return regex.IsMatch(text);
+        }
+
         private async void btnPurchaseOrderQuantityInsertQuantityOK_Clicked(object sender, EventArgs e)
         {
             try
@@ -3731,61 +3873,50 @@ namespace BauhofWMS
                 JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                 bool proceed = true;
                 decimal quantity = 0;
-                if (!string.IsNullOrEmpty(entPurchaseOrderQuantityInsertQuantity.Text))
-                {
-                    quantity = TryParseDecimal.Parse(entPurchaseOrderQuantityInsertQuantity.Text);
-                }
-                if (string.IsNullOrEmpty(lstPurchaseOrderQuantityInsertInfo.First().itemCode))
+                
+                if (IsTextAllowed(entPurchaseOrderQuantityInsertQuantity.Text))
                 {
                     proceed = false;
-                    DisplayFailMessage("KAUPA POLE VALITUD!");
-                }
-                if (quantity == 0)
-                {
-                    if (!await YesNoDialog("OSTUTARNE VASTUVÕTT", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
-                    {
-                        proceed = false;
-                    }
+                    DisplayFailMessage("SISESTA NUMBER!");
                 }
 
                 if (proceed)
                 {
-                    if (quantity > -1)
+                    if (!string.IsNullOrEmpty(entPurchaseOrderQuantityInsertQuantity.Text))
                     {
-                        int lastRecordID = 0;
-                        if (lstPurchaseOrderPickedQuantities.Any())
+                        quantity = TryParseDecimal.Parse(entPurchaseOrderQuantityInsertQuantity.Text);
+                    }
+                    if (string.IsNullOrEmpty(lstPurchaseOrderQuantityInsertInfo.First().itemCode))
+                    {
+                        proceed = false;
+                        DisplayFailMessage("KAUPA POLE VALITUD!");
+                    }
+                    if (quantity == 0)
+                    {
+                        if (!obj.showPurchaseReceiveQtySum)
                         {
-                            var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
-                            if (previousRead.Any())
+                            if (!await YesNoDialog("OSTUTARNE VASTUVÕTT", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
                             {
-                                lastRecordID = previousRead.First().recordID;
-                                var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
-                                if (record.Any())
-                                {
-                                    if (quantity == 0)
-                                    {
-                                        if (record.Any())
-                                        {
-                                            lstPurchaseOrderPickedQuantities.Remove(record.Take(1).First());
-                                            string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+                                proceed = false;
+                            }
+                        }
+                    }
 
-                                            var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                            if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
-                                            {
-                                                purchReceiveRecordID = 0;
-                                                DisplaySuccessMessage("SALVESTATUD!");
-                                                ShowKeyBoard.Hide(this);
-                                                PreparePurchaseReceiveOrderLines();
-                                            }
-                                            else
-                                            {
-                                                DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
-                                            }
-                                        }
-                                    }
-                                    else
+                    if (proceed)
+                    {
+                        if (obj.showPurchaseReceiveQtySum)
+                        {
+                            int lastRecordID = 0;
+                            if (lstPurchaseOrderPickedQuantities.Any())
+                            {
+                                var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                                if (previousRead.Any())
+                                {
+                                    lastRecordID = previousRead.First().recordID;
+                                    var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
+                                    if (record.Any())
                                     {
-                                        record.First().pickedQty = quantity;
+                                        record.First().pickedQty = record.First().pickedQty + quantity;
                                         record.First().magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text;
                                         record.First().recordDate = DateTime.Now;
                                         string data1 = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
@@ -3804,26 +3935,20 @@ namespace BauhofWMS
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    lastRecordID = lstPurchaseOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                                }
                             }
-                            else
-                            {
-                                lastRecordID = lstPurchaseOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
-                            }
-                        }
-                        if (proceed)
-                        {
-                            if (quantity == 0)
+                            if (proceed)
                             {
 
-                            }
-                            else
-                            {
                                 lstPurchaseOrderPickedQuantities.Add(new ListOfSHRCVToExport
                                 {
                                     docNo = lstPurchaseOrderQuantityInsertInfo.First().docNo,
                                     docLineNo = lstPurchaseOrderQuantityInsertInfo.First().docLineNo,
                                     initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
-                                    pickedQty = quantity,
+                                    pickedQty = lstPurchaseOrderQuantityInsertInfo.First().pickedQty + quantity,
                                     recordDate = DateTime.Now,
                                     shop = lstPurchaseOrderQuantityInsertInfo.First().shop,
                                     itemCode = lstPurchaseOrderQuantityInsertInfo.First().itemCode,
@@ -3849,10 +3974,113 @@ namespace BauhofWMS
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                        else
+                        {
+                            if (quantity > -1)
+                            {
+                                int lastRecordID = 0;
+                                if (lstPurchaseOrderPickedQuantities.Any())
+                                {
+                                    var previousRead = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == lstPurchaseOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstPurchaseOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                                    if (previousRead.Any())
+                                    {
+                                        lastRecordID = previousRead.First().recordID;
+                                        var record = lstPurchaseOrderPickedQuantities.Where(x => x.recordID == purchReceiveRecordID);
+                                        if (record.Any())
+                                        {
+                                            if (quantity == 0)
+                                            {
+                                                if (record.Any())
+                                                {
+                                                    lstPurchaseOrderPickedQuantities.Remove(record.Take(1).First());
+                                                    string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                                    var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                    if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                                    {
+                                                        purchReceiveRecordID = 0;
+                                                        DisplaySuccessMessage("SALVESTATUD!");
+                                                        ShowKeyBoard.Hide(this);
+                                                        PreparePurchaseReceiveOrderLines();
+                                                    }
+                                                    else
+                                                    {
+                                                        DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                record.First().pickedQty = quantity;
+                                                record.First().magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text;
+                                                record.First().recordDate = DateTime.Now;
+                                                string data1 = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                                var writePurchaseOrderPickedQuantitiesDbToFile1 = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data1, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                if (writePurchaseOrderPickedQuantitiesDbToFile1.Item1)
+                                                {
+                                                    DisplaySuccessMessage("SALVESTATUD!");
+                                                    ShowKeyBoard.Hide(this);
+                                                    proceed = false;
+                                                    PreparePurchaseReceiveOrderLines();
+                                                }
+                                                else
+                                                {
+                                                    DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile1.Item2);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lastRecordID = lstPurchaseOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                                    }
+                                }
+                                if (proceed)
+                                {
+                                    if (quantity == 0)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        lstPurchaseOrderPickedQuantities.Add(new ListOfSHRCVToExport
+                                        {
+                                            docNo = lstPurchaseOrderQuantityInsertInfo.First().docNo,
+                                            docLineNo = lstPurchaseOrderQuantityInsertInfo.First().docLineNo,
+                                            initialQty = lstPurchaseOrderQuantityInsertInfo.First().initialQty,
+                                            pickedQty = quantity,
+                                            recordDate = DateTime.Now,
+                                            shop = lstPurchaseOrderQuantityInsertInfo.First().shop,
+                                            itemCode = lstPurchaseOrderQuantityInsertInfo.First().itemCode,
+                                            barCode = lstPurchaseOrderQuantityInsertInfo.First().barCode,
+                                            magnitude = lblPurchaseOrderQuantityInsertQuantityUOM.IsVisible ? lblPurchaseOrderQuantityInsertQuantityUOM.Text : btnPurchaseOrderQuantityInsertQuantityUOM.Text,
+                                            recordID = lastRecordID + 1
+                                        });
+
+                                        //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                        string data = JsonConvert.SerializeObject(lstPurchaseOrderPickedQuantities, jSONsettings);
+
+                                        var writePurchaseOrderPickedQuantitiesDbToFile = await WritePurchaseOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                        if (writePurchaseOrderPickedQuantitiesDbToFile.Item1)
+                                        {
+
+                                            DisplaySuccessMessage("SALVESTATUD!");
+                                            ShowKeyBoard.Hide(this);
+                                            PreparePurchaseReceiveOrderLines();
+                                        }
+                                        else
+                                        {
+                                            DisplayFailMessage(writePurchaseOrderPickedQuantitiesDbToFile.Item2);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                            }
+                        }
                     }
                 }
             }
@@ -4020,6 +4248,37 @@ namespace BauhofWMS
             entTransferReceiveOrders.Text = "";
         }
 
+
+        public void SearchTransferReceiveOrders(string scannedCode)
+        {
+            var lstTransferOrdersFiltered = new List<ListOfTransferReceive>();
+            var transferRowsForScanedItem = lstInternalRecordDB.Where(x => x.barCode.Contains(scannedCode)).ToList();
+            if (transferRowsForScanedItem.Any())
+            {
+                foreach (var p in transferRowsForScanedItem)
+                {
+                    var lst = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.itemCode == p.itemCode);
+                    foreach (var l in lst)
+                    {
+                        if (lstTransferOrdersFiltered.Any())
+                        {
+                            var exists = lstTransferOrdersFiltered.Where(x => x.docNo == l.docNo);
+                            if (!exists.Any())
+                            {
+                                lstTransferOrdersFiltered.Add(l);
+                            }
+                        }
+                        else
+                        {
+                            lstTransferOrdersFiltered.Add(l);
+                        }
+                    }
+                }
+                LstvTransferReceiveOrders.ItemsSource = null;
+                LstvTransferReceiveOrders.ItemsSource = lstTransferOrdersFiltered;
+            }
+        }
+
         #endregion
 
         #region stkTransferReceiveOrderLines
@@ -4079,6 +4338,14 @@ namespace BauhofWMS
                         p.pickedQty = lineInfo.First().pickedQty;
                         p.magnitude = lineInfo.First().magnitude;
                         p.remaininQty = p.initialQty - lineInfo.First().pickedQty;
+                        if (p.remaininQty == 0)
+                        {
+                            p.completelyPicked = 1;
+                        }
+                        else
+                        {
+                            p.completelyPicked = 0;
+                        }
                     }
                     else
                     {
@@ -4138,7 +4405,7 @@ namespace BauhofWMS
                     var result = lstTransferOrderLines.Where(x =>
                     x.itemCode.ToUpper().Contains(searchValue) ||
                     x.itemDesc.ToUpper().Contains(searchValue) ||
-                    x.barCode.ToUpper().Contains(searchValue));
+                    x.barCode.ToUpper().Contains(searchValue)).ToList();
 
                     if (!result.Any())
                     {
@@ -4147,7 +4414,9 @@ namespace BauhofWMS
                     {
                         if (result.Count() == 1)
                         {
-
+                            lstTransferOrderQuantityInsertInfo = new List<ListOfTransferReceive>();
+                            lstTransferOrderQuantityInsertInfo = result;
+                            PrepareTransferOrderQuantityInsert();
                         }
                     }
                     LstvTransferReceiveOrderLines.ItemsSource = result;
@@ -4195,7 +4464,7 @@ namespace BauhofWMS
                             Console.WriteLine("5");
                             previouslyReadQty = previousRead.First().pickedQty;
                             transferReceiveRecordID = previousRead.First().recordID;
-                            previouslyReadMagnitude = previousRead.First().magnitude;
+                            previouslyReadMagnitude = previousRead.First().magnitude;                            
                         }
                     }
                 }
@@ -4293,14 +4562,22 @@ namespace BauhofWMS
 
                     if (previouslyReadQty > 0)
                     {
-                        entTransferOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                        if (obj.showTransferReceiveQtySum)
+                        {
+                            entTransferOrderQuantityInsertQuantity.Text = "1";
+                        }
+                        else
+                        {
+                            entTransferOrderQuantityInsertQuantity.Text = (String.Format("{0:0.00}", previouslyReadQty)).Replace(".00", "");
+                        }
                     }
                     else
                     {
-                        entTransferOrderQuantityInsertQuantity.Text = "";
+                        entTransferOrderQuantityInsertQuantity.Text = "1";
+                        //entTransferOrderQuantityInsertQuantity.Text = "";
                     }
                     entTransferOrderQuantityInsertQuantity.BackgroundColor = Color.Yellow;
-                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                 }
             }
             catch (Exception ex)
@@ -4316,62 +4593,51 @@ namespace BauhofWMS
                 JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                 bool proceed = true;
                 decimal quantity = 0;
-                if (!string.IsNullOrEmpty(entTransferOrderQuantityInsertQuantity.Text))
-                {
-                    quantity = TryParseDecimal.Parse(entTransferOrderQuantityInsertQuantity.Text);
-                }
-                if (string.IsNullOrEmpty(lstTransferOrderQuantityInsertInfo.First().itemCode))
+
+                if (IsTextAllowed(entTransferOrderQuantityInsertQuantity.Text))
                 {
                     proceed = false;
-                    DisplayFailMessage("KAUPA POLE VALITUD!");
-                }
-                if (quantity == 0)
-                {
-                    if (!await YesNoDialog("ÜLEVIIMISE TARNE", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
-                    {
-                        proceed = false;
-                    }
+                    DisplayFailMessage("SISESTA NUMBER!");
                 }
 
                 if (proceed)
                 {
-                    if (quantity > -1)
+                    if (!string.IsNullOrEmpty(entTransferOrderQuantityInsertQuantity.Text))
                     {
-                        int lastRecordID = 0;
-                        if (lstTransferOrderPickedQuantities.Any())
+                        quantity = TryParseDecimal.Parse(entTransferOrderQuantityInsertQuantity.Text);
+                    }
+                    if (string.IsNullOrEmpty(lstTransferOrderQuantityInsertInfo.First().itemCode))
+                    {
+                        proceed = false;
+                        DisplayFailMessage("KAUPA POLE VALITUD!");
+                    }
+                    if (quantity == 0)
+                    {
+                        if (!obj.showTransferReceiveQtySum)
                         {
-                            var previousRead = lstTransferOrderPickedQuantities.Where(x => x.docNo == lstTransferOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
-                            if (previousRead.Any())
+                            if (!await YesNoDialog("ÜLEVIIMISE TARNE", "SISESTATUD KOGUS ON 0. KAS JÄTKATA KIRJE TEKITAMISEGA?", false))
                             {
-                                lastRecordID = previousRead.First().recordID;
-                                var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
-                                if (record.Any())
-                                {
-                                    if (quantity == 0)
-                                    {
-                                        if (record.Any())
-                                        {
-                                            lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
-                                            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+                                proceed = false;
+                            }
+                        }
+                    }
 
-                                            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                                            {
-                                                transferReceiveRecordID = 0;
-                                                DisplaySuccessMessage("SALVESTATUD!");
-                                                ShowKeyBoard.Hide(this);
-                                                PrepareTransferReceiveOrderLines();
-                                            }
-                                            else
-                                            {
-                                                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                                            }
-                                        }
-                                    }
-                                    else
+                    if (proceed)
+                    {
+                        if (obj.showTransferReceiveQtySum)
+                        {
+                            int lastRecordID = 0;
+                            if (lstTransferOrderPickedQuantities.Any())
+                            {
+                                var previousRead = lstTransferOrderPickedQuantities.Where(x => x.docNo == lstTransferOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                                if (previousRead.Any())
+                                {
+                                    lastRecordID = previousRead.First().recordID;
+                                    var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                    if (record.Any())
                                     {
-                                        record.First().pickedQty = quantity;
-                                        record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : lblTransferOrderQuantityInsertQuantityUOM.Text;
+                                        record.First().pickedQty = record.First().pickedQty + quantity;
+                                        record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text;
                                         record.First().recordDate = DateTime.Now;
                                         string data1 = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
@@ -4389,26 +4655,20 @@ namespace BauhofWMS
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                                }
                             }
-                            else
-                            {
-                                lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
-                            }
-                        }
-                        if (proceed)
-                        {
-                            if (quantity == 0)
+                            if (proceed)
                             {
 
-                            }
-                            else
-                            {
                                 lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
                                 {
                                     docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
                                     docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
                                     initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
-                                    pickedQty = quantity,
+                                    pickedQty = lstTransferOrderQuantityInsertInfo.First().pickedQty + quantity,
                                     recordDate = DateTime.Now,
                                     shop = lstTransferOrderQuantityInsertInfo.First().shop,
                                     itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
@@ -4434,104 +4694,207 @@ namespace BauhofWMS
                                 }
                             }
                         }
+                        else
+                        {
+                            if (quantity > -1)
+                            {
+                                int lastRecordID = 0;
+                                if (lstTransferOrderPickedQuantities.Any())
+                                {
+                                    var previousRead = lstTransferOrderPickedQuantities.Where(x => x.docNo == lstTransferOrderQuantityInsertInfo.First().docNo && x.docLineNo == lstTransferOrderQuantityInsertInfo.First().docLineNo && x.shop == obj.shopLocationID);
+                                    if (previousRead.Any())
+                                    {
+                                        lastRecordID = previousRead.First().recordID;
+                                        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                        if (record.Any())
+                                        {
+                                            if (quantity == 0)
+                                            {
+                                                if (record.Any())
+                                                {
+                                                    lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
+                                                    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                                    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                                    {
+                                                        transferReceiveRecordID = 0;
+                                                        DisplaySuccessMessage("SALVESTATUD!");
+                                                        ShowKeyBoard.Hide(this);
+                                                        PrepareTransferReceiveOrderLines();
+                                                    }
+                                                    else
+                                                    {
+                                                        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                record.First().pickedQty = quantity;
+                                                record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : lblTransferOrderQuantityInsertQuantityUOM.Text;
+                                                record.First().recordDate = DateTime.Now;
+                                                string data1 = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                                var writeTransferOrderPickedQuantitiesDbToFile1 = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data1, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                if (writeTransferOrderPickedQuantitiesDbToFile1.Item1)
+                                                {
+                                                    DisplaySuccessMessage("SALVESTATUD!");
+                                                    ShowKeyBoard.Hide(this);
+                                                    proceed = false;
+                                                    PrepareTransferReceiveOrderLines();
+                                                }
+                                                else
+                                                {
+                                                    DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile1.Item2);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                                    }
+                                }
+                                if (proceed)
+                                {
+                                    if (quantity == 0)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
+                                        {
+                                            docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
+                                            docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
+                                            initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                                            pickedQty = quantity,
+                                            recordDate = DateTime.Now,
+                                            shop = lstTransferOrderQuantityInsertInfo.First().shop,
+                                            itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
+                                            barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
+                                            magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
+                                            recordID = lastRecordID + 1
+                                        });
+
+                                        //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                        string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+
+                                        var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                        if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                        {
+
+                                            DisplaySuccessMessage("SALVESTATUD!");
+                                            ShowKeyBoard.Hide(this);
+                                            PrepareTransferReceiveOrderLines();
+                                        }
+                                        else
+                                        {
+                                            DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                        }
+                                    }
+                                }
 
 
 
-                        //Debug.WriteLine("X2");
-                        //if (transferReceiveRecordID == 0)
-                        //{
-                        //    int lastRecordID = 0;
-                        //    if (lstTransferOrderPickedQuantities.Any())
-                        //    {
-                        //        lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
-                        //    }
-                        //    lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
-                        //    {
-                        //        docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
-                        //        docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
-                        //        initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
-                        //        pickedQty = quantity,
-                        //        recordDate = DateTime.Now,
-                        //        shop = lstTransferOrderQuantityInsertInfo.First().shop,
-                        //        recordID = lastRecordID + 1,
-                        //        barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
-                        //        itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
-                        //        magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
-                        //    });
+                                //Debug.WriteLine("X2");
+                                //if (transferReceiveRecordID == 0)
+                                //{
+                                //    int lastRecordID = 0;
+                                //    if (lstTransferOrderPickedQuantities.Any())
+                                //    {
+                                //        lastRecordID = lstTransferOrderPickedQuantities.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+                                //    }
+                                //    lstTransferOrderPickedQuantities.Add(new ListOfTRFRCVToExport
+                                //    {
+                                //        docNo = lstTransferOrderQuantityInsertInfo.First().docNo,
+                                //        docLineNo = lstTransferOrderQuantityInsertInfo.First().docLineNo,
+                                //        initialQty = lstTransferOrderQuantityInsertInfo.First().initialQty,
+                                //        pickedQty = quantity,
+                                //        recordDate = DateTime.Now,
+                                //        shop = lstTransferOrderQuantityInsertInfo.First().shop,
+                                //        recordID = lastRecordID + 1,
+                                //        barCode = lstTransferOrderQuantityInsertInfo.First().barCode,
+                                //        itemCode = lstTransferOrderQuantityInsertInfo.First().itemCode,
+                                //        magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text,
+                                //    });
 
-                        //    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                        //    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+                                //    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                //    string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
-                        //    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                        //    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                        //    {
-                        //        DisplaySuccessMessage("SALVESTATUD!");
-                        //        ShowKeyBoard.Hide(this);
-                        //        PrepareTransferReceiveOrderLines();
-                        //    }
-                        //    else
-                        //    {
-                        //        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    if (quantity == 0)
-                        //    {
-                        //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
-                        //        if (record.Any())
-                        //        {
-                        //            lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
-                        //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                        //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+                                //    var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                //    if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                //    {
+                                //        DisplaySuccessMessage("SALVESTATUD!");
+                                //        ShowKeyBoard.Hide(this);
+                                //        PrepareTransferReceiveOrderLines();
+                                //    }
+                                //    else
+                                //    {
+                                //        DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    if (quantity == 0)
+                                //    {
+                                //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                //        if (record.Any())
+                                //        {
+                                //            lstTransferOrderPickedQuantities.Remove(record.Take(1).First());
+                                //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
-                        //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                        //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                        //            {
-                        //                transferReceiveRecordID = 0;
-                        //                DisplaySuccessMessage("SALVESTATUD!");
-                        //                ShowKeyBoard.Hide(this);
-                        //                PrepareTransferReceiveOrderLines();
-                        //            }
-                        //            else
-                        //            {
-                        //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                        //            }
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        Debug.WriteLine("X3 " + transferReceiveRecordID);
-                        //        Debug.WriteLine("AA " + lstTransferOrderPickedQuantities.First().recordID);
-                        //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
-                        //        if (record.Any())
-                        //        {
-                        //            record.First().pickedQty = quantity;
-                        //            record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text;
-                        //            record.First().recordDate = DateTime.Now;
+                                //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                //            {
+                                //                transferReceiveRecordID = 0;
+                                //                DisplaySuccessMessage("SALVESTATUD!");
+                                //                ShowKeyBoard.Hide(this);
+                                //                PrepareTransferReceiveOrderLines();
+                                //            }
+                                //            else
+                                //            {
+                                //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                //            }
+                                //        }
+                                //    }
+                                //    else
+                                //    {
+                                //        Debug.WriteLine("X3 " + transferReceiveRecordID);
+                                //        Debug.WriteLine("AA " + lstTransferOrderPickedQuantities.First().recordID);
+                                //        var record = lstTransferOrderPickedQuantities.Where(x => x.recordID == transferReceiveRecordID);
+                                //        if (record.Any())
+                                //        {
+                                //            record.First().pickedQty = quantity;
+                                //            record.First().magnitude = lblTransferOrderQuantityInsertQuantityUOM.IsVisible ? lblTransferOrderQuantityInsertQuantityUOM.Text : btnTransferOrderQuantityInsertQuantityUOM.Text;
+                                //            record.First().recordDate = DateTime.Now;
 
-                        //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                        //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
+                                //            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                //            string data = JsonConvert.SerializeObject(lstTransferOrderPickedQuantities, jSONsettings);
 
-                        //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                        //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
-                        //            {
-                        //                DisplaySuccessMessage("SALVESTATUD!");
-                        //                ShowKeyBoard.Hide(this);
-                        //                PrepareTransferReceiveOrderLines();
-                        //            }
-                        //            else
-                        //            {
-                        //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
-                        //            }
-                        //        }
-                        //        //}
-                        //    }
-                        //}
-                    }
-                    else
-                    {
-                        DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                                //            var writeTransferOrderPickedQuantitiesDbToFile = await WriteTransferOrderPickedQuantitiesRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                //            if (writeTransferOrderPickedQuantitiesDbToFile.Item1)
+                                //            {
+                                //                DisplaySuccessMessage("SALVESTATUD!");
+                                //                ShowKeyBoard.Hide(this);
+                                //                PrepareTransferReceiveOrderLines();
+                                //            }
+                                //            else
+                                //            {
+                                //                DisplayFailMessage(writeTransferOrderPickedQuantitiesDbToFile.Item2);
+                                //            }
+                                //        }
+                                //        //}
+                                //    }
+                                //}
+                            }
+                            else
+                            {
+                                DisplayFailMessage("KOGUS PEAB OLEMA NUMBER!");
+                            }
+                        }
                     }
                 }
             }
@@ -4603,7 +4966,11 @@ namespace BauhofWMS
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
+
+
         #endregion
+
+       
     }
 }
     

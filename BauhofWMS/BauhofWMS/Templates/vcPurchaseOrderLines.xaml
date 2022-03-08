@@ -5,10 +5,11 @@
              xmlns:converters="clr-namespace:BauhofWMS.Converters"
              x:Class="BauhofWMS.Templates.vcPurchaseOrderLines">
     <ViewCell.View>
-        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="White">
+        <Frame x:Name="frame" Padding="1" CornerRadius="0" BorderColor="Navy" BackgroundColor="{Binding completelyPicked, Converter={StaticResource ConvertListViewPurchaseOrderColorByRemainingQty}}" >
             <Frame.Resources>
                 <ResourceDictionary>
                     <converters:ListViewSelectedColorConverter x:Key="ListViewSelectedColorConverter"/>
+                    <converters:ConvertListViewPurchaseOrderColorByRemainingQty x:Key="ConvertListViewPurchaseOrderColorByRemainingQty"/>
                     <converters:ConvertSKUColor x:Key="ConvertSKUColor"/>
                     <converters:ConvertDecimalSpaces x:Key="ConvertDecimalSpaces"/>
                     <converters:ConvertDateTimeDefault x:Key="ConvertDateTimeDefault"/>
