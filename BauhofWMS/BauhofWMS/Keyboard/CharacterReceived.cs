@@ -156,29 +156,31 @@ namespace BauhofWMS.Keyboard
                                             focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString()).ToUpper();
                                         }
                                         break;
-                                    //case "entPurchaseOrderQuantityInsertQuantity":
-                                    //    {
-                                    //        Editor focusedEditor = mp.FindByName<Editor>(mp.focusedEditor);
-                                            
-                                    //        if (mp.defaultvalueOverride)
-                                    //        {
-                                    //            if (receivedChar.ToString() == "1")
-                                    //            {
-                                    //                focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString()).ToUpper();
-                                    //                mp.defaultvalueOverride = false;
-                                    //            }
-                                    //            else
-                                    //            {
-                                    //                focusedEditor.Text = (receivedChar.ToString()).ToUpper();
-                                    //            }
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString()).ToUpper();
-                                    //        }
+                                    case "entPurchaseOrderQuantityInsertQuantity":
+                                        {
+                                            System.Diagnostics.Debug.WriteLine("entPurchaseOrderQuantityInsertQuantity pressed: " + receivedChar.ToString() + " mp.defaultvalueOverride: " + mp.defaultvalueOverride);
+                                            Editor focusedEditor = mp.FindByName<Editor>(mp.focusedEditor);
+
+                                            if (mp.defaultvalueOverride)
+                                            {
+                                                mp.defaultvalueOverride = false;
+                                                if (receivedChar.ToString() == "1")
+                                                {
+                                                    focusedEditor.Text = receivedChar.ToString();
+                                                }
+                                                else
+                                                {
+                                                    focusedEditor.Text = receivedChar.ToString();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString());
                                                 
-                                    //    }
-                                    //    break;
+                                            }
+
+                                        }
+                                        break;
                                     default:
                                         {
                                             Entry focusedEditor = mp.FindByName<Entry>(mp.focusedEditor);
