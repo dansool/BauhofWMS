@@ -1202,16 +1202,13 @@ namespace BauhofWMS
         #endregion
 
         #region stkSettings
-
         public void PrepareSettings()
         {
-            
             CollapseAllStackPanels.Collapse(this);
             stkSettings.IsVisible = true;
             obj.mainOperation = "";
             obj.currentLayoutName = "Settings";
         }
-
 
         private void rbtnProduction_CheckChanged(object sender, EventArgs e)
         {
@@ -1319,7 +1316,7 @@ namespace BauhofWMS
 
         private void rbtnPurchaseReceiveQtySumNo_CheckChanged(object sender, EventArgs e)
         {
-            rbtnPurchaseReceiveQtySumNo.IsChecked = false;
+            rbtnPurchaseReceiveQtySumYes.IsChecked = false;
             obj.showPurchaseReceiveQtySum = false;
         }
 
@@ -4579,6 +4576,8 @@ namespace BauhofWMS
                     entTransferOrderQuantityInsertQuantity.BackgroundColor = Color.Yellow;
                     ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
                 }
+
+                defaultvalueOverride = true;
             }
             catch (Exception ex)
             {

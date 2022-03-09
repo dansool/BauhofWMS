@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BauhofWMS.StackPanelOperations;
 using BauhofWMS.Scanner;
-
+using System.Diagnostics;
 namespace BauhofWMS.Keyboard
 {
     public class CharacterReceived
@@ -158,9 +158,7 @@ namespace BauhofWMS.Keyboard
                                         break;
                                     case "entPurchaseOrderQuantityInsertQuantity":
                                         {
-                                            System.Diagnostics.Debug.WriteLine("entPurchaseOrderQuantityInsertQuantity pressed: " + receivedChar.ToString() + " mp.defaultvalueOverride: " + mp.defaultvalueOverride);
-                                            Editor focusedEditor = mp.FindByName<Editor>(mp.focusedEditor);
-
+                                            Entry focusedEditor = mp.FindByName<Entry>(mp.focusedEditor);
                                             if (mp.defaultvalueOverride)
                                             {
                                                 mp.defaultvalueOverride = false;
@@ -176,9 +174,29 @@ namespace BauhofWMS.Keyboard
                                             else
                                             {
                                                 focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString());
-                                                
                                             }
+                                        }
+                                        break;
 
+                                    case "entTransferOrderQuantityInsertQuantity":
+                                        {
+                                            Entry focusedEditor = mp.FindByName<Entry>(mp.focusedEditor);
+                                            if (mp.defaultvalueOverride)
+                                            {
+                                                mp.defaultvalueOverride = false;
+                                                if (receivedChar.ToString() == "1")
+                                                {
+                                                    focusedEditor.Text = receivedChar.ToString();
+                                                }
+                                                else
+                                                {
+                                                    focusedEditor.Text = receivedChar.ToString();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                focusedEditor.Text = (focusedEditor.Text + receivedChar.ToString());
+                                            }
                                         }
                                         break;
                                     default:
