@@ -116,6 +116,9 @@ namespace BauhofWMS
 
         public bool defaultvalueOverride;
 
+        public string entPurchaseReceiveOrderLinesSearchValue;
+        public string entTransferReceiveOrderLinesSearchValue;
+
         #endregion
         #region lists
         public List<ListOfSettings> lstSettings = new List<ListOfSettings>();
@@ -1666,31 +1669,31 @@ namespace BauhofWMS
                 shop = s.First().shop,
                 shipmentDate = s.First().shipmentDate,
             }).ToList().OrderBy(x => x.shipmentDate).ToList();
-            foreach (var r in lstTransferOrders)
-            {
-                var transferRowCount = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
-                if (transferRowCount.Any())
-                {
-                    r.transferRowCount = transferRowCount.Count();
-                }
+            //foreach (var r in lstTransferOrders)
+            //{
+            //    var transferRowCount = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+            //    if (transferRowCount.Any())
+            //    {
+            //        r.transferRowCount = transferRowCount.Count();
+            //    }
 
-                var transferPickedCount = lstTransferOrderPickedQuantities.Where(x => x.docNo == r.docNo);
-                if (transferPickedCount.Any())
-                {
-                    r.transferPickedRowCount = transferPickedCount.Count();
-                }
+            //    var transferPickedCount = lstTransferOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+            //    if (transferPickedCount.Any())
+            //    {
+            //        r.transferPickedRowCount = transferPickedCount.Count();
+            //    }
 
-                if (r.transferRowCount == r.transferPickedRowCount)
-                {
-                    r.transferOrderPicked = true;
-                }
-                else
-                {
-                    r.transferOrderPicked = false;
-                }
-                string shopName = lstShopRelations.Where(x => x.shopID == r.receivedFromShop).ToList().First().shopName;
-                r.receivedFromName = shopName;
-            }
+            //    if (r.transferRowCount == r.transferPickedRowCount)
+            //    {
+            //        r.transferOrderPicked = true;
+            //    }
+            //    else
+            //    {
+            //        r.transferOrderPicked = false;
+            //    }
+            //    string shopName = lstShopRelations.Where(x => x.shopID == r.receivedFromShop).ToList().First().shopName;
+            //    r.receivedFromName = shopName;
+            //}
             PrepareTransferReceiveOrders();
         }
 
@@ -3442,7 +3445,6 @@ namespace BauhofWMS
                         }
                         currentPurchaseOrder = "";
                     }
-
                 }
 
 
@@ -3455,7 +3457,7 @@ namespace BauhofWMS
                 //    }
                 //}
 
-                LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders.OrderByDescending(x => x.shipToday).ThenBy(x => x.shipmentDate);
+                LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders.OrderBy(x => x.shipmentDate);
                 focusedEditor = "entPurchaseReceiveOrders";
 
                 btnOperationsPurchaseReceive.IsEnabled = true;
@@ -3482,10 +3484,56 @@ namespace BauhofWMS
                     {
                         DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
                     }
+                    foreach (var r in result)
+                    {
+                        var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                        if (purchaseRowCount.Any())
+                        {
+                            r.purchaseRowCount = purchaseRowCount.Count();
+                        }
+
+                        var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                        if (purchasePickedCount.Any())
+                        {
+                            r.purchasePickedRowCount = purchasePickedCount.Count();
+                        }
+
+                        if (r.purchaseRowCount == r.purchasePickedRowCount)
+                        {
+                            r.purchaseOrderPicked = true;
+                        }
+                        else
+                        {
+                            r.purchaseOrderPicked = false;
+                        }
+                    }
                     LstvPurchaseReceiveOrders.ItemsSource = result;
                 }
                 else
                 {
+                    foreach (var r in lstPurchaseOrders)
+                    {
+                        var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                        if (purchaseRowCount.Any())
+                        {
+                            r.purchaseRowCount = purchaseRowCount.Count();
+                        }
+
+                        var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                        if (purchasePickedCount.Any())
+                        {
+                            r.purchasePickedRowCount = purchasePickedCount.Count();
+                        }
+
+                        if (r.purchaseRowCount == r.purchasePickedRowCount)
+                        {
+                            r.purchaseOrderPicked = true;
+                        }
+                        else
+                        {
+                            r.purchaseOrderPicked = false;
+                        }
+                    }
                     LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrders;
                 }
             }
@@ -3535,23 +3583,78 @@ namespace BauhofWMS
             {
                 foreach (var p in purchaseRowsForScanedItem)
                 {
+                    Debug.WriteLine("p found: " + p.itemCode + "  " + p.barCode);
                     var lst = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.itemCode == p.itemCode);
                     foreach (var l in lst)
                     {
+                        Debug.WriteLine("l found: " + l.itemCode + " " + l.docNo + " " + l.barCode);
+                        var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == l.docNo);
+                        if (purchaseRowCount.Any())
+                        {                            
+                            l.purchaseRowCount = purchaseRowCount.Count();
+                            Debug.WriteLine("l purchaseRowCount: " + purchaseRowCount.Count());
+                        }
+
+                        var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == l.docNo);
+                        if (purchasePickedCount.Any())
+                        {
+                            l.purchasePickedRowCount = purchasePickedCount.Count();
+                            Debug.WriteLine("l purchasePickedRowCount: " + l.purchasePickedRowCount);
+                        }
+
+                        if (l.purchaseRowCount == l.purchasePickedRowCount)
+                        {
+                            l.purchaseOrderPicked = true;
+                            Debug.WriteLine("l purchaseOrderPicked: " + l.purchaseOrderPicked);
+                        }
+                        else
+                        {
+                            l.purchaseOrderPicked = false;
+                            Debug.WriteLine("l purchaseOrderPicked: " + l.purchaseOrderPicked);
+                        }
+
                         if (lstPurchaseOrdersFiltered.Any())
                         {
                             var exists = lstPurchaseOrdersFiltered.Where(x => x.docNo == l.docNo);
                             if (!exists.Any())
                             {
+                                Debug.WriteLine("exists add");
                                 lstPurchaseOrdersFiltered.Add(l);
                             }
                         }
                         else
                         {
+                            Debug.WriteLine("first add");
                             lstPurchaseOrdersFiltered.Add(l);
                         }
                     }
                 }
+
+
+                //foreach (var r in lstPurchaseOrdersFiltered)
+                //{
+                //    var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                //    if (purchaseRowCount.Any())
+                //    {
+                //        r.purchaseRowCount = purchaseRowCount.Count();
+                //    }
+
+                //    var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                //    if (purchasePickedCount.Any())
+                //    {
+                //        r.purchasePickedRowCount = purchasePickedCount.Count();
+                //    }
+
+                //    if (r.purchaseRowCount == r.purchasePickedRowCount)
+                //    {
+                //        r.purchaseOrderPicked = true;
+                //    }
+                //    else
+                //    {
+                //        r.purchaseOrderPicked = false;
+                //    }
+                //}
+
                 LstvPurchaseReceiveOrders.ItemsSource = null;
                 LstvPurchaseReceiveOrders.ItemsSource = lstPurchaseOrdersFiltered;
             }
@@ -3671,6 +3774,7 @@ namespace BauhofWMS
 
         private void btnPurchaseReceiveOrderLinesSearch_Clicked(object sender, EventArgs e)
         {
+            entPurchaseReceiveOrderLinesSearchValue = entPurchaseReceiveOrderLines.Text;
             SearchPurchaseReceiveOrderLines();
         }
 
@@ -3678,19 +3782,15 @@ namespace BauhofWMS
         {
             try
             {
-                Debug.WriteLine(entPurchaseReceiveOrderLines.Text);
-                if (!string.IsNullOrEmpty(entPurchaseReceiveOrderLines.Text))
+                if (!string.IsNullOrEmpty(entTransferReceiveOrderLines.Text))
                 {
-                    string searchValue = entPurchaseReceiveOrderLines.Text.ToUpper();
-                    var result = lstPurchaseOrderLines.Where(x =>
-                    x.itemCode.ToUpper().Contains(searchValue) ||
-                    x.itemDesc.ToUpper().Contains(searchValue) ||
-                    x.barCode.ToUpper().Contains(searchValue)).ToList();
-
+                    string searchValue = entTransferReceiveOrderLines.Text;
+                    var result = lstPurchaseOrderLines.Where(x => !string.IsNullOrEmpty(x.barCode) && ( x.itemCode.Contains(searchValue) || x.itemDesc.Contains(searchValue) || x.barCode.Contains(searchValue))).ToList();
                     if (!result.Any())
                     {
                         DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
                     }
+                    else
                     {
                         if (result.Count() == 1)
                         {
@@ -3698,17 +3798,24 @@ namespace BauhofWMS
                             lstPurchaseOrderQuantityInsertInfo = result;
                             PreparePurchaseOrderQuantityInsert();
                         }
+                        else
+                        {
+                            DisplayAlert("OTSING", "LEITI ROHKEM KUI 1 RIDA. PALUN VALI KAUP KÄSITSI!", "OK");
+                        }
                     }
+                    LstvPurchaseReceiveOrderLines.ItemsSource = null;
                     LstvPurchaseReceiveOrderLines.ItemsSource = result;
 
                 }
                 else
                 {
+                    LstvPurchaseReceiveOrderLines.ItemsSource = null;
                     LstvPurchaseReceiveOrderLines.ItemsSource = lstPurchaseOrderLines;
                 }
             }
             catch (Exception ex)
             {
+                DisplayAlert("viga", ex.Message, "OK");
                 WriteLog.Write(this, this.GetType().Name + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
@@ -3733,16 +3840,25 @@ namespace BauhofWMS
                     if (previousRead.Any())
                     {
                         var line = lstPurchaseOrderQuantityInsertInfo.First().docLineNo.Replace(".",",").Split(new[] { "," }, StringSplitOptions.None);
-                        if (!await YesNoDialog("OSTU VASTUVÕTT", lstPurchaseOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                        if (!obj.showPurchaseReceiveQtySum)
                         {
-                            proceed = false;
+                            if (!await YesNoDialog("OSTU VASTUVÕTT", lstPurchaseOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                            {
+                                proceed = false;
+                            }
+                            else
+                            {
+                                previouslyReadQty = previousRead.First().pickedQty;
+                                purchReceiveRecordID = previousRead.First().recordID;
+                                previouslyReadMagnitude = previousRead.First().magnitude;
+
+                            }
                         }
                         else
                         {
                             previouslyReadQty = previousRead.First().pickedQty;
                             purchReceiveRecordID = previousRead.First().recordID;
                             previouslyReadMagnitude = previousRead.First().magnitude;
-                            
                         }
                     }
                 }
@@ -4197,10 +4313,60 @@ namespace BauhofWMS
                     {
                         DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
                     }
+                    foreach (var r in result)
+                    {
+                        var transferRowCount = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                        if (transferRowCount.Any())
+                        {
+                            r.transferRowCount = transferRowCount.Count();
+                        }
+
+                        var transferPickedCount = lstTransferOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                        if (transferPickedCount.Any())
+                        {
+                            r.transferPickedRowCount = transferPickedCount.Count();
+                        }
+
+                        if (r.transferRowCount == r.transferPickedRowCount)
+                        {
+                            r.transferOrderPicked = true;
+                        }
+                        else
+                        {
+                            r.transferOrderPicked = false;
+                        }
+                        string shopName = lstShopRelations.Where(x => x.shopID == r.receivedFromShop).ToList().First().shopName;
+                        r.receivedFromName = shopName;
+                    }
                     LstvTransferReceiveOrders.ItemsSource = result;
                 }
                 else
                 {
+                    foreach (var r in lstTransferOrders)
+                    {
+                        var transferRowCount = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                        if (transferRowCount.Any())
+                        {
+                            r.transferRowCount = transferRowCount.Count();
+                        }
+
+                        var transferPickedCount = lstTransferOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                        if (transferPickedCount.Any())
+                        {
+                            r.transferPickedRowCount = transferPickedCount.Count();
+                        }
+
+                        if (r.transferRowCount == r.transferPickedRowCount)
+                        {
+                            r.transferOrderPicked = true;
+                        }
+                        else
+                        {
+                            r.transferOrderPicked = false;
+                        }
+                        string shopName = lstShopRelations.Where(x => x.shopID == r.receivedFromShop).ToList().First().shopName;
+                        r.receivedFromName = shopName;
+                    }
                     LstvTransferReceiveOrders.ItemsSource = lstTransferOrders;
                 }
             }
@@ -4271,6 +4437,33 @@ namespace BauhofWMS
                         }
                     }
                 }
+
+                foreach (var r in lstTransferOrdersFiltered)
+                {
+                    var transferRowCount = lstInternalTransferReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                    if (transferRowCount.Any())
+                    {
+                        r.transferRowCount = transferRowCount.Count();
+                    }
+
+                    var transferPickedCount = lstTransferOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+                    if (transferPickedCount.Any())
+                    {
+                        r.transferPickedRowCount = transferPickedCount.Count();
+                    }
+
+                    if (r.transferRowCount == r.transferPickedRowCount)
+                    {
+                        r.transferOrderPicked = true;
+                    }
+                    else
+                    {
+                        r.transferOrderPicked = false;
+                    }
+                    string shopName = lstShopRelations.Where(x => x.shopID == r.receivedFromShop).ToList().First().shopName;
+                    r.receivedFromName = shopName;
+                }
+
                 LstvTransferReceiveOrders.ItemsSource = null;
                 LstvTransferReceiveOrders.ItemsSource = lstTransferOrdersFiltered;
             }
@@ -4399,10 +4592,10 @@ namespace BauhofWMS
                 if (!string.IsNullOrEmpty(entTransferReceiveOrderLines.Text))
                 {
                     string searchValue = entTransferReceiveOrderLines.Text.ToUpper();
-                    var result = lstTransferOrderLines.Where(x =>
+                    var result = lstTransferOrderLines.Where(x => !string.IsNullOrEmpty(x.barCode) & (
                     x.itemCode.ToUpper().Contains(searchValue) ||
                     x.itemDesc.ToUpper().Contains(searchValue) ||
-                    x.barCode.ToUpper().Contains(searchValue)).ToList();
+                    x.barCode.ToUpper().Contains(searchValue))).ToList();
 
                     if (!result.Any())
                     {
@@ -4414,6 +4607,10 @@ namespace BauhofWMS
                             lstTransferOrderQuantityInsertInfo = new List<ListOfTransferReceive>();
                             lstTransferOrderQuantityInsertInfo = result;
                             PrepareTransferOrderQuantityInsert();
+                        }
+                        else
+                        {
+                            DisplayAlert("OTSING", "LEITI ROHKEM KUI 1 RIDA. PALUN VALI KAUP KÄSITSI!", "OK");
                         }
                     }
                     LstvTransferReceiveOrderLines.ItemsSource = result;
@@ -4452,16 +4649,26 @@ namespace BauhofWMS
                     if (previousRead.Any())
                     {
                         var line = lstTransferOrderQuantityInsertInfo.First().docLineNo.Replace(".",",").Split(new[] { "," }, StringSplitOptions.None);
-                        if (!await YesNoDialog("ÜLEVIIMISTARNE VASTUVÕTT", lstTransferOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                        if (!obj.showTransferReceiveQtySum)
                         {
-                            proceed = false;
+                            if (!await YesNoDialog("ÜLEVIIMISTARNE VASTUVÕTT", lstTransferOrderQuantityInsertInfo.First().docNo + " RIDA " + line[0] + " ON JUBA LOETUD - KAS SOOVID PARANDADA?", false))
+                            {
+                                proceed = false;
+                            }
+                            else
+                            {
+                                Console.WriteLine("5");
+                                previouslyReadQty = previousRead.First().pickedQty;
+                                transferReceiveRecordID = previousRead.First().recordID;
+                                previouslyReadMagnitude = previousRead.First().magnitude;
+                            }
                         }
                         else
                         {
                             Console.WriteLine("5");
                             previouslyReadQty = previousRead.First().pickedQty;
                             transferReceiveRecordID = previousRead.First().recordID;
-                            previouslyReadMagnitude = previousRead.First().magnitude;                            
+                            previouslyReadMagnitude = previousRead.First().magnitude;
                         }
                     }
                 }
