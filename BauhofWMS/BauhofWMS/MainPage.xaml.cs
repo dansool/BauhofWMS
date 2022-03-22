@@ -2510,7 +2510,8 @@ namespace BauhofWMS
                         || x.barCode.Contains(entTransferReadCode.Text)).ToList();
                         step = 3;
                         swlstInternalRecordDBSearch.Stop();
-                        WriteLog.Write(this, "SearchEntTransferReadCode searched value " + entTransferReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods. Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+                        WriteLog.Write(this, "SearchEntTransferReadCode searched value " + entTransferReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" + 
+                            "Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
                         step = 4;
                         if (result.Any())
                         {
@@ -3782,10 +3783,14 @@ namespace BauhofWMS
         {
             try
             {
-                if (!string.IsNullOrEmpty(entTransferReceiveOrderLines.Text))
+                if (!string.IsNullOrEmpty(entPurchaseReceiveOrderLines.Text))
                 {
-                    string searchValue = entTransferReceiveOrderLines.Text;
-                    var result = lstPurchaseOrderLines.Where(x => !string.IsNullOrEmpty(x.barCode) && ( x.itemCode.Contains(searchValue) || x.itemDesc.Contains(searchValue) || x.barCode.Contains(searchValue))).ToList();
+                    string searchValue = entPurchaseReceiveOrderLines.Text;
+                    var result = lstPurchaseOrderLines.Where(x => 
+                    !string.IsNullOrEmpty(x.barCode) && 
+                    ( x.itemCode.Contains(searchValue) || 
+                      x.itemDesc.Contains(searchValue) || 
+                      x.barCode.Contains(searchValue))).ToList();
                     if (!result.Any())
                     {
                         DisplayFailMessage("OTSITUD VÄÄRTUST EI LEITUD!");
@@ -4588,7 +4593,7 @@ namespace BauhofWMS
         {
             try
             {
-                Debug.WriteLine(entTransferReceiveOrderLines.Text);
+                Debug.WriteLine("entTransferReceiveOrderLines.Text " + entTransferReceiveOrderLines.Text);
                 if (!string.IsNullOrEmpty(entTransferReceiveOrderLines.Text))
                 {
                     string searchValue = entTransferReceiveOrderLines.Text.ToUpper();

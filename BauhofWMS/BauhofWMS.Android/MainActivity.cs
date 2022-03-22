@@ -84,6 +84,7 @@ namespace BauhofWMS.Droid
                 }
             }
         }
+
         public async void LaunchStart()
         {
             var result = await GetDeviceSerial.Get();
