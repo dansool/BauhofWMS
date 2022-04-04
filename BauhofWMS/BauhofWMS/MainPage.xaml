@@ -2093,7 +2093,7 @@
                         <RowDefinition Height="200"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0">
-                        <control:ProgressRing x:Name="prgRing" x:FieldModifier="public" Progress="0" RingThickness="20"/>
+                        <control:ProgressRing x:Name="prgRing" IsVisible="True" x:FieldModifier="public" Progress="0" RingThickness="20"/>
                     </Grid>
                 </Grid>
                 <Label Grid.Column="0" Grid.Row="1" x:Name="lblProgressBar" Text="PALUN OOTA! LAEN ANDMEID!" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" TextColor="White" FontSize="40"/>

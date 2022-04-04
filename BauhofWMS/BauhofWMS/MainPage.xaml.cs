@@ -3192,6 +3192,48 @@ namespace BauhofWMS
                 }
                 focusedEditor = "";
                 LstvStockTakeAddedRowsView.ItemsSource = null;
+
+				foreach (var p in lstInternalInvDB)
+				{
+					string item = p.itemCode;
+					string conf = p.config;
+					
+
+
+					var getPrices = lstInternalRecordDB.Where(x => x.itemCode == item && x.config == conf);
+					if (getPrices.Any())
+					{
+						lstBins = new List<ListOfSKU>();
+						if (!string.IsNullOrEmpty(getPrices.First().SKU))
+						{
+							var parseSKU = getPrices.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+							if (parseSKU.Any())
+							{
+								foreach (var s in parseSKU)
+								{
+									var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
+									if (uniqueSKU.Any())
+									{
+										if (!string.IsNullOrEmpty(uniqueSKU[0]))
+										{
+											Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
+											var cultureInfo = CultureInfo.InvariantCulture;
+
+											if (uniqueSKU[0] == obj.shopLocationID)
+											{
+												Debug.WriteLine("prices found");
+												p.price = decimal.Parse(uniqueSKU[3].Replace(",", "."), cultureInfo);
+												p.soodushind = decimal.Parse(uniqueSKU[6].Replace(",", "."), cultureInfo);
+												p.profiklubihind = decimal.Parse(uniqueSKU[5].Replace(",", "."), cultureInfo);
+												p.meistriklubihind = decimal.Parse(uniqueSKU[4].Replace(",", "."), cultureInfo);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
                 LstvStockTakeAddedRowsView.ItemsSource = lstInternalInvDB;
             }
             catch (Exception ex)
@@ -3253,7 +3295,47 @@ namespace BauhofWMS
             }
             focusedEditor = "";
             LstvTransferAddedRowsView.ItemsSource = null;
-            LstvTransferAddedRowsView.ItemsSource = lstInternalMovementDB;
+
+			foreach (var p in lstInternalMovementDB)
+			{
+				string item = p.itemCode;
+				string conf = p.config;
+
+				var getPrices = lstInternalRecordDB.Where(x => x.itemCode == item && x.config == conf);
+				if (getPrices.Any())
+				{
+					lstBins = new List<ListOfSKU>();
+					if (!string.IsNullOrEmpty(getPrices.First().SKU))
+					{
+						var parseSKU = getPrices.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+						if (parseSKU.Any())
+						{
+							foreach (var s in parseSKU)
+							{
+								var uniqueSKU = s.Split(new[] { "###" }, StringSplitOptions.None);
+								if (uniqueSKU.Any())
+								{
+									if (!string.IsNullOrEmpty(uniqueSKU[0]))
+									{
+										Debug.WriteLine(uniqueSKU[0] + "  " + uniqueSKU[1] + "  " + uniqueSKU[2]);
+										var cultureInfo = CultureInfo.InvariantCulture;
+
+										if (uniqueSKU[0] == obj.shopLocationID)
+										{
+											Debug.WriteLine("prices found");
+											p.price = decimal.Parse(uniqueSKU[3].Replace(",", "."), cultureInfo);
+											p.soodushind = decimal.Parse(uniqueSKU[6].Replace(",", "."), cultureInfo);
+											p.profiklubihind = decimal.Parse(uniqueSKU[5].Replace(",", "."), cultureInfo);
+											p.meistriklubihind = decimal.Parse(uniqueSKU[4].Replace(",", "."), cultureInfo);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			LstvTransferAddedRowsView.ItemsSource = lstInternalMovementDB;
         }
         private async void LstvTransferAddedRowsView_ItemTapped(object sender, ItemTappedEventArgs e)
         {

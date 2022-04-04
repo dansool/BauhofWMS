@@ -124,7 +124,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\dbrecords_2021-10-14_13-34-33.txt" />
     <Content Include="Assets\HonCommands.dll" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />

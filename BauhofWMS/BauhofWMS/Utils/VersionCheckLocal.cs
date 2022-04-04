@@ -25,15 +25,15 @@ namespace BauhofWMS.Utils
             var latestVersion = "";
 
             string latestFilePath = "";
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            foreach (var r in dir.ListFiles())
-            {
-                if (r.Name.ToUpper().StartsWith("BAUHOFWMS.") && r.Name.ToUpper().EndsWith(".APK"))
-                {
-                    latestVersion = r.Name.ToUpper().Replace("BAUHOFWMS.", "").Replace("X", "").Replace(".APK", "");
-                    latestFilePath = r.Name;
-                }
-            }
+            //var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+            //foreach (var r in dir.ListFiles())
+            //{
+            //    if (r.Name.ToUpper().StartsWith("BAUHOFWMS.") && r.Name.ToUpper().EndsWith(".APK"))
+            //    {
+            //        latestVersion = r.Name.ToUpper().Replace("BAUHOFWMS.", "").Replace("X", "").Replace(".APK", "");
+            //        latestFilePath = r.Name;
+            //    }
+            //}
 
 
 

@@ -42,8 +42,9 @@ namespace BauhofWMSDLL.ListDefinitions
         public bool showPurchaseReceiveQtySum { get; set; }
         public bool showTransferReceiveQtySum { get; set; }
         
+		public string versionCheckFallBackValue { get; set; }
 
-        public string smtpServer { get; set; }
+		public string smtpServer { get; set; }
         public bool isSelected
         {
             get { return m_isVisible; }

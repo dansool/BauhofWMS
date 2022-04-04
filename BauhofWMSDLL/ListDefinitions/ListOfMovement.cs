@@ -17,5 +17,9 @@ namespace BauhofWMSDLL.ListDefinitions
         public string uom { get; set; }
         public string config { get; set; }
 
-    }
+		public decimal price { get; set; }
+		public decimal soodushind { get; set; }
+		public decimal meistriklubihind { get; set; }
+		public decimal profiklubihind { get; set; }
+	}
 }

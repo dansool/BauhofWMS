@@ -237,7 +237,7 @@ namespace BauhofOffline
             Environment.Exit(0);
         }
 
-        private void CheckVersion()
+        private async void CheckVersion()
         {
             int step = 0;
             try
@@ -354,9 +354,39 @@ namespace BauhofOffline
                                 }
                                 catch (Exception ex)
                                 {
-                                    proceed = false;
-                                    WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
-                                    MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD! step: " + step + "  " + "\r\n" + ex.Message);
+									if (ex.Message.Contains("(404)"))
+									{
+										if (!string.IsNullOrEmpty(lstSettings.First().versionCheckFallBackValue))
+										{
+											destinationLatestFileNameText = lstSettings.First().versionCheckFallBackValue;
+										}
+										else
+										{ 
+											string versionCheckFallBackValueFilePath = lstSettings.First().apkFolder + "versionCheckFallBackValue.txt";
+											using (var reader = new StreamReader(versionCheckFallBackValueFilePath, true))
+											{
+												string line;
+												while ((line = await reader.ReadLineAsync()) != null)
+												{
+													destinationLatestFileNameText = line;
+												}
+											}
+
+											
+										}
+										else
+										{
+											proceed = false;
+											WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA, SEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA versionCheckFallBackValue VÄÄRTUST KONFIGURATSIOONIST!", 2);
+											MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDASEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA versionCheckFallBackValue VÄÄRTUST KONFIGURATSIOONIST! step: " + step + "  " + "\r\n" + ex.Message);
+										}
+									}
+									else
+									{
+										proceed = false;
+										WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
+										MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD! step: " + step + "  " + "\r\n" + ex.Message);
+									}
                                 }
                                 step = 33;
                                 if (proceed)
@@ -365,32 +395,41 @@ namespace BauhofOffline
                                     if (!string.IsNullOrEmpty(destinationLatestFileNameText))
                                     {
                                         step = 35;
-                                        var textSplit = destinationLatestFileNameText.Split(new[] { "#_#" }, StringSplitOptions.None);
-                                        step = 36;
-                                        if (textSplit.Any())
-                                        {
-                                            step = 37;
-                                            foreach (var s in textSplit)
-                                            {
-                                                step = 38;
-                                                if (s.StartsWith("MAJOR:"))
-                                                {
-                                                    step = 39;
-                                                    txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
-                                                    step = 40;
-                                                    WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
-                                                }
-                                            }
-                                        }
+										if (destinationLatestFileNameText.Contains("#_#"))
+										{
+											var textSplit = destinationLatestFileNameText.Split(new[] { "#_#" }, StringSplitOptions.None);
+											step = 36;
+											if (textSplit.Any())
+											{
+												step = 37;
+												foreach (var s in textSplit)
+												{
+													step = 38;
+													if (s.StartsWith("MAJOR:"))
+													{
+														step = 39;
+														txtBkLatestVersionValue.Text = s.Replace("MAJOR:", "");
+														step = 40;
+														WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
+													}
+												}
+											}
+										}
+										else
+										{
+											txtBkLatestVersionValue.Text = destinationLatestFileNameText;
+											step = 401;
+											WriteLog(@"CheckVersion version:" + txtBkLatestVersionValue.Text, 2);
+										}
                                     }
-                                    else
-                                    {
-                                        step = 41;
-                                        proceed = false;
-                                        WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI", 2);
-                                        MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI");
-                                    }
-                                }
+									else
+									{
+										step = 41;
+										proceed = false;
+										WriteLog(@"CheckVersion VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI", 2);
+										MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA: " + @"destinationLatestFileNameText MUUTUJA OLI TÜHI");
+									}
+								}
                             }
                             step = 41;
                             if (proceed)
@@ -3082,9 +3121,15 @@ namespace BauhofOffline
                     row.senderEmail = confCollection["senderEmail"].Value.ToString();
                     WriteLog("GetConfiguration senderEmail = " + row.debugLevel, 2);
                 }
+				if (confCollection["versionCheckFallBackValue"] != null)
+				{
+					row.versionCheckFallBackValue = confCollection["versionCheckFallBackValue"].Value.ToString();
+					WriteLog("GetConfiguration versionCheckFallBackValue = " + row.versionCheckFallBackValue, 2);
+				}
+				
 
-                
-                lstSettings.Add(row);
+
+				lstSettings.Add(row);
                 WriteLog("GetConfiguration complete", 1);
             }
             catch (Exception ex)

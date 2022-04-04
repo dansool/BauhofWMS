@@ -14,7 +14,8 @@ namespace BauhofWMSDLL.Utils
         public async Task<string> Get()
         {
             System.Net.Http.HttpClient httpClient = new HttpClient();
-            var httpResponse = await httpClient.GetStringAsync("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion.txt");
+            var httpResponse = await httpClient.GetStringAsync("http://www.develok.ee/BauhofWMS/Install/BauhofWMSVersion2.txt");
+			Debug.WriteLine("POLE FAILI!");
             return httpResponse.ToString();
         }
     }

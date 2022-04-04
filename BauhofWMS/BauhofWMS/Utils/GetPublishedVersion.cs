@@ -18,7 +18,9 @@ namespace BauhofWMS.Utils
             try
             {
                 var result = await CheckBauhofWMSVersion.Get();
-                return new Tuple<bool, string, string>(true, null, result);
+				Debug.WriteLine("GetPublishedVersion" + result);
+
+				return new Tuple<bool, string, string>(true, null, result);
             }
             catch (Exception ex)
             {
