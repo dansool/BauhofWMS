@@ -1700,7 +1700,8 @@ namespace BauhofWMS
        
         private void btnOperationsPurchaseReceive_Clicked(object sender, EventArgs e)
         {
-            btnOperationsPurchaseReceive.IsEnabled = false;
+			stkOperations.IsEnabled = false;
+			btnOperationsPurchaseReceive.IsEnabled = false;
             lstPurchaseOrders = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID).ToList().GroupBy(x => x.docNo).Select(s => new ListOfPurchaseReceive
             {
                 docNo = s.First().docNo,
@@ -1718,23 +1719,49 @@ namespace BauhofWMS
                     r.purchaseRowCount = purchaseRowCount.Count();
                 }
 
-                var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == r.docNo);
-                if (purchasePickedCount.Any())
-                {
-                    r.purchasePickedRowCount = purchasePickedCount.Count();
-                }
+				var allPicked = true;
 
-                if (r.purchaseRowCount == r.purchasePickedRowCount)
-                {
-                    r.purchaseOrderPicked = true;
-                }
-                else
-                {
-                    r.purchaseOrderPicked = false;
-                }
+				foreach (var p in purchaseRowCount)
+				{
+
+					var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == p.docNo && x.docLineNo == p.docLineNo);
+					if (purchasePickedCount.Any())
+					{
+						r.purchasePickedRowCount = r.purchasePickedRowCount + 1;
+						if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
+						{
+							allPicked = false;
+							//break;
+						}
+					}
+					else
+					{
+						allPicked = false;
+						//break;
+					}
+					r.purchaseOrderPicked = allPicked;
+					currentPurchaseOrder = "";
+				}
+				
+
+				//var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == r.docNo);
+    //            if (purchasePickedCount.Any())
+    //            {
+    //                r.purchasePickedRowCount = purchasePickedCount.Count();
+    //            }
+
+    //            if (r.purchaseRowCount == r.purchasePickedRowCount)
+    //            {
+    //                r.purchaseOrderPicked = true;
+    //            }
+    //            else
+    //            {
+    //                r.purchaseOrderPicked = false;
+    //            }
             }
-            PreparePurchaseReceiveOrders();
-        }
+			stkOperations.IsEnabled = true;
+			PreparePurchaseReceiveOrders();
+		}
         
 
         #endregion
@@ -3506,28 +3533,50 @@ namespace BauhofWMS
                     if (!string.IsNullOrEmpty(currentPurchaseOrder))
                     {
                         var currentRows = lstPurchaseOrders.Where(x => x.docNo == currentPurchaseOrder);
-                        var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == currentPurchaseOrder);
+						currentRows.First().purchasePickedRowCount = 0;
+						var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == currentPurchaseOrder);
                         if (purchaseRowCount.Any())
                         {
                             currentRows.First().purchaseRowCount = purchaseRowCount.Count();
                         }
+						Debug.WriteLine("alustame");
+						var allPicked = true;
+						foreach (var p in purchaseRowCount)
+						{
+							var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder && x.docLineNo == p.docLineNo);
+							if (purchasePickedCount.Any())
+							{
+								currentRows.First().purchasePickedRowCount = currentRows.First().purchasePickedRowCount + 1;
+								if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
+								{
+									allPicked = false;
+									//break;
+								}
+							}
+							else
+							{
+								allPicked = false;
+								//break;
+							}
+						}
+						currentRows.First().purchaseOrderPicked = allPicked;
+						currentPurchaseOrder = "";
+						//var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder);
+						//if (purchasePickedCount.Any())
+						//{
+						//    currentRows.First().purchasePickedRowCount = purchasePickedCount.Count();
+						//}
 
-                        var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder);
-                        if (purchasePickedCount.Any())
-                        {
-                            currentRows.First().purchasePickedRowCount = purchasePickedCount.Count();
-                        }
-
-                        if (currentRows.First().purchaseRowCount == currentRows.First().purchasePickedRowCount)
-                        {
-                            currentRows.First().purchaseOrderPicked = true;
-                        }
-                        else
-                        {
-                            currentRows.First().purchaseOrderPicked = false;
-                        }
-                        currentPurchaseOrder = "";
-                    }
+						//if (currentRows.First().purchaseRowCount == currentRows.First().purchasePickedRowCount)
+						//{
+						//    currentRows.First().purchaseOrderPicked = true;
+						//}
+						//else
+						//{
+						//    currentRows.First().purchaseOrderPicked = false;
+						//}
+						//currentPurchaseOrder = "";
+					}
                 }
 
 
@@ -3797,7 +3846,11 @@ namespace BauhofWMS
                     var lineInfo = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder && x.docLineNo == p.docLineNo);
                     if (lineInfo.Any())
                     {
-                        p.pickedQty = lineInfo.First().pickedQty;
+						Debug.WriteLine("lineInfo.First().pickedQty " + lineInfo.First().pickedQty);
+						Debug.WriteLine("lineInfo.First().magnitude " + lineInfo.First().magnitude);
+						Debug.WriteLine("p.initialQty " +( p.initialQty - lineInfo.First().pickedQty));
+
+						p.pickedQty = lineInfo.First().pickedQty;
                         p.magnitude = lineInfo.First().magnitude;
                         p.remaininQty = p.initialQty - lineInfo.First().pickedQty;
                        

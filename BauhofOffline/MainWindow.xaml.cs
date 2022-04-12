@@ -354,14 +354,10 @@ namespace BauhofOffline
                                 }
                                 catch (Exception ex)
                                 {
-									if (ex.Message.Contains("(404)"))
+									if (ex.Message.Contains("(404)") || ex.Message.Contains("remote"))
 									{
-										if (!string.IsNullOrEmpty(lstSettings.First().versionCheckFallBackValue))
+										if (File.Exists(lstSettings.First().apkFolder + "versionCheckFallBackValue.txt"))
 										{
-											destinationLatestFileNameText = lstSettings.First().versionCheckFallBackValue;
-										}
-										else
-										{ 
 											string versionCheckFallBackValueFilePath = lstSettings.First().apkFolder + "versionCheckFallBackValue.txt";
 											using (var reader = new StreamReader(versionCheckFallBackValueFilePath, true))
 											{
@@ -371,20 +367,18 @@ namespace BauhofOffline
 													destinationLatestFileNameText = line;
 												}
 											}
-
-											
 										}
 										else
 										{
 											proceed = false;
-											WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA, SEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA versionCheckFallBackValue VÄÄRTUST KONFIGURATSIOONIST!", 2);
-											MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDASEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA versionCheckFallBackValue VÄÄRTUST KONFIGURATSIOONIST! step: " + step + "  " + "\r\n" + ex.Message);
+											WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA, SEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA APK KATALOOGIST!", 2);
+											MessageBox.Show(" VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA, SEST FAILI EI LEITUD INTERNETIST JA EI LEITUD KA APK KATALOOGIST! step: " + step + "  " + "\r\n" + ex.Message);
 										}
 									}
 									else
 									{
 										proceed = false;
-										WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA.FAILI EI LEITUD!", 2);
+										WriteLog(@"CheckVersion step: " + step + "  " + " VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA!" + "\r\n" + ex.Message, 2);
 										MessageBox.Show("VERSIOONIUUENDUST EI ÕNNESTUNUD KONTROLLIDA. FAILI EI LEITUD! step: " + step + "  " + "\r\n" + ex.Message);
 									}
                                 }
