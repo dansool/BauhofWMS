@@ -531,7 +531,7 @@
                             <Label x:Name="lblStockTakeAddedRows" x:FieldModifier="public" Text="LISATUD RIDU KOKKU" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                           <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Start" VerticalOptions="End">
-                            <Label x:Name="lblStockTakeAddedRowsValue" x:FieldModifier="public" Text="7" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
+                            <Label x:Name="lblStockTakeAddedRowsValue" x:FieldModifier="public" Text="0" FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="0,0,0,0"  FontSize="18" TextColor="White"  />
                           </Grid>
                         </Grid>
                       </Grid>

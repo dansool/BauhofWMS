@@ -163,7 +163,8 @@ namespace BauhofWMS
         public List<ListOfTRFRCVToExport> lstTransferOrderPickedQuantitiesToExport = new List<ListOfTRFRCVToExport>();
         public List<ListOfMagnitudes> lstItemMagnitudes = new List<ListOfMagnitudes>();
         public List<ListOfBarcodes> lstBarcodes = new List<ListOfBarcodes>();
-        #endregion
+		#endregion
+		public int trRecCount = 0;
 
         #region MainPage operations
         public MainPage()
@@ -423,33 +424,34 @@ namespace BauhofWMS
                                                     }
                                                 }
 
-                                                //Stopwatch swlstBarcodes = Stopwatch.StartNew();
-                                                //foreach (var n in lstInternalRecordDB)
-                                                //{
-                                                //    if (n.barCode.Contains(";"))
-                                                //    {
-                                                //        var barCodes = n.barCode.Split(new[] { ";" }, StringSplitOptions.None);
-                                                //        if (barCodes.Any())
-                                                //        {
-                                                //            foreach (var p in barCodes)
-                                                //            {
-                                                //                var row = new ListOfBarcodes { barCode = p, itemCode = n.itemCode };
-                                                //                lstBarcodes.Add(row);
-                                                //            }
-                                                //        }
+												Stopwatch swlstBarcodes = Stopwatch.StartNew();
+												foreach (var n in lstInternalRecordDB)
+												{
+													if (n.barCode.Contains(";"))
+													{
+														var barCodes = n.barCode.Split(new[] { ";" }, StringSplitOptions.None);
+														if (barCodes.Any())
+														{
+															foreach (var p in barCodes)
+															{
+																var row = new ListOfBarcodes { barCode = p, itemCode = n.itemCode };
+																lstBarcodes.Add(row);
+															}
+														}
 
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        var row = new ListOfBarcodes { barCode = n.barCode, itemCode = n.itemCode };
-                                                //        lstBarcodes.Add(row);
-                                                //    }
+													}
+													else
+													{
+														var row = new ListOfBarcodes { barCode = n.barCode, itemCode = n.itemCode };
+														lstBarcodes.Add(row);
+													}
 
-                                                //}
-                                                //swlstBarcodes.Stop();
-                                                //WriteLog.Write(this, "lstBarcodes created - " + lstBarcodes.Count().ToString() + " recods. Time elapsed : " + swlstBarcodes.Elapsed.Milliseconds.ToString() + " milliseconds");
+												}
+												swlstBarcodes.Stop();
+												
+												WriteLog.Write(this, "lstBarcodes created - " + lstBarcodes.Count().ToString() + " recods. Time elapsed : " + swlstBarcodes.Elapsed.Milliseconds.ToString() + " milliseconds");
 
-                                            }
+											}
                                         }
                                     }
                                     else
@@ -1481,12 +1483,14 @@ namespace BauhofWMS
 
         private void btnOperationsStocktake_Clicked(object sender, EventArgs e)
         {
-            PrepareStockTake();
+			LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+			PrepareStockTake();
         }
 
         private void btnOperationsTransfer_Clicked(object sender, EventArgs e)
         {
-            PrepareTransfer();
+			LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+			PrepareTransfer();
         }
 
         private void btnOperationsItemInfo_Clicked(object sender, EventArgs e)
@@ -1817,7 +1821,7 @@ namespace BauhofWMS
                     lblStockTakeAddedRowsValue.Text = lstInternalInvDB.Count.ToString();
                 }
                 lstStockTakeInfo = new List<ListOfdbRecords>();
-                LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+                
                 if (lstStockTakeInfo.Any())
                 {
                     lstStockTakeInfo.First().showInvQty = obj.showInvQty;
@@ -2306,25 +2310,30 @@ namespace BauhofWMS
                 lblTransferQuantityUOM.IsVisible = false;
                 frmbtnTransferQuantityOK.IsVisible = false;
                 btnTransferQuantityOK.IsVisible = false;
+				lstInternalMovementDB = new List<ListOfMovementRecords>();
+				Debug.WriteLine("LOEN SISESTATUT0: ALUSTAME");
+				var resultReadMovementRecords = await ReadMovementRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+				if (resultReadMovementRecords.Item1)
+				{
+					Debug.WriteLine("LOEN SISESTATUT1: " + resultReadMovementRecords.Item2);
+					if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
+					{
+						Debug.WriteLine(resultReadMovementRecords.Item2);
+						JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+						lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
+						progressBarActive = false;
+						Debug.WriteLine("LOEN SISESTATUT2: " + resultReadMovementRecords.Item2);
+					}
+				}
+				lblTransferAddedRowsValue.Text = "0";
+				if (lstInternalMovementDB.Any())
+				{
+					lblTransferAddedRowsValue.Text = lstInternalMovementDB.Count.ToString();
+				}
 
-                var resultReadMovementRecords = await ReadMovementRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                if (resultReadMovementRecords.Item1)
-                {
-                    if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
-                    {
-                        Debug.WriteLine(resultReadMovementRecords.Item2);
-                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-                        lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
-                        progressBarActive = false;
-                    }
-                }
-                lblTransferAddedRowsValue.Text = "0";
-                if (lstInternalMovementDB.Any())
-                {
-                    lblTransferAddedRowsValue.Text = lstInternalMovementDB.Count.ToString();
-                }
-                lstTransferInfo = new List<ListOfdbRecords>();
-                LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+				Debug.WriteLine("lblTransferAddedRowsValue.Text: " + lblTransferAddedRowsValue.Text);
+				lstTransferInfo = new List<ListOfdbRecords>();
+                
                 LstvTransferInfo.ItemsSource = null;
                 LstvTransferInfo.ItemsSource = lstTransferInfo;
 
@@ -2417,42 +2426,42 @@ namespace BauhofWMS
                         {
                             step = 12;
                             int lastRecordID = 0;
-                            if (lstInternalMovementDB.Any())
-                            {
-                                step = 13;
-                                lastRecordID = lstInternalMovementDB.OrderByDescending(x => x.recordID).Take(1).First().recordID;
-                                step = 14;
-                            }
-                            step = 15;
-                            lstInternalMovementDB.Add(new ListOfMovementRecords
-                            {
-                                barCode = lstTransferInfo.First().barCode,
-                                itemCode = lstTransferInfo.First().itemCode,
-                                itemDesc = lstTransferInfo.First().itemDesc,
-                                quantity = quantity,
-                                recordDate = DateTime.Now,
-                                uom = lstTransferInfo.First().itemMagnitude,
-                                config = lstTransferInfo.First().config,
-                                recordID = lastRecordID + 1
-                            });
+							if (lstInternalMovementDB.Any())
+							{
+								step = 13;
+								lastRecordID = lstInternalMovementDB.OrderByDescending(x => x.recordID).Take(1).First().recordID;
+								step = 14;
+							}
+							step = 15;
+							lstInternalMovementDB.Add(new ListOfMovementRecords
+							{
+								barCode = lstTransferInfo.First().barCode,
+								itemCode = lstTransferInfo.First().itemCode,
+								itemDesc = lstTransferInfo.First().itemDesc,
+								quantity = quantity,
+								recordDate = DateTime.Now,
+								uom = lstTransferInfo.First().itemMagnitude,
+								config = lstTransferInfo.First().config,
+								recordID = lastRecordID + 1
+							});
 
-                            JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+							JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                             string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
                             step = 16;
-                            var writeMovementDbToFile = await WriteMovementRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                            if (writeMovementDbToFile.Item1)
-                            {
-                                step = 17;
-                                DisplaySuccessMessage("SALVESTATUD!");
-                                PrepareTransfer();
-                            }
-                            else
-                            {
-                                step = 18;
-                                DisplayFailMessage(writeMovementDbToFile.Item2);
-                            }
-                            step = 19;
-                        }
+							var writeMovementDbToFile = await WriteMovementRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+							if (writeMovementDbToFile.Item1)
+							{
+								step = 17;
+								DisplaySuccessMessage("SALVESTATUD!");
+								PrepareTransfer();
+							}
+							else
+							{
+								step = 18;
+								DisplayFailMessage(writeMovementDbToFile.Item2);
+							}
+							step = 19;
+						}
                         else
                         {
                             step = 20;
@@ -2465,22 +2474,22 @@ namespace BauhofWMS
 
                                 JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
                                 string data = JsonConvert.SerializeObject(lstInternalMovementDB, jSONsettings);
-                                step = 22;
-                                var writeMovementDbToFile = await WriteMovementRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-                                if (writeMovementDbToFile.Item1)
-                                {
-                                    step = 23;
-                                    DisplaySuccessMessage("SALVESTATUD!");
-                                    PrepareTransfer();
-                                }
-                                else
-                                {
-                                    step = 24;
-                                    DisplayFailMessage(writeMovementDbToFile.Item2);
-                                }
-                                step = 25;
-                            }
-                            step = 26;
+								step = 22;
+								var writeMovementDbToFile = await WriteMovementRecords.Write(this, data, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+								if (writeMovementDbToFile.Item1)
+								{
+									step = 23;
+									DisplaySuccessMessage("SALVESTATUD!");
+									PrepareTransfer();
+								}
+								else
+								{
+									step = 24;
+									DisplayFailMessage(writeMovementDbToFile.Item2);
+								}
+								step = 25;
+							}
+							step = 26;
                         }
                         step = 27;
                     }
@@ -2495,6 +2504,7 @@ namespace BauhofWMS
             }
             catch (Exception ex)
             {
+				Debug.WriteLine("AA " +this.GetType().Name + " step: " + step + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
                 WriteLog.Write(this, this.GetType().Name + " step: " + step + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
@@ -2517,7 +2527,18 @@ namespace BauhofWMS
             PrepareTransferAddedRowsView();
         }
 
-        public async void SearchEntTransferReadCode()
+		public bool IsDigitsOnly(string str)
+		{
+			foreach (char c in str)
+			{
+				if (c < '0' || c > '9')
+					return false;
+			}
+
+			return true;
+		}
+
+		public async void SearchEntTransferReadCode()
         {
             int step = 0;
             try
@@ -2530,320 +2551,386 @@ namespace BauhofWMS
                     if (entTransferReadCode.Text.Length > 4)
                     {
                         step = 2;
-                        Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
-                        var result = lstInternalRecordDB.Where(x =>
-                           x.itemCode.Contains(entTransferReadCode.Text)
-                        || x.itemDesc.ToUpper().Contains(entTransferReadCode.Text.ToUpper())
-                        || x.barCode.Contains(entTransferReadCode.Text)).ToList();
+						var result = new List<ListOfdbRecords>();
+						Debug.WriteLine("entTransferReadCode.Text.Length " + entTransferReadCode.Text.Length);
+						if (entTransferReadCode.Text.Length == 13 && IsDigitsOnly(entTransferReadCode.Text))
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							Debug.WriteLine("lstBarcodes " + lstBarcodes.Count());
+							if (lstBarcodes.Any())
+							{
+								var n = lstBarcodes.Where(x => x.barCode == entTransferReadCode.Text);
+								if (n.Any())
+								{
+									Debug.WriteLine("n leitud " + n.Count());
+									string itemCode = n.First().itemCode;
+									var preResult = lstInternalRecordDB.Where(x => x.itemCode == itemCode).ToList();
+									result = preResult.Where(x => x.barCode.Contains(entTransferReadCode.Text)).ToList();
+								}
+							}
+							WriteLog.Write(this, "SearchEntTransferReadCode searched value " + entTransferReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
+						else
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							result = lstInternalRecordDB.Where(x =>
+							   x.itemCode.Contains(entTransferReadCode.Text)
+							|| x.itemDesc.ToUpper().Contains(entTransferReadCode.Text.ToUpper())
+							||
+							x.barCode.Contains(entTransferReadCode.Text)).ToList();
+							swlstInternalRecordDBSearch.Stop();
+							WriteLog.Write(this, "SearchEntTransferReadCode searched value " + entTransferReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
                         step = 3;
-                        swlstInternalRecordDBSearch.Stop();
-                        WriteLog.Write(this, "SearchEntTransferReadCode searched value " + entTransferReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" + 
-                            "Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
-                        step = 4;
-                        if (result.Any())
+						
+						step = 4;
+						Debug.WriteLine("result " + result.Count());
+						
+						if (result.Any())
                         {
                             step = 5;
                             if (result.Count() == 1)
                             {
                                 step = 6;
-                                if (lstInternalMovementDB.Any())
-                                {
-                                    step = 7;
-                                    frmentTransferQuantity.IsVisible = false;
-                                    entTransferQuantity.IsVisible = false;
-                                    lblTransferQuantityUOM.IsVisible = false;
-                                    frmbtnTransferQuantityOK.IsVisible = false;
-                                    btnTransferQuantityOK.IsVisible = false;
+								if (lstInternalMovementDB.Any())
+								{
+									step = 7;
+									frmentTransferQuantity.IsVisible = false;
+									entTransferQuantity.IsVisible = false;
+									lblTransferQuantityUOM.IsVisible = false;
+									frmbtnTransferQuantityOK.IsVisible = false;
+									btnTransferQuantityOK.IsVisible = false;
+									Debug.WriteLine("step " + step);
+									var s = lstInternalMovementDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
+									if (s.Any())
+									{
+										step = 8;
+										Debug.WriteLine("step " + step);
+										obj.isScanAllowed = false;
+										if (await YesNoDialog("LIIKUMINE", "KAUP ON JUBA LIIGUTATUD. KAS SOOVID PARANDADA?", false))
+										{
 
-                                    var s = lstInternalMovementDB.Where(x => x.itemCode == result.First().itemCode && x.barCode == result.First().barCode).ToList();
-                                    if (s.Any())
-                                    {
-                                        step = 8;
-                                        obj.isScanAllowed = false;
-                                        if (await YesNoDialog("LIIKUMINE", "KAUP ON JUBA LIIGUTATUD. KAS SOOVID PARANDADA?", false))
-                                        {
-                                            step = 9;
-                                            obj.isScanAllowed = true;
-                                            frmbtnTransferAddedRowsDelete.IsVisible = true;
-                                            transferRecordID = s.First().recordID;
-                                            step = 10;
-                                            entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
-                                            lstTransferInfo = new List<ListOfdbRecords>();
-                                            step = 11;
-                                            int SKUBinCount = 0;
-                                            string sKUs = "";
-                                            string sKUs2 = "";
-                                            decimal sKUqty = 0;
-                                            var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
-                                            if (parseSKU.Any())
-                                            {
-                                                step = 12;
-                                                foreach (var a in parseSKU)
-                                                {
-                                                    
-                                                    var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
-                                                    if (uniqueSKU.Any())
-                                                    {
-                                                        if (uniqueSKU.Count() > 0)
-                                                        {
-                                                            if (uniqueSKU[0] == obj.shopLocationID)
-                                                            {
-                                                                SKUBinCount = SKUBinCount + 1;
-                                                                sKUqty = Convert.ToDecimal(uniqueSKU[2]);
-                                                                if (SKUBinCount < 4)
-                                                                {
-                                                                    sKUs = sKUs + "\r\n" + uniqueSKU[1];
-                                                                }
-                                                                else
-                                                                {
-                                                                    sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                step = 13;
-                                            }
-                                            step = 14;
-                                            sKUs = sKUs.TrimStart().TrimEnd();
-                                            sKUs2 = sKUs2.TrimStart().TrimEnd();
+											step = 9;
+											Debug.WriteLine("step " + step);
+											obj.isScanAllowed = true;
+											frmbtnTransferAddedRowsDelete.IsVisible = true;
+											transferRecordID = s.First().recordID;
+											step = 10;
+											Debug.WriteLine("step " + step);
+											entTransferQuantity.Text = (s.First().quantity).ToString().Replace(".0", "");
+											lstTransferInfo = new List<ListOfdbRecords>();
+											step = 11;
+											Debug.WriteLine("step " + step);
+											int SKUBinCount = 0;
+											string sKUs = "";
+											string sKUs2 = "";
+											decimal sKUqty = 0;
+											var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+											if (parseSKU.Any())
+											{
+												step = 12;
+												Debug.WriteLine("step " + step);
+												foreach (var a in parseSKU)
+												{
 
-                                            lstTransferInfo.Add(new ListOfdbRecords
-                                            {
-                                                barCode = result.First().barCode,
-                                                itemCode = result.First().itemCode,
-                                                itemDesc = result.First().itemDesc,
-                                                itemMagnitude = result.First().itemMagnitude,
-                                                meistriklubihind = result.First().meistriklubihind,
-                                                price = result.First().price,
-                                                profiklubihind = result.First().profiklubihind,
-                                                SKU = result.First().SKU,
-                                                SKUqty = sKUqty,
-                                                SKUBin = sKUs,
-                                                SKUBin2 = sKUs2,
-                                                soodushind = result.First().soodushind,
-                                                sortiment = result.First().sortiment,
-                                                config = result.First().config
+													var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+													if (uniqueSKU.Any())
+													{
+														if (uniqueSKU.Count() > 0)
+														{
+															if (uniqueSKU[0] == obj.shopLocationID)
+															{
+																SKUBinCount = SKUBinCount + 1;
+																sKUqty = Convert.ToDecimal(uniqueSKU[2]);
+																if (SKUBinCount < 4)
+																{
+																	sKUs = sKUs + "\r\n" + uniqueSKU[1];
+																}
+																else
+																{
+																	sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+																}
+															}
+														}
+													}
+												}
+												step = 13;
+												Debug.WriteLine("step " + step);
+											}
+											step = 14;
+											Debug.WriteLine("step " + step);
+											sKUs = sKUs.TrimStart().TrimEnd();
+											sKUs2 = sKUs2.TrimStart().TrimEnd();
 
-                                            });
-                                            lblTransferQuantityUOM.Text = result.First().itemMagnitude;
-                                            LstvTransferInfo.ItemsSource = null;
-                                            LstvTransferInfo.ItemsSource = lstTransferInfo;
-                                            focusedEditor = "entTransferQuantity";
-                                            entTransferQuantity.BackgroundColor = Color.Yellow;
-                                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
-                                            entTransferReadCode.BackgroundColor = Color.White;
+											lstTransferInfo.Add(new ListOfdbRecords
+											{
+												barCode = result.First().barCode,
+												itemCode = result.First().itemCode,
+												itemDesc = result.First().itemDesc,
+												itemMagnitude = result.First().itemMagnitude,
+												meistriklubihind = result.First().meistriklubihind,
+												price = result.First().price,
+												profiklubihind = result.First().profiklubihind,
+												SKU = result.First().SKU,
+												SKUqty = sKUqty,
+												SKUBin = sKUs,
+												SKUBin2 = sKUs2,
+												soodushind = result.First().soodushind,
+												sortiment = result.First().sortiment,
+												config = result.First().config
 
-
-                                            frmentTransferQuantity.IsVisible = true;
-                                            entTransferQuantity.IsVisible = true;
-                                            lblTransferQuantityUOM.IsVisible = true;
-                                            frmbtnTransferQuantityOK.IsVisible = true;
-                                            btnTransferQuantityOK.IsVisible = true;
-                                            step = 15;
-                                        }
-                                        else
-                                        {
-                                            step = 16;
-                                            transferRecordID = 0;
-                                            entTransferQuantity.Text = "";
-                                            entTransferReadCode.Text = "";
-                                            lblTransferQuantityUOM.Text = "";
-                                            lstTransferInfo = new List<ListOfdbRecords>();
-                                            LstvTransferInfo.ItemsSource = null;
-                                            LstvTransferInfo.ItemsSource = lstTransferInfo;
-                                            focusedEditor = "entTransferReadCode";
-                                            entTransferReadCode.BackgroundColor = Color.Yellow;
-                                            ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
-                                            entTransferQuantity.BackgroundColor = Color.White;
-                                            frmbtnTransferAddedRowsDelete.IsVisible = false;
-                                            step = 17;
-                                        }
-                                        step = 18;
-                                    }
-                                    else
-                                    {
-                                        step = 19;
-                                        int SKUBinCount = 0;
-                                        string sKUs = "";
-                                        string sKUs2 = "";
-                                        decimal sKUqty = 0;
-                                        var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
-                                        if (parseSKU.Any())
-                                        {
-                                            step = 20;
-                                            foreach (var a in parseSKU)
-                                            {
-                                                var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
-                                                if (uniqueSKU.Any())
-                                                {
-                                                    if (uniqueSKU.Count() > 0)
-                                                    {
-                                                        if (uniqueSKU[0] == obj.shopLocationID)
-                                                        {
-                                                            SKUBinCount = SKUBinCount + 1;
-                                                            sKUqty = Convert.ToDecimal(uniqueSKU[2]);
-                                                            if (SKUBinCount < 4)
-                                                            {
-                                                                sKUs = sKUs + "\r\n" + uniqueSKU[1];
-                                                            }
-                                                            else
-                                                            {
-                                                                sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            step = 21;
-                                        }
-                                        step = 22;
-                                        sKUs = sKUs.TrimStart().TrimEnd();
-                                        sKUs2 = sKUs2.TrimStart().TrimEnd();
-                                        transferRecordID = 0;
-                                        lstTransferInfo.Add(new ListOfdbRecords
-                                        {
-                                            barCode = result.First().barCode,
-                                            itemCode = result.First().itemCode,
-                                            itemDesc = result.First().itemDesc,
-                                            itemMagnitude = result.First().itemMagnitude,
-                                            meistriklubihind = result.First().meistriklubihind,
-                                            price = result.First().price,
-                                            profiklubihind = result.First().profiklubihind,
-                                            SKU = result.First().SKU,
-                                            SKUqty = sKUqty,
-                                            SKUBin = sKUs,
-                                            SKUBin2 = sKUs2,
-                                            soodushind = result.First().soodushind,
-                                            sortiment = result.First().sortiment,
-                                            config = result.First().config
-
-                                        });
-                                        lblTransferQuantityUOM.Text = result.First().itemMagnitude;
-                                        LstvTransferInfo.ItemsSource = null;
-                                        LstvTransferInfo.ItemsSource = lstTransferInfo;
-                                        focusedEditor = "entTransferQuantity";
-                                        entTransferQuantity.BackgroundColor = Color.Yellow;
-                                        ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
-                                        entTransferReadCode.BackgroundColor = Color.White;
+											});
+											lblTransferQuantityUOM.Text = result.First().itemMagnitude;
+											LstvTransferInfo.ItemsSource = null;
+											LstvTransferInfo.ItemsSource = lstTransferInfo;
+											focusedEditor = "entTransferQuantity";
+											entTransferQuantity.BackgroundColor = Color.Yellow;
+											ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+											entTransferReadCode.BackgroundColor = Color.White;
 
 
-                                        frmentTransferQuantity.IsVisible = true;
-                                        entTransferQuantity.IsVisible = true;
-                                        lblTransferQuantityUOM.IsVisible = true;
-                                        frmbtnTransferQuantityOK.IsVisible = true;
-                                        btnTransferQuantityOK.IsVisible = true;
-                                        frmbtnTransferAddedRowsDelete.IsVisible = false;
-                                        step = 23;
-                                    }
-                                }
-                                else
-                                {
-                                    step = 24;
-                                    transferRecordID = 0;
-                                    entTransferQuantity.Text = "";
-                                    lstTransferInfo = new List<ListOfdbRecords>();
+											frmentTransferQuantity.IsVisible = true;
+											entTransferQuantity.IsVisible = true;
+											lblTransferQuantityUOM.IsVisible = true;
+											frmbtnTransferQuantityOK.IsVisible = true;
+											btnTransferQuantityOK.IsVisible = true;
+											step = 15;
+										}
+										else
+										{
+											step = 16;
+											transferRecordID = 0;
+											entTransferQuantity.Text = "";
+											entTransferReadCode.Text = "";
+											lblTransferQuantityUOM.Text = "";
+											lstTransferInfo = new List<ListOfdbRecords>();
+											LstvTransferInfo.ItemsSource = null;
+											LstvTransferInfo.ItemsSource = lstTransferInfo;
+											focusedEditor = "entTransferReadCode";
+											entTransferReadCode.BackgroundColor = Color.Yellow;
+											ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.NumericWithSwitch, this);
+											entTransferQuantity.BackgroundColor = Color.White;
+											frmbtnTransferAddedRowsDelete.IsVisible = false;
+											step = 17;
+											Debug.WriteLine("step " + step);
+										}
+										step = 18;
+										Debug.WriteLine("step " + step);
+									}
+									else
+									{
+										trRecCount = trRecCount + 1;
+										step = 19;
+										Debug.WriteLine("step " + step);
+										int SKUBinCount = 0;
+										string sKUs = "";
+										string sKUs2 = "";
+										decimal sKUqty = 0;
+										var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+										if (parseSKU.Any())
+										{
+											step = 20;
+											Debug.WriteLine("step " + step);
+											foreach (var a in parseSKU)
+											{
+												var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+												if (uniqueSKU.Any())
+												{
+													if (uniqueSKU.Count() > 0)
+													{
+														if (uniqueSKU[0] == obj.shopLocationID)
+														{
+															SKUBinCount = SKUBinCount + 1;
+															sKUqty = Convert.ToDecimal(uniqueSKU[2].StartsWith(",") ? "0" + uniqueSKU[2] : uniqueSKU[2]);
+															if (SKUBinCount < 4)
+															{
+																sKUs = sKUs + "\r\n" + uniqueSKU[1];
+															}
+															else
+															{
+																sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+															}
+														}
+													}
+												}
+											}
+											step = 21;
+											Debug.WriteLine("step " + step);
+										}
+										step = 22;
+										Debug.WriteLine("step " + step);
+										sKUs = sKUs.TrimStart().TrimEnd();
+										sKUs2 = sKUs2.TrimStart().TrimEnd();
+										transferRecordID = 0;
+										lstTransferInfo = new List<ListOfdbRecords>();
 
-                                    int SKUBinCount = 0;
-                                    string sKUs = "";
-                                    string sKUs2 = "";
-                                    decimal sKUqty = 0;
-                                    var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
-                                    if (parseSKU.Any())
-                                    {
-                                        foreach (var a in parseSKU)
-                                        {
-                                            var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
-                                            if (uniqueSKU.Any())
-                                            {
-                                                if (uniqueSKU.Count() > 0)
-                                                {
-                                                    if (uniqueSKU[0] == obj.shopLocationID)
-                                                    {
-                                                        SKUBinCount = SKUBinCount + 1;
-                                                        sKUqty = Convert.ToDecimal(uniqueSKU[2]);
-                                                        if (SKUBinCount < 4)
-                                                        {
-                                                            sKUs = sKUs + "\r\n" + uniqueSKU[1];
-                                                        }
-                                                        else
-                                                        {
-                                                            sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    sKUs = sKUs.TrimStart().TrimEnd();
-                                    sKUs2 = sKUs2.TrimStart().TrimEnd();
+										
+										lstTransferInfo.Add(new ListOfdbRecords
+										{
+											barCode = result.First().barCode,
+											itemCode = result.First().itemCode,
+											itemDesc = result.First().itemDesc,
+											itemMagnitude = result.First().itemMagnitude,
+											meistriklubihind = result.First().meistriklubihind,
+											price = result.First().price,
+											profiklubihind = result.First().profiklubihind,
+											SKU = result.First().SKU,
+											SKUqty = sKUqty,
+											SKUBin = sKUs,
+											SKUBin2 = sKUs2,
+											soodushind = result.First().soodushind,
+											sortiment = result.First().sortiment,
+											config = result.First().config
 
-                                    transferRecordID = 0;
-                                    lstTransferInfo.Add(new ListOfdbRecords
-                                    {
-                                        barCode = result.First().barCode,
-                                        itemCode = result.First().itemCode,
-                                        itemDesc = result.First().itemDesc,
-                                        itemMagnitude = result.First().itemMagnitude,
-                                        meistriklubihind = result.First().meistriklubihind,
-                                        price = result.First().price,
-                                        profiklubihind = result.First().profiklubihind,
-                                        SKU = result.First().SKU,
-                                        SKUqty = sKUqty,
-                                        SKUBin = sKUs,
-                                        SKUBin2 = sKUs2,
-                                        soodushind = result.First().soodushind,
-                                        sortiment = result.First().sortiment,
-                                        config = result.First().config
-
-                                    });
-                                    lblTransferQuantityUOM.Text = result.First().itemMagnitude;
-                                    LstvTransferInfo.ItemsSource = null;
-                                    LstvTransferInfo.ItemsSource = lstTransferInfo;
-                                    focusedEditor = "entTransferQuantity";
-                                    entTransferQuantity.BackgroundColor = Color.Yellow;
-                                    ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
-                                    entTransferReadCode.BackgroundColor = Color.White;
+										});
+										lblTransferQuantityUOM.Text = result.First().itemMagnitude;
+										if (lstTransferInfo.Any())
+										{
+											LstvTransferInfo.ItemsSource = null;
+											LstvTransferInfo.ItemsSource = lstTransferInfo;
+										}
+										focusedEditor = "entTransferQuantity";
+										entTransferQuantity.BackgroundColor = Color.Yellow;
+										ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+										entTransferReadCode.BackgroundColor = Color.White;
 
 
-                                    frmentTransferQuantity.IsVisible = true;
-                                    entTransferQuantity.IsVisible = true;
-                                    lblTransferQuantityUOM.IsVisible = true;
-                                    frmbtnTransferQuantityOK.IsVisible = true;
-                                    btnTransferQuantityOK.IsVisible = true;
-                                    frmbtnTransferAddedRowsDelete.IsVisible = false;
-                                    step = 25;
-                                }
+										frmentTransferQuantity.IsVisible = true;
+										entTransferQuantity.IsVisible = true;
+										lblTransferQuantityUOM.IsVisible = true;
+										frmbtnTransferQuantityOK.IsVisible = true;
+										btnTransferQuantityOK.IsVisible = true;
+										frmbtnTransferAddedRowsDelete.IsVisible = false;
+										step = 23;
+										Debug.WriteLine("step " + step);
+									}
+								}
+								else
+								{
+
+									trRecCount = trRecCount + 1;
+									step = 24;
+									Debug.WriteLine("step " + step);
+									transferRecordID = 0;
+									entTransferQuantity.Text = "";
+									lstTransferInfo = new List<ListOfdbRecords>();
+									int SKUBinCount = 0;
+									string sKUs = "";
+									string sKUs2 = "";
+									decimal sKUqty = 0;
+									var parseSKU = result.First().SKU.Split(new[] { "%%%" }, StringSplitOptions.None);
+									if (parseSKU.Any())
+									{
+										foreach (var a in parseSKU)
+										{
+											var uniqueSKU = a.Split(new[] { "###" }, StringSplitOptions.None);
+											if (uniqueSKU.Any())
+											{
+												if (uniqueSKU.Count() > 0)
+												{
+													if (uniqueSKU[0] == obj.shopLocationID)
+													{
+														SKUBinCount = SKUBinCount + 1;
+														sKUqty = Convert.ToDecimal(uniqueSKU[2].StartsWith(",") ? "0" + uniqueSKU[2] : uniqueSKU[2]);
+														if (SKUBinCount < 4)
+														{
+															sKUs = sKUs + "\r\n" + uniqueSKU[1];
+														}
+														else
+														{
+															sKUs2 = sKUs2 + "\r\n" + uniqueSKU[1];
+														}
+													}
+												}
+											}
+										}
+									}
+									
+									sKUs = sKUs.TrimStart().TrimEnd();
+									sKUs2 = sKUs2.TrimStart().TrimEnd();
+									
+									transferRecordID = 0;
+
+									lstTransferInfo.Add(new ListOfdbRecords
+									{
+										barCode = result.First().barCode,
+										itemCode = result.First().itemCode,
+										itemDesc = result.First().itemDesc,
+										itemMagnitude = result.First().itemMagnitude,
+										meistriklubihind = result.First().meistriklubihind,
+										price = result.First().price,
+										profiklubihind = result.First().profiklubihind,
+										SKU = result.First().SKU,
+										SKUqty = sKUqty,
+										SKUBin = sKUs,
+										SKUBin2 = sKUs2,
+										soodushind = result.First().soodushind,
+										sortiment = result.First().sortiment,
+										config = result.First().config
+
+									});
+									
+									lblTransferQuantityUOM.Text = result.First().itemMagnitude ?? "";
+									LstvTransferInfo.ItemsSource = null;
+									LstvTransferInfo.ItemsSource = lstTransferInfo;
+									Debug.WriteLine("a3");
+									focusedEditor = "entTransferQuantity";
+									entTransferQuantity.BackgroundColor = Color.Yellow;
+									ShowKeyBoard.Show(VirtualKeyboardTypes.VirtualKeyboardType.Numeric, this);
+									entTransferReadCode.BackgroundColor = Color.White;
+
+
+									frmentTransferQuantity.IsVisible = true;
+									entTransferQuantity.IsVisible = true;
+									lblTransferQuantityUOM.IsVisible = true;
+									frmbtnTransferQuantityOK.IsVisible = true;
+									btnTransferQuantityOK.IsVisible = true;
+									frmbtnTransferAddedRowsDelete.IsVisible = false;
+									step = 25;
+									Debug.WriteLine("step " + step);
+
+								}
                                 obj.isScanAllowed = true;
                             }
                             else
                             {
                                 step = 26;
-                                obj.previousLayoutName = "Transfer";
+								Debug.WriteLine("step " + step);
+								obj.previousLayoutName = "Transfer";
                                 PrepareSelectItem();
                             }
                             step = 27;
-                        }
+							Debug.WriteLine("step " + step);
+						}
                         else
                         {
                             step = 28;
-                            DisplayFailMessage("EI LEITUD MIDAGI!");
+							Debug.WriteLine("step " + step);
+							DisplayFailMessage("EI LEITUD MIDAGI!");
 
                         }
                         step = 29;
-                    }
+						Debug.WriteLine("step " + step);
+					}
                     else
                     {
                         step = 30;
-                        DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
+						Debug.WriteLine("step " + step);
+						DisplayFailMessage("SISESTA VÄHEMALT 5 TÄHEMÄRKI!");
                     }
                     step = 31;
-                }
+					Debug.WriteLine("step " + step);
+				}
                 step = 32;
-            }
+				Debug.WriteLine("step " + step);
+			}
             catch (Exception ex)
             {
-                WriteLog.Write(this, this.GetType().Name + " step: " + step + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
+				step = 33;
+				Debug.WriteLine("step " + step + "  " + ex.Message);
+				WriteLog.Write(this, this.GetType().Name + " step: " + step + "\r\n" + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
             }
         }
 
@@ -3370,7 +3457,7 @@ namespace BauhofWMS
         }
         private async void btnTransferAddedRowsViewClear_Clicked(object sender, EventArgs e)
         {
-            if (await YesNoDialog("LIIKUMINE", "JÄTKAMISEL KUSTUTATAKSE KÕIK LIIMUSTE KIRJED!", false))
+            if (await YesNoDialog("LIIKUMINE", "JÄTKAMISEL KUSTUTATAKSE KÕIK LIIKUMISTE KIRJED!", false))
             {
                 lstInternalMovementDB = new List<ListOfMovementRecords>();
                 //JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };

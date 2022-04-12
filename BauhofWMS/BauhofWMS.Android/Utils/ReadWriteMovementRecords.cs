@@ -38,14 +38,14 @@ namespace BauhofWMS.Droid.Utils
                         {
                             return null;
                         }
-                        using (var reader = new StreamReader(backingFile, true))
-                        {
-                            string line;
-                            while ((line = await reader.ReadLineAsync()) != null)
-                            {
-                                result = result + line;
-                            }
-                        }
+						var reader = new StreamReader(backingFile, true);
+						string line;
+						while ((line = await reader.ReadLineAsync()) != null)
+						{
+							result = result + line;
+						}
+						reader.Close();
+						reader.Dispose();
                     }
                 }
                 return result;
@@ -70,22 +70,21 @@ namespace BauhofWMS.Droid.Utils
                     {
                         var backingFile = Path.Combine(dir.AbsolutePath, r.Name);
                         File.Move(Path.Combine(dir.AbsolutePath, r.Name), Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
-                        using (StreamWriter writer = new StreamWriter(backingFile))
-                        {
-                            writer.Write(data);
-                        }
+						StreamWriter writer = new StreamWriter(backingFile);
+						writer.Write(data);
+						writer.Close();
+						writer.Dispose();
                         File.Delete(Path.Combine(dir.AbsolutePath, "BAK_" + r.Name));
                     }
                     else
                     {
                         var backingFile = Path.Combine(dir.AbsolutePath, "MOVEMENTRECORDSDB.TXT");
-
-                        using (StreamWriter writer = new StreamWriter(backingFile))
-                        {
-                            writer.Write(data);
-                        }
-                    }
-                }
+						StreamWriter writer = new StreamWriter(backingFile);
+						writer.Write(data);
+						writer.Close();
+						writer.Dispose();
+					}
+				}
                 return result;
             }
             catch (Exception ex)

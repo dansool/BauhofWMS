@@ -115,10 +115,8 @@ namespace BauhofWMS.Scanner
                                 mp.entTransferReceiveOrderLines.Text = scannedCode;
                                 mp.SearchTransferReceiveOrderLines();
                             }
-                            break;
-                            
-
-                    }
+                            break;                            
+                    }					
                 }
             }
             catch (Exception ex)
