@@ -32,7 +32,10 @@ namespace BauhofWMS
         public bool showTransferReceiveQty = false;
         public bool showPurchaseReceiveQtySum = false;
         public bool showTransferReceiveQtySum = false;
-        public App()
+		public bool isZebra = false;
+		public bool isHoneywell = false;
+
+		public App()
         {
             InitializeComponent();
 

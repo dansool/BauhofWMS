@@ -164,7 +164,6 @@ namespace BauhofWMS
         public List<ListOfMagnitudes> lstItemMagnitudes = new List<ListOfMagnitudes>();
         public List<ListOfBarcodes> lstBarcodes = new List<ListOfBarcodes>();
 		#endregion
-		public int trRecCount = 0;
 
         #region MainPage operations
         public MainPage()
@@ -221,6 +220,7 @@ namespace BauhofWMS
                     if (Device.RuntimePlatform == Device.UWP) { obj.operatingSystem = "UWP"; UWP(); }
                     if (Device.RuntimePlatform == Device.Android) { obj.operatingSystem = "Android"; Android(); }
 
+					LoadTemplates();
                     ScannedValueReceive();
                     var resultSettings = await ReadSettings.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
                     if (Device.RuntimePlatform == Device.Android)
@@ -309,6 +309,7 @@ namespace BauhofWMS
                         {
                             shopLocationCode.Text = obj.shopLocationCode;
                         }
+
                     }
                     else
                     {
@@ -591,11 +592,24 @@ namespace BauhofWMS
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "deviceSerial", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { lblDeviceSerial.Text = arg; Debug.WriteLine(arg); obj.deviceSerial = (arg.Length > 20 ? arg.Take(19).ToString() : arg); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "backPressed", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { BackKeyPress.Press(this); }); });
             MessagingCenter.Subscribe<App, string>((App)Application.Current, "erro", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { DisplayAlert("err", arg, "OK"); }); });
-            
+			MessagingCenter.Subscribe<App, string>((App)Application.Current, "DeviceVendor", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { SetDeviceVendor(arg); }); });
 
-        }
+		}
 
-        public async Task GetShopRelations()
+		public void SetDeviceVendor(string vendor)
+		{
+			if (vendor == "Zebra")
+			{
+				obj.isZebra = true;
+				obj.isHoneywell = false;
+			}
+			if (vendor == "Honeywell")
+			{
+				obj.isHoneywell = true;
+				obj.isZebra = false;
+			}
+		}
+		public async Task GetShopRelations()
         {
             try
             {
@@ -733,24 +747,66 @@ namespace BauhofWMS
             }
             return result;
         }
-        #endregion
 
-        #region ScannedValue operations
-        public void ScannedValueReceive()
+		public void LoadTemplates()
+		{
+			LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+			LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+			LstvSelectItem.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemSelect)) : new DataTemplate(typeof(vcItemSelect));
+			LstvItemInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+			LstvItemInfoItems.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoItems)) : new DataTemplate(typeof(vcItemInfoItems));
+			LstvStockTakeAddedRowsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcInsertedRecords)) : new DataTemplate(typeof(vcInsertedRecords));
+			LstvTransferAddedRowsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcInsertedRecords)) : new DataTemplate(typeof(vcInsertedRecords));
+			LstvItemInfoBinsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoBinsView)) : new DataTemplate(typeof(vcItemInfoBinsView));
+			LstvPurchaseReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrders)) : new DataTemplate(typeof(vcPurchaseOrders));
+			LstvPurchaseReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderLines)) : new DataTemplate(typeof(vcPurchaseOrderLines));
+			LstvPurchaseReceiveOrderLinesInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderLinesInfo)) : new DataTemplate(typeof(vcPurchaseOrderLinesInfo));
+			LstvPurchaseOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo));
+			LstvTransferReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrders)) : new DataTemplate(typeof(vcTransferOrders));
+			LstvTransferReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderLines)) : new DataTemplate(typeof(vcTransferOrderLines));
+			LstvTransferReceiveOrderLinesInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderLinesInfo)) : new DataTemplate(typeof(vcTransferOrderLinesInfo));
+			LstvTransferOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo));
+			LstvSelectMagnitude.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcSelectMagnitude)) : new DataTemplate(typeof(vcSelectMagnitude));
+			LstvOperationsRecordInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcOperationsRecords)) : new DataTemplate(typeof(vcOperationsRecords));
+
+			if (obj.showPurchaseReceiveQty)
+			{
+				LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull));
+			}
+			else
+			{
+				LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo));
+			}
+
+			if (obj.showTransferReceiveQty)
+			{
+				LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull));
+			}
+			else
+			{
+				LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo));
+			}
+		}
+		#endregion
+
+		#region ScannedValue operations
+		public void ScannedValueReceive()
         {
-            MessagingCenter.Subscribe<App, string>((App)Application.Current, "scannedValue", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { ProcessScannedValue(arg); }); });
-        }
+			MessagingCenter.Subscribe<App, string>((App)Application.Current, "scannedValue", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { ProcessScannedValue(arg); }); });
+			MessagingCenter.Subscribe<App, string>((App)Application.Current, "ScanBarcode", (sender, arg) => { Device.BeginInvokeOnMainThread(() => { ProcessScannedValue(arg); }); });
+		}
 
         public async void ProcessScannedValue(string scannedValue)
         {
             string scannedData = "";
             string scannedSymbology = "";
+			Debug.WriteLine("'" + scannedValue + "'");
             if (scannedValue.Contains("###"))
             {
                 var split = scannedValue.Split(new[] { "###" }, StringSplitOptions.None);
-                scannedData = split[0];
-                scannedSymbology = split[1];
-            }
+                scannedData = split[0].Replace("\r\n","").TrimStart().TrimEnd();
+                scannedSymbology = split[1].Replace("\r\n", "").TrimStart().TrimEnd();
+			}
             else
             {
                 scannedData = scannedValue;
@@ -1436,7 +1492,7 @@ namespace BauhofWMS
             }
 
             LstvOperationsRecordInfo.ItemsSource = null;
-            LstvOperationsRecordInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcOperationsRecords)) : new DataTemplate(typeof(vcOperationsRecords));
+           
             LstvOperationsRecordInfo.ItemsSource = lstOperationsRecords;
             if (lstInternalInvDB.Any() || lstInternalMovementDB.Any() || lstPurchaseOrderPickedQuantities.Any() || lstTransferOrderPickedQuantities.Any())
             {
@@ -1483,13 +1539,13 @@ namespace BauhofWMS
 
         private void btnOperationsStocktake_Clicked(object sender, EventArgs e)
         {
-			LstvStockTakeInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoStockTake)) : new DataTemplate(typeof(vcItemInfoStockTake));
+			
 			PrepareStockTake();
         }
 
         private void btnOperationsTransfer_Clicked(object sender, EventArgs e)
         {
-			LstvTransferInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
+			
 			PrepareTransfer();
         }
 
@@ -1714,6 +1770,7 @@ namespace BauhofWMS
                 vendorReference = s.First().vendorReference,
                 shop = s.First().shop,
                 shipmentDate = s.First().shipmentDate,
+				department = s.First().department
             }).ToList().OrderBy(x => x.shipmentDate).ToList();
             foreach (var r in lstPurchaseOrders)
             {
@@ -2010,15 +2067,48 @@ namespace BauhofWMS
                         entStockTakeQuantity.IsVisible = false;
 
                         step = 1;
-                        Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
 
-                        var result = lstInternalRecordDB.Where(x =>
-                           x.itemCode.Contains(entStockTakeReadCode.Text)
-                        || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
-                        || x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+						var result = new List<ListOfdbRecords>();
+						if (entStockTakeReadCode.Text.Length == 13 && IsDigitsOnly(entStockTakeReadCode.Text))
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							Debug.WriteLine("lstBarcodes " + lstBarcodes.Count());
+							if (lstBarcodes.Any())
+							{
+								var n = lstBarcodes.Where(x => x.barCode == entStockTakeReadCode.Text);
+								if (n.Any())
+								{
+									Debug.WriteLine("n leitud " + n.Count());
+									string itemCode = n.First().itemCode;
+									var preResult = lstInternalRecordDB.Where(x => x.itemCode == itemCode).ToList();
+									result = preResult.Where(x => x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+								}
+							}
+							WriteLog.Write(this, "SearchEntStockTakeReadCodee searched value " + entStockTakeReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
+						else
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							result = lstInternalRecordDB.Where(x =>
+							   x.itemCode.Contains(entStockTakeReadCode.Text)
+							|| x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
+							||
+							x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+							swlstInternalRecordDBSearch.Stop();
+							WriteLog.Write(this, "SearchEntStockTakeReadCodee searched value " + entStockTakeReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
 
-                        swlstInternalRecordDBSearch.Stop();
-                        WriteLog.Write(this, "SearchEntStockTakeReadCode searched value " + entStockTakeReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods. Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						//Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+
+      //                  var result = lstInternalRecordDB.Where(x =>
+      //                     x.itemCode.Contains(entStockTakeReadCode.Text)
+      //                  || x.itemDesc.ToUpper().Contains(entStockTakeReadCode.Text.ToUpper())
+      //                  || x.barCode.Contains(entStockTakeReadCode.Text)).ToList();
+
+      //                  swlstInternalRecordDBSearch.Stop();
+                        //WriteLog.Write(this, "SearchEntStockTakeReadCode searched value " + entStockTakeReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods. Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
                         step = 2;
                         if (result.Any())
                         {
@@ -2721,7 +2811,7 @@ namespace BauhofWMS
 									}
 									else
 									{
-										trRecCount = trRecCount + 1;
+										
 										step = 19;
 										Debug.WriteLine("step " + step);
 										int SKUBinCount = 0;
@@ -2809,8 +2899,6 @@ namespace BauhofWMS
 								}
 								else
 								{
-
-									trRecCount = trRecCount + 1;
 									step = 24;
 									Debug.WriteLine("step " + step);
 									transferRecordID = 0;
@@ -2951,7 +3039,7 @@ namespace BauhofWMS
                 obj.mainOperation = "";
                 obj.currentLayoutName = "SelectItem";
                 lblSelectItemHeader.Text = "VALI KAUP";
-                LstvSelectItem.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemSelect)) : new DataTemplate(typeof(vcItemSelect));
+               
                 if (obj.operatingSystem == "UWP")
                 {
                     stkOperations.Margin = new Thickness(-10, 0, 0, 0);
@@ -3076,8 +3164,7 @@ namespace BauhofWMS
                 obj.mainOperation = "";
                 obj.currentLayoutName = "ItemInfo";
                 lblItemInfoHeader.Text = "KAUBA INFO";
-                LstvItemInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfo)) : new DataTemplate(typeof(vcItemInfo));
-                LstvItemInfoItems.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoItems)) : new DataTemplate(typeof(vcItemInfoItems));
+               
                 if (obj.operatingSystem == "UWP")
                 {
                     stkOperations.Margin = new Thickness(-10, 0, 0, 0);
@@ -3216,11 +3303,45 @@ namespace BauhofWMS
                     {
                         step = 3;
                         lstResultItemInfo = new List<ListOfdbRecords>();
-                        Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
-                        var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text))).ToList();
-                        step = 4;
-                        swlstInternalRecordDBSearch.Stop();
-                        WriteLog.Write(this, "SearchEntItemInfoReadCode searched value "  + entItemInfoReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods. Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+
+
+						var result = new List<ListOfdbRecords>();
+						if (entItemInfoReadCode.Text.Length == 13 && IsDigitsOnly(entItemInfoReadCode.Text))
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							Debug.WriteLine("lstBarcodes " + lstBarcodes.Count());
+							if (lstBarcodes.Any())
+							{
+								var n = lstBarcodes.Where(x => x.barCode == entItemInfoReadCode.Text);
+								if (n.Any())
+								{
+									Debug.WriteLine("n leitud " + n.Count());
+									string itemCode = n.First().itemCode;
+									var preResult = lstInternalRecordDB.Where(x => x.itemCode == itemCode).ToList();
+									result = preResult.Where(x => x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
+								}
+							}
+							WriteLog.Write(this, "SearchEntItemInfoReadCode searched value " + entItemInfoReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
+						else
+						{
+							Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+							result = lstInternalRecordDB.Where(x =>
+							   x.itemCode.Contains(entItemInfoReadCode.Text)
+							|| x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper())
+							||
+							x.barCode.Contains(entItemInfoReadCode.Text)).ToList();
+							swlstInternalRecordDBSearch.Stop();
+							WriteLog.Write(this, "SearchEntItemInfoReadCode searched value " + entItemInfoReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods." + "\r\n" +
+								"Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
+						}
+
+						//Stopwatch swlstInternalRecordDBSearch = Stopwatch.StartNew();
+      //                  var result = lstInternalRecordDB.Where(x => (x.itemCode.Contains(entItemInfoReadCode.Text) || x.itemDesc.ToUpper().Contains(entItemInfoReadCode.Text.ToUpper()) || x.barCode.Contains(entItemInfoReadCode.Text))).ToList();
+      //                  step = 4;
+      //                  swlstInternalRecordDBSearch.Stop();
+      //                  WriteLog.Write(this, "SearchEntItemInfoReadCode searched value "  + entItemInfoReadCode.Text + ". Found - " + (result.Any() ? result.Count().ToString() : "0") + " recods. Time elapsed : " + swlstInternalRecordDBSearch.Elapsed.Milliseconds.ToString() + " milliseconds");
                         step = 5;
                         if (result.Any())
                         {
@@ -3294,7 +3415,7 @@ namespace BauhofWMS
                 obj.mainOperation = "";
                 obj.currentLayoutName = "StockTakeAddedRowsView";
                 lblStockTakeAddedRowsViewHeader.Text = "INVENTUURIKANDED";
-                LstvStockTakeAddedRowsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcInsertedRecords)) : new DataTemplate(typeof(vcInsertedRecords));
+                
                 if (obj.operatingSystem == "UWP")
                 {
                     stkOperations.Margin = new Thickness(-10, 0, 0, 0);
@@ -3397,7 +3518,7 @@ namespace BauhofWMS
             obj.mainOperation = "";
             obj.currentLayoutName = "TransferAddedRowsView";
             lblTransferAddedRowsViewHeader.Text = "LIIKUMISKANDED";
-            LstvTransferAddedRowsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcInsertedRecords)) : new DataTemplate(typeof(vcInsertedRecords));
+           
             if (obj.operatingSystem == "UWP")
             {
                 stkOperations.Margin = new Thickness(-10, 0, 0, 0);
@@ -3500,7 +3621,7 @@ namespace BauhofWMS
                 obj.mainOperation = null;
 
                 lblItemInfoBinsViewHeader.Text = "RIIULID";
-                LstvItemInfoBinsView.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcItemInfoBinsView)) : new DataTemplate(typeof(vcItemInfoBinsView));
+                
                 if (obj.operatingSystem == "UWP")
                 {
                     stkOperations.Margin = new Thickness(-10, 0, 0, 0);
@@ -3611,7 +3732,7 @@ namespace BauhofWMS
                 }
                 focusedEditor = "";
                 LstvPurchaseReceiveOrders.ItemsSource = null;
-                LstvPurchaseReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrders)) : new DataTemplate(typeof(vcPurchaseOrders));
+               
 
 
                 //DisplayAlert("", currentPurchaseOrder, "OK");
@@ -3691,6 +3812,7 @@ namespace BauhofWMS
         {
             try
             {
+				
                 if (!string.IsNullOrEmpty(entPurchaseReceiveOrders.Text))
                 {
                     string searchValue = entPurchaseReceiveOrders.Text.ToUpper();
@@ -3797,7 +3919,29 @@ namespace BauhofWMS
         public void SearchPurchaseReceiveOrders(string scannedCode)
         {
             var lstPurchaseOrdersFiltered = new List<ListOfPurchaseReceive>();
-            var purchaseRowsForScanedItem = lstInternalRecordDB.Where(x=> x.barCode.Contains(scannedCode)).ToList();
+
+			var purchaseRowsForScanedItem = new List<ListOfdbRecords>();
+			if (scannedCode.Length == 13 && IsDigitsOnly(scannedCode))
+			{
+				Debug.WriteLine("lstBarcodes " + lstBarcodes.Count());
+				if (lstBarcodes.Any())
+				{
+					var n = lstBarcodes.Where(x => x.barCode == scannedCode);
+					if (n.Any())
+					{
+						Debug.WriteLine("n leitud " + n.Count());
+						string itemCode = n.First().itemCode;
+						var preResult = lstInternalRecordDB.Where(x => x.itemCode == itemCode).ToList();
+						purchaseRowsForScanedItem = preResult.Where(x => x.barCode.Contains(scannedCode)).ToList();
+					}
+				}
+			}
+			else
+			{
+				purchaseRowsForScanedItem = lstInternalRecordDB.Where(x => x.barCode.Contains(scannedCode)).ToList();
+			}
+
+			//var purchaseRowsForScanedItem = lstInternalRecordDB.Where(x=> x.barCode.Contains(scannedCode)).ToList();
             if (purchaseRowsForScanedItem.Any())
             {
                 foreach (var p in purchaseRowsForScanedItem)
@@ -3903,11 +4047,7 @@ namespace BauhofWMS
                 }
                 focusedEditor = "";
                 LstvPurchaseReceiveOrderLines.ItemsSource = null;
-                LstvPurchaseReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderLines)) : new DataTemplate(typeof(vcPurchaseOrderLines));
-
-
                 LstvPurchaseReceiveOrderLinesInfo.ItemsSource = null;
-                LstvPurchaseReceiveOrderLinesInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderLinesInfo)) : new DataTemplate(typeof(vcPurchaseOrderLinesInfo));
 
                 var lstPurchaseOrderLinesInfo = lstPurchaseOrderLines.Take(1);
                 if (!string.IsNullOrEmpty(currentPurchaseOrder))
@@ -3927,8 +4067,10 @@ namespace BauhofWMS
 
 
                 LstvPurchaseReceiveOrderLinesInfo.ItemsSource = lstPurchaseOrderLinesInfo;
+				Debug.WriteLine("department " + lstPurchaseOrderLinesInfo.First().department);
 
-                foreach (var p in lstPurchaseOrderLines)
+
+				foreach (var p in lstPurchaseOrderLines)
                 {
                     var lineInfo = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder && x.docLineNo == p.docLineNo);
                     if (lineInfo.Any())
@@ -4109,7 +4251,7 @@ namespace BauhofWMS
                     }
                     focusedEditor = "";
                     LstvPurchaseOrderQuantityInsertInfo.ItemsSource = null;
-                    LstvPurchaseOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertInfo));
+                   
                     LstvPurchaseOrderQuantityInsertInfo.ItemsSource = lstPurchaseOrderQuantityInsertInfo;
                     focusedEditor = "entPurchaseOrderQuantityInsertQuantity";
 
@@ -4162,14 +4304,7 @@ namespace BauhofWMS
                     };
                     lstPurchaseOrderQuantityInsertQuantities.Add(row);
                     LstvPurchaseOrderQuantityInsertQuantityInfo.ItemsSource = null;
-                    if (obj.showPurchaseReceiveQty)
-                    {
-                        LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfoFull));
-                    }
-                    else
-                    {
-                        LstvPurchaseOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcPurchaseOrderQuantityInsertQuantityInfo));
-                    }
+                    
                     LstvPurchaseOrderQuantityInsertQuantityInfo.ItemsSource = lstPurchaseOrderQuantityInsertQuantities;
 
                     if (previouslyReadQty > 0)
@@ -4458,7 +4593,7 @@ namespace BauhofWMS
                 }
                 focusedEditor = "";
                 LstvTransferReceiveOrders.ItemsSource = null;
-                LstvTransferReceiveOrders.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrders)) : new DataTemplate(typeof(vcTransferOrders));
+               
 
                
 
@@ -4642,7 +4777,29 @@ namespace BauhofWMS
         public void SearchTransferReceiveOrders(string scannedCode)
         {
             var lstTransferOrdersFiltered = new List<ListOfTransferReceive>();
-            var transferRowsForScanedItem = lstInternalRecordDB.Where(x => x.barCode.Contains(scannedCode)).ToList();
+
+			var transferRowsForScanedItem = new List<ListOfdbRecords>();
+			if (scannedCode.Length == 13 && IsDigitsOnly(scannedCode))
+			{
+				Debug.WriteLine("lstBarcodes " + lstBarcodes.Count());
+				if (lstBarcodes.Any())
+				{
+					var n = lstBarcodes.Where(x => x.barCode == scannedCode);
+					if (n.Any())
+					{
+						Debug.WriteLine("n leitud " + n.Count());
+						string itemCode = n.First().itemCode;
+						var preResult = lstInternalRecordDB.Where(x => x.itemCode == itemCode).ToList();
+						transferRowsForScanedItem = preResult.Where(x => x.barCode.Contains(scannedCode)).ToList();
+					}
+				}
+			}
+			else
+			{
+				transferRowsForScanedItem = lstInternalRecordDB.Where(x => x.barCode.Contains(scannedCode)).ToList();
+			}
+
+			//var transferRowsForScanedItem = lstInternalRecordDB.Where(x => x.barCode.Contains(scannedCode)).ToList();
             if (transferRowsForScanedItem.Any())
             {
                 foreach (var p in transferRowsForScanedItem)
@@ -4722,12 +4879,12 @@ namespace BauhofWMS
                 focusedEditor = "";
                 LstvTransferReceiveOrderLines.ItemsSource = null;
 
-                LstvTransferReceiveOrderLines.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderLines)) : new DataTemplate(typeof(vcTransferOrderLines));
+             
                 LstvTransferReceiveOrderLines.ItemsSource = lstTransferOrderLines;
 
 
                 LstvTransferReceiveOrderLinesInfo.ItemsSource = null;
-                LstvTransferReceiveOrderLinesInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderLinesInfo)) : new DataTemplate(typeof(vcTransferOrderLinesInfo));
+               
                 var lstTransferOrderLinesInfo = lstTransferOrderLines.Take(1);
 
                 if (!string.IsNullOrEmpty(currentTransferOrder))
@@ -4920,7 +5077,7 @@ namespace BauhofWMS
                     }
                     focusedEditor = "";
                     LstvTransferOrderQuantityInsertInfo.ItemsSource = null;
-                    LstvTransferOrderQuantityInsertInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertInfo));
+                   
                     LstvTransferOrderQuantityInsertInfo.ItemsSource = lstTransferOrderQuantityInsertInfo;
                     focusedEditor = "entTransferOrderQuantityInsertQuantity";
 
@@ -4981,14 +5138,7 @@ namespace BauhofWMS
 
                     lstTransferOrderQuantityInsertQuantities.Add(row);
                     LstvTransferOrderQuantityInsertQuantityInfo.ItemsSource = null;
-                    if (obj.showTransferReceiveQty)
-                    {
-                        LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfoFull));
-                    }
-                    else
-                    {
-                        LstvTransferOrderQuantityInsertQuantityInfo.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo)) : new DataTemplate(typeof(vcTransferOrderQuantityInsertQuantityInfo));
-                    }
+                   
                     LstvTransferOrderQuantityInsertQuantityInfo.ItemsSource = lstTransferOrderQuantityInsertQuantities;
 
                     if (previouslyReadQty > 0)
@@ -5368,7 +5518,7 @@ namespace BauhofWMS
                 }
                 focusedEditor = "";
                 LstvSelectMagnitude.ItemsSource = null;
-                LstvSelectMagnitude.ItemTemplate = obj.operatingSystem == "UWP" ? new DataTemplate(typeof(vcSelectMagnitude)) : new DataTemplate(typeof(vcSelectMagnitude));
+               
                 LstvSelectMagnitude.ItemsSource = lstItemMagnitudes;
             }
             catch (Exception ex)
@@ -5402,8 +5552,6 @@ namespace BauhofWMS
 
 
         #endregion
-
-       
     }
 }
     

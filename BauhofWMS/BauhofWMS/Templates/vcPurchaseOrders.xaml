@@ -52,13 +52,17 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="166" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="26" />
                         <ColumnDefinition Width="166" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
-                        <Label Text="{Binding vendorReference}" FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" />
+                        <Label Text="{Binding department}" FontAttributes="Bold" FontSize="22" TextColor="Magenta" VerticalOptions="Start" />
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0">
+                        <Label Text="{Binding vendorReference}" FontAttributes="Bold" FontSize="22" TextColor="Navy" VerticalOptions="Start" />
+                    </Grid>
+                    <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,0">
                         <Label  HorizontalTextAlignment="End" VerticalTextAlignment="End" VerticalOptions="End" Margin="0,0,0,0">
                             <Label.FormattedText>
                                 <FormattedString>

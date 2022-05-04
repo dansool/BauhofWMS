@@ -218,7 +218,7 @@
                                            KOGUS LIIDETAKSE" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
                                 </Grid>
                                 <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtySumYes_CheckChanged"/>
+                                    <input:CheckBox Text="JAH" x:Name="rbtnPurchaseReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="True" CheckChanged="rbtnPurchaseReceiveQtySumYes_CheckChanged"/>
                                 </Grid>
                                 <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
                                     <input:CheckBox Text="EI" x:Name="rbtnPurchaseReceiveQtySumNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnPurchaseReceiveQtySumNo_CheckChanged"/>
@@ -258,7 +258,7 @@
                                            KOGUS LIIDETAKSE" HorizontalTextAlignment="Start"  Margin="0,0,0,0" FontSize="16" TextColor="White"  />
                                 </Grid>
                                 <Grid Grid.Column="1" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
-                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="False" CheckChanged="rbtnTransferReceiveQtySumYes_CheckChanged"/>
+                                    <input:CheckBox Text="JAH" x:Name="rbtnTransferReceiveQtySumYes" TextColor="White" Type="Box" BorderColor="White"  x:FieldModifier="public"  Color="White" IsChecked="True" CheckChanged="rbtnTransferReceiveQtySumYes_CheckChanged"/>
                                 </Grid>
                                 <Grid Grid.Column="2" Grid.Row="0"  HorizontalOptions="Center" Margin="0,-4,0,0">
                                     <input:CheckBox Text="EI" x:Name="rbtnTransferReceiveQtySumNo" TextColor="White" Type="Box" BorderColor="White" x:FieldModifier="public"  Color="White"   IsChecked="False" CheckChanged="rbtnTransferReceiveQtySumNo_CheckChanged"/>

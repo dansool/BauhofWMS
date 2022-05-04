@@ -22,7 +22,9 @@ using Android.Views.InputMethods;
 using Android.Support.V4.Content;
 using Android.Support.V4.App;
 using System.IO;
-
+using Android.Content;
+using Xamarin.Essentials;
+using System.Diagnostics;
 
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.Droid.Utils.PlatformDetailsAndroid))]
 [assembly: Xamarin.Forms.Dependency(typeof(BauhofWMS.Droid.Utils.Version_Android))]
@@ -36,15 +38,23 @@ namespace BauhofWMS.Droid
         Theme = "@style/MainTheme",
         MainLauncher = false,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+	[IntentFilter(new[] { "com.darryncampbell.datawedge.xamarin.ACTION" }, Categories = new[] { Intent.CategoryDefault })]
 
-
-    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
+	public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
-        #region Lists
-        #endregion
+		private static string ACTION_DATAWEDGE_FROM_6_2 = "com.symbol.datawedge.api.ACTION";
+		private static string EXTRA_CREATE_PROFILE = "com.symbol.datawedge.api.CREATE_PROFILE";
+		private static string EXTRA_SET_CONFIG = "com.symbol.datawedge.api.SET_CONFIG";
+		//private static string EXTRA_PROFILE_NAME = "Inventory DEMO";
+		private static string EXTRA_PROFILE_NAME = "SaarioinenWMS";
+		private DataWedgeReceiver _broadcastReceiver = null;
 
-        #region Utilis
-        GetDeviceSerial GetDeviceSerial = new GetDeviceSerial();
+
+		#region Lists
+		#endregion
+
+		#region Utilis
+		GetDeviceSerial GetDeviceSerial = new GetDeviceSerial();
         public ScannerInit ScannerInit = new ScannerInit();
 
         #endregion
@@ -64,8 +74,26 @@ namespace BauhofWMS.Droid
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
-            ScannerInit.OpenBarcodeReader();
-            LaunchStart();
+			var manufacturer = DeviceInfo.Manufacturer;
+			if (manufacturer == "Zebra Technologies")
+			{
+				
+				MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "DeviceVendor", "Zebra");
+				_broadcastReceiver = new DataWedgeReceiver();
+
+				_broadcastReceiver.scanDataReceived += (s, scanData) =>
+				{
+					System.Diagnostics.Debug.WriteLine(scanData);
+					MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "ScanBarcode", scanData.TrimStart().TrimEnd());
+				};
+				CreateProfile();
+			}
+			else
+			{
+				MessagingCenter.Send<App, string>((App)Xamarin.Forms.Application.Current, "DeviceVendor", "Honeywell");
+				ScannerInit.OpenBarcodeReader();
+			}
+			LaunchStart();
         }
 
         private void CheckAppPermissions()
@@ -119,5 +147,86 @@ namespace BauhofWMS.Droid
                 ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage }, 1);
             }
         }
-    }
+
+		protected override void OnResume()
+		{
+			base.OnResume();
+			var manufacturer = DeviceInfo.Manufacturer;
+			if (manufacturer == "Zebra Technologies")
+			{
+				if (null != _broadcastReceiver)
+				{
+					// Register the broadcast receiver
+					IntentFilter filter = new IntentFilter(DataWedgeReceiver.IntentAction);
+					filter.AddCategory(DataWedgeReceiver.IntentCategory);
+					Android.App.Application.Context.RegisterReceiver(_broadcastReceiver, filter);
+				}
+			}
+		}
+
+		protected override void OnPause()
+		{
+			var manufacturer = DeviceInfo.Manufacturer;
+			if (manufacturer == "Zebra Technologies")
+			{
+				if (null != _broadcastReceiver)
+				{
+					// Unregister the broadcast receiver
+					Android.App.Application.Context.UnregisterReceiver(_broadcastReceiver);
+				}
+			}
+			base.OnStop();
+		}
+
+		private void CreateProfile()
+		{
+			String profileName = EXTRA_PROFILE_NAME;
+			SendDataWedgeIntentWithExtra(ACTION_DATAWEDGE_FROM_6_2, EXTRA_CREATE_PROFILE, profileName);
+
+			//  Now configure that created profile to apply to our application
+			Bundle profileConfig = new Bundle();
+			profileConfig.PutString("PROFILE_NAME", EXTRA_PROFILE_NAME);
+			profileConfig.PutString("PROFILE_ENABLED", "true"); //  Seems these are all strings
+			profileConfig.PutString("CONFIG_MODE", "UPDATE");
+			Bundle barcodeConfig = new Bundle();
+			barcodeConfig.PutString("PLUGIN_NAME", "BARCODE");
+			barcodeConfig.PutString("RESET_CONFIG", "true"); //  This is the default but never hurts to specify
+			Bundle barcodeProps = new Bundle();
+			barcodeConfig.PutBundle("PARAM_LIST", barcodeProps);
+			profileConfig.PutBundle("PLUGIN_CONFIG", barcodeConfig);
+			Bundle appConfig = new Bundle();
+			appConfig.PutString("PACKAGE_NAME", this.PackageName);      //  Associate the profile with this app
+			appConfig.PutStringArray("ACTIVITY_LIST", new String[] { "*" });
+			profileConfig.PutParcelableArray("APP_LIST", new Bundle[] { appConfig });
+			SendDataWedgeIntentWithExtra(ACTION_DATAWEDGE_FROM_6_2, EXTRA_SET_CONFIG, profileConfig);
+			//  You can only configure one plugin at a time, we have done the barcode input, now do the intent output
+			profileConfig.Remove("PLUGIN_CONFIG");
+			Bundle intentConfig = new Bundle();
+			intentConfig.PutString("PLUGIN_NAME", "INTENT");
+			intentConfig.PutString("RESET_CONFIG", "true");
+			Bundle intentProps = new Bundle();
+			intentProps.PutString("intent_output_enabled", "true");
+			intentProps.PutString("intent_action", DataWedgeReceiver.IntentAction);
+			intentProps.PutString("intent_delivery", "2");
+			intentConfig.PutBundle("PARAM_LIST", intentProps);
+			profileConfig.PutBundle("PLUGIN_CONFIG", intentConfig);
+			SendDataWedgeIntentWithExtra(ACTION_DATAWEDGE_FROM_6_2, EXTRA_SET_CONFIG, profileConfig);
+		}
+
+		private void SendDataWedgeIntentWithExtra(String action, String extraKey, Bundle extras)
+		{
+			Intent dwIntent = new Intent();
+			dwIntent.SetAction(action);
+			dwIntent.PutExtra(extraKey, extras);
+			SendBroadcast(dwIntent);
+		}
+
+		private void SendDataWedgeIntentWithExtra(String action, String extraKey, String extraValue)
+		{
+			Intent dwIntent = new Intent();
+			dwIntent.SetAction(action);
+			dwIntent.PutExtra(extraKey, extraValue);
+			SendBroadcast(dwIntent);
+		}
+	}
 }

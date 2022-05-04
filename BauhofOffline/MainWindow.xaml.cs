@@ -156,14 +156,15 @@ namespace BauhofOffline
                             }
                             else
                             {
-                               
-                                if (lstStartupArguments.First().showUI)
+								
+								if (lstStartupArguments.First().showUI)
                                 {
-                                    GetConfiguration();
+									GetConfiguration();
                                     WriteLog("GetConfiguration done", 1);
                                     CheckVersion();
                                     WriteLog("CheckVersion done", 1);
-                                    ConvertFilesStart();
+									Debug.WriteLine("CheckVersion done - convert start");
+									ConvertFilesStart();
                                 }
                                 else
                                 {
@@ -179,7 +180,8 @@ namespace BauhofOffline
                 }
                 else
                 {
-                    GetConfiguration();
+					
+					GetConfiguration();
                     WriteLog("GetConfiguration done", 1);
                     CheckVersion();
                     WriteLog("CheckVersion done", 1);
@@ -1408,8 +1410,9 @@ namespace BauhofOffline
                     //convertProcessLog = convertProcessLog + "\r\n" + "Dir exists";
                     foreach (string str in dirs)
                     {
-                        //convertProcessLog = convertProcessLog + "\r\n" + "File:" + str;
-                        string sourceFileName = str;
+						
+						//convertProcessLog = convertProcessLog + "\r\n" + "File:" + str;
+						string sourceFileName = str;
                         int index = str.LastIndexOf("\\");
                         string fileName = str.Substring(index + 1);
                         if (fileName.ToUpper().StartsWith("DBRECORDS_") && fileName.ToUpper().EndsWith(".TXT"))
@@ -1447,8 +1450,10 @@ namespace BauhofOffline
         {
            
             try
-            {                
-                GetLatestDBFile();
+            {
+				Debug.WriteLine("ConvertFiles start");
+
+				GetLatestDBFile();
                 bool proceed = true;
                 string csvFolderPath = "";
                 string shopFileFolder = "";
@@ -1464,8 +1469,8 @@ namespace BauhofOffline
                             prgRing.Visibility = Visibility.Visible;
                         }));
                     }
-                   
-                    csvFolderPath = lstSettings.First().csvFolder;
+					Debug.WriteLine("ConvertFiles start 2");
+					csvFolderPath = lstSettings.First().csvFolder;
                     shopFileFolder = lstSettings.First().shopFileFolder;
                     csvArchiveFolder = lstSettings.First().csvArchiveFolder;
                     string jsonFolderPath = lstSettings.First().jsonFolder;
@@ -2644,9 +2649,11 @@ namespace BauhofOffline
                     x = x + "\r\n" + "kaubakood " + values[7];
                     x = x + "\r\n" + "kogus " + values[9];
                     x = x + "\r\n" + "ühikud " + values[10];
+					x = x + "\r\n" + "väline " + values[11];
+					x = x + "\r\n" + "osakond " + values[12];
 
-                    ////MessageBox.Show(x);
-                    step = 2;
+					////MessageBox.Show(x);
+					step = 2;
                     lst.shop = string.IsNullOrEmpty(values[0]) ? "" : values[0].Replace("\"", "");
 
                     step = 3;
@@ -2688,20 +2695,26 @@ namespace BauhofOffline
                     step = 11;
                     lst.magnitude = string.IsNullOrEmpty(values[10]) ? "" : values[10].Replace(";","%%%").Replace("\"", "");
 
-                    //string y = "pood " + lst.shop;
-                    //y = y + "\r\n" + "dokno " + lst.docNo;
-                    //y = y + "\r\n" + "hankijakood " +lst.vendorCode;
-                    //y = y + "\r\n" + "hankijanimi " + lst.vendorName;
-                    //y = y + "\r\n" + "hankijaviide " + lst.vendorReference;
-                    //y = y + "\r\n" + "tarnekp " + lst.shipmentDate;
-                    //y = y + "\r\n" + "dokreanr " + lst.docLineNo;
-                    //y = y + "\r\n" + "kaubakood " +lst.itemCode;
-                    //y = y + "\r\n" + "kogus " + lst.initialQty;
-                    //y = y + "\r\n" + "ühikud " + lst.magnitude;
-                    //MessageBox.Show(y);
+					lst.externalCode = string.IsNullOrEmpty(values[11]) ? "" : values[11].Replace("\"", "");
+					lst.department = string.IsNullOrEmpty(values[12]) ? "" : values[12].Replace("\"", "");
 
-                    
-                    if (lst.shipmentDate > Convert.ToDateTime("2022-01-01 00:00:00"))
+					//string y = "pood " + lst.shop;
+					//y = y + "\r\n" + "dokno " + lst.docNo;
+					//y = y + "\r\n" + "hankijakood " +lst.vendorCode;
+					//y = y + "\r\n" + "hankijanimi " + lst.vendorName;
+					//y = y + "\r\n" + "hankijaviide " + lst.vendorReference;
+					//y = y + "\r\n" + "tarnekp " + lst.shipmentDate;
+					//y = y + "\r\n" + "dokreanr " + lst.docLineNo;
+					//y = y + "\r\n" + "kaubakood " +lst.itemCode;
+					//y = y + "\r\n" + "kogus " + lst.initialQty;
+					//y = y + "\r\n" + "ühikud " + lst.magnitude;
+					//y = y + "\r\n" + "väline " + lst.externalCode;
+					//y = y + "\r\n" + "osakond " + lst.department;
+					//MessageBox.Show(y);
+
+
+
+					if (lst.shipmentDate > Convert.ToDateTime("2022-01-01 00:00:00"))
                     {
                         return lst;
                     }

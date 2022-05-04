@@ -30,5 +30,9 @@ namespace BauhofWMSDLL.ListDefinitions
         public bool showPurchaseReceiveQty { get; set; }
 
         public int completelyPicked { get; set; }
-    }
+
+		public string externalCode { get; set; }
+		public string department { get; set; }
+
+	}
 }
