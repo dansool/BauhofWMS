@@ -116,7 +116,7 @@ namespace BauhofOffline
                 }
                 if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                 {
-                    Debug.WriteLine("Sii");
+                    Debug.WriteLine("Sii " + DeviceNameAsSeenInMyComputer);
                     device.Connect();
                     if (device.DirectoryExists(@"\Internal shared storage"))
                     {
@@ -2637,7 +2637,7 @@ namespace BauhofOffline
                 {
                     step = 1;
                     decimal temp = 0;
-                    
+					Debug.WriteLine(csvLine);
                     string[] values = csvLine.Split("\"" + "," + "\"");
                     string x = "pood " + values[0];
                     x = x + "\r\n" + "dokno " + values[1];
@@ -2649,8 +2649,8 @@ namespace BauhofOffline
                     x = x + "\r\n" + "kaubakood " + values[7];
                     x = x + "\r\n" + "kogus " + values[9];
                     x = x + "\r\n" + "ühikud " + values[10];
-					x = x + "\r\n" + "väline " + values[11];
-					x = x + "\r\n" + "osakond " + values[12];
+					//x = x + "\r\n" + "väline " + values[11];
+					//x = x + "\r\n" + "osakond " + values[12];
 
 					////MessageBox.Show(x);
 					step = 2;
