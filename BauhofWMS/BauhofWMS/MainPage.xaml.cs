@@ -59,9 +59,12 @@ namespace BauhofWMS
         public WritePurchaseReceiveRecordsToExportFile WritePurchaseReceiveRecordsToExportFile = new WritePurchaseReceiveRecordsToExportFile();
         public WriteTransferReceiveRecordsToExportFile WriteTransferReceiveRecordsToExportFile = new WriteTransferReceiveRecordsToExportFile();
         public WriteLog WriteLog = new WriteLog();
-        #endregion
-        #region Variables
-        protected override bool OnBackButtonPressed() => true;
+		#endregion
+		#region Variables
+
+		private double _width = 0.0;
+		private double _height = 0.0;
+		protected override bool OnBackButtonPressed() => true;
         private App obj = App.Current as App;
         public string ProfileFileName = "HoneywellDecoderSettingsV2.exm";
         public string currentScannedValue = "";
@@ -171,10 +174,35 @@ namespace BauhofWMS
             InitializeComponent();
             obj.mp = this;
             grdProgressBar.IsVisible = true;
-            StartMainPage();
+			
+			StartMainPage();
         }
-     
-        public async Task startRing()
+
+		private void RotationChanges()
+		{
+			//if (obj.isZebra)
+			//{
+			//	Debug.WriteLine("true obj.isZebra " + obj.isZebra);
+			//	Debug.WriteLine("true obj.isHoneywell " + obj.isHoneywell);
+			//	grdKeyBoards.Margin = new Thickness(0, 340, 0, 0);
+			//	grdKeyBoards.ScaleX = 1.0;
+			//	grdKeyBoards.ScaleY = 1.0;
+			//}
+		}
+
+		protected override void OnSizeAllocated(double width, double height)
+		{
+			base.OnSizeAllocated(width, height);
+
+			if (width != _width || height != _height)
+			{
+				_width = width;
+				_height = height;
+				RotationChanges();
+			}
+		}
+
+		public async Task startRing()
         {
             double i = 0.0;
             while (true)
@@ -1369,13 +1397,18 @@ namespace BauhofWMS
         #region stkSettings
         public void PrepareSettings()
         {
+			
+
             CollapseAllStackPanels.Collapse(this);
             stkSettings.IsVisible = true;
             obj.mainOperation = "";
             obj.currentLayoutName = "Settings";
         }
 
-        private void rbtnProduction_CheckChanged(object sender, EventArgs e)
+	
+
+
+		private void rbtnProduction_CheckChanged(object sender, EventArgs e)
         {
             rbtnTest.IsChecked = false;
             EnvironmentColorChange(productionColor);
@@ -1544,7 +1577,8 @@ namespace BauhofWMS
 
         public async void PrepareOperations()
         {
-            frmOperationsPurchaseReceive.IsVisible = true;
+			RotationChanges();
+			frmOperationsPurchaseReceive.IsVisible = true;
             lblOperationspurchaseReceive.IsVisible = true;
             frmOperationsTransferReceive.IsVisible = true;
             lblOperationsTransferReceive.IsVisible = true;

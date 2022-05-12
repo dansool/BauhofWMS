@@ -1,0 +1,4 @@
+04.05 - osakond ja väline kood ostuvastuvõtu lahenduses, Zebra skänneri liidestamine (riistvara)- 2h
+09.05 - vea tuvastamine algandmete ostufailist, ostuandmete mällu lugemise muutmine - 3h
+10.05 - Zebra skänneri liidestamine (riistvara ja ekraanivormide kohandamine) - 3h
+12.05 - Zebra skänneri liidestamine (ekraanivormide kohandamine) - 6h

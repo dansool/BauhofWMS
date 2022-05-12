@@ -156,7 +156,6 @@ namespace BauhofOffline
                             }
                             else
                             {
-								
 								if (lstStartupArguments.First().showUI)
                                 {
 									GetConfiguration();
@@ -953,7 +952,8 @@ namespace BauhofOffline
                             device.Connect();
                             try
                             {
-                                device.CreateDirectory(@"\IPSM card\Download");
+								device.CreateDirectory(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download");
+								//device.CreateDirectory(@"\IPSM card\Download");
                             }
                             catch (Exception ex)
                             {
@@ -962,9 +962,10 @@ namespace BauhofOffline
 
                             if (proceed)
                             {
-                                var dcimDownload = device.GetDirectoryInfo(@"\IPSM card\Download");
+								var dcimDownload = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\Download");
+								//var dcimDownload = device.GetDirectoryInfo(@"\Internal Shared Storage\Download");
 
-                                var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+								var files = dcimDownload.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
                                 foreach (var file in files)
                                 {
                                     if (file.Name.ToUpper().EndsWith(".APK"))

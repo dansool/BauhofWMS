@@ -23,9 +23,9 @@
                 <Setter Property="FontSize" Value="{OnPlatform Android=26, UWP=22}" />
                 <Setter Property="BackgroundColor" Value="#FF343232" />
                 <Setter Property="TextColor" Value="White" />
-                <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="HeightRequest" Value="{OnPlatform Android=40, UWP=34}" />
                 <Setter Property="BorderWidth" Value="1" />
-                <Setter Property="Padding" Value="-5" />
+                <Setter Property="Padding" Value="{OnPlatform Android=-5, UWP=-5}" />
                 <Setter Property="BorderColor" Value="#FF343232" />
             </Style>
 
@@ -34,7 +34,6 @@
                 <Setter Property="BackgroundColor" Value="#FF343232" />
                 <Setter Property="TextColor" Value="White" />
                 <Setter Property="HeightRequest" Value="40" />
-                <!--<Setter Property="WidthRequest" Value="*" />-->
                 <Setter Property="BorderWidth" Value="1" />
                 <Setter Property="BorderColor" Value="#FF343232" />
                 <Setter Property="Padding" Value="-10"></Setter>
@@ -46,11 +45,11 @@
                 <Setter Property="TextColor" Value="Red" />
                 <Setter Property="HeightRequest" Value="40" />
             </Style>
-
             <Style TargetType="Button" x:Key="KeyboardButtonEntClearStyle">
                 <Setter Property="FontSize" Value="{OnPlatform Android=Large, UWP=Medium}" />
                 <Setter Property="BackgroundColor" Value="Transparent" />
                 <Setter Property="TextColor" Value="White" />
+                <Setter Property="Padding" Value="0" />
                 <Setter Property="HeightRequest" Value="40" />
             </Style>
             

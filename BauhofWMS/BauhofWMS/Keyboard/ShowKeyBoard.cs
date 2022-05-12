@@ -29,20 +29,30 @@ namespace BauhofWMS.Keyboard
                         mp.stkKeyboardNumeric.IsVisible = false;
 
 
-                        if (obj.operatingSystem == "Android")
-                        {
-                            mp.grdKeyBoards.Margin = new Thickness(0, 360, 0, 0);
-                            mp.grdKeyBoards.ScaleX = 1.045;
-                            mp.grdKeyBoards.ScaleY = 1.0;
-                        }
-                        if (obj.operatingSystem == "UWP")
-                        {
-                            mp.grdKeyBoards.Margin = new Thickness(0, 264, 0, 0);
-                            mp.grdKeyBoards.ScaleX = 1.03;
-                            mp.grdKeyBoards.ScaleY = 1.0;
-                        }
+						if (obj.operatingSystem == "Android")
+						{
+							if (obj.isHoneywell)
+							{
+								mp.grdKeyBoards.Margin = new Thickness(0, 390, 0, 0);
+								mp.grdKeyBoards.ScaleX = 1.045;
+								mp.grdKeyBoards.ScaleY = 1.0;
+							}
+							if (obj.isZebra)
+							{
+								mp.grdKeyBoards.Margin = new Thickness(0, 360, 0, -16);
+								mp.grdKeyBoards.HeightRequest = 380;
+								mp.grdKeyBoards.ScaleX = 1.045;
+								mp.grdKeyBoards.ScaleY = 0.94;
+							}
+						}
+						if (obj.operatingSystem == "UWP")
+						{
+							mp.grdKeyBoards.Margin = new Thickness(0, 264, 0, 0);
+							mp.grdKeyBoards.ScaleX = 1.03;
+							mp.grdKeyBoards.ScaleY = 1.0;
+						}
 
-                        switch (type)
+						switch (type)
                         {
                             case VirtualKeyboardTypes.VirtualKeyboardType.Keyboard:
                                 {
