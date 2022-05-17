@@ -579,39 +579,50 @@ namespace BauhofWMS
 							}
 							foreach (var s in lstPurchaseOrderPickedQuantities)
 							{
+
 								currentPurchaseOrder = s.docNo;
+                                Debug.WriteLine(currentPurchaseOrder);
 								if (lstPurchaseOrders.Any())
 								{
 									if (!string.IsNullOrEmpty(currentPurchaseOrder))
 									{
 										var currentRows = lstPurchaseOrders.Where(x => x.docNo == currentPurchaseOrder);
-										currentRows.First().purchasePickedRowCount = 0;
-										var purchaseRowCountA = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == currentPurchaseOrder);
-										if (purchaseRowCountA.Any())
-										{
-											currentRows.First().purchaseRowCount = purchaseRowCountA.Count();
-										}
-										Debug.WriteLine("alustame");
-										var allPickedA = true;
-										foreach (var p in purchaseRowCountA)
-										{
-											var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder && x.docLineNo == p.docLineNo);
-											if (purchasePickedCount.Any())
-											{
-												currentRows.First().purchasePickedRowCount = currentRows.First().purchasePickedRowCount + 1;
-												if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
-												{
-													allPickedA = false;
-												}
-											}
-											else
-											{
-												allPickedA = false;
-											}
-										}
-										currentRows.First().purchaseOrderPicked = allPickedA;
-										currentPurchaseOrder = "";
-
+                                        if (currentRows.Any())
+                                        {
+                                            currentRows.First().purchasePickedRowCount = 0;
+                                            var purchaseRowCountA = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == currentPurchaseOrder);
+                                            if (purchaseRowCountA.Any())
+                                            {
+                                                currentRows.First().purchaseRowCount = purchaseRowCountA.Count();
+                                            }
+                                            Debug.WriteLine("alustame");
+                                            if (purchaseRowCountA.Any())
+                                            {
+                                                Debug.WriteLine("alustame 1");
+                                                var allPickedA = true;
+                                                foreach (var p in purchaseRowCountA)
+                                                {
+                                                    Debug.WriteLine("alustame 2");
+                                                    var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == currentPurchaseOrder && x.docLineNo == p.docLineNo);
+                                                    if (purchasePickedCount.Any())
+                                                    {
+                                                        Debug.WriteLine("alustame 3");
+                                                        currentRows.First().purchasePickedRowCount = currentRows.First().purchasePickedRowCount + 1;
+                                                        if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
+                                                        {
+                                                            allPickedA = false;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Debug.WriteLine("alustame 4");
+                                                        allPickedA = false;
+                                                    }
+                                                }
+                                                currentRows.First().purchaseOrderPicked = allPickedA;
+                                                currentPurchaseOrder = "";
+                                            }
+                                        }
 									}
 								}
 								currentPurchaseOrder = "";

@@ -550,27 +550,34 @@ namespace BauhofOffline
 
         private void btnDownload_Click(object sender, RoutedEventArgs e)
         {
+            string errorText = "";
+            int step = 0;
             try
             {
+                
                 WriteLog(@"btnDownload_Click started", 2);
                 string DeviceNameAsSeenInMyComputer = "";
-                Debug.WriteLine("1");
+                step = 1;
                 MediaDevice device = null;
                 var devices = MediaDevice.GetDevices();
+                step = 2;
                 if (devices.Any())
                 {
-                    Debug.WriteLine("2");
+                    step = 3;
                     if (devices.Count() == 1)
                     {
-                        Debug.WriteLine("3");
+                        step = 4;
                         device = devices.First();
-
+                        step = 5;
                         DeviceNameAsSeenInMyComputer = devices.First().Description;
+                        step = 6;
                         Debug.WriteLine(DeviceNameAsSeenInMyComputer);
+                        step = 7;
                         WriteLog(@"btnDownload_Click DeviceNameAsSeenInMyComputer:" + DeviceNameAsSeenInMyComputer, 2);
                     }
                     else
                     {
+                        step = 8;
                         WriteLog(@"btnDownload_Click LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!", 2);
                         MessageBox.Show("LEITI ROHKEM KUI 1 ÜHENDATUD VÄLINE SEADE!");
                     }
@@ -578,25 +585,34 @@ namespace BauhofOffline
                 }
                 else
                 {
+                    step = 9;
                     WriteLog(@"btnDownload_Click VÄLIST SEADET EI LEITUD!", 2);
                     MessageBox.Show("VÄLIST SEADET EI LEITUD!");
                 }
-
+                step = 10;
                 if (!string.IsNullOrEmpty(DeviceNameAsSeenInMyComputer))
                 {
+                    step = 11;
                     bool proceed = true;
                     int count = 0;
 
                     try
                     {
+                        step = 12;
                         device.Connect();
+                        step = 13;
                         var photoDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Export");
-                        Debug.WriteLine("5");
+                        step = 14;
+                        errorText = "photoDir path: " + photoDir.FullName;
+                        step = 15;
                         var files = photoDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                        step = 16;
                         foreach (var file in files)
                         {
+                            step = 17;
                             count = count + 1;
                             string destinationFileName = lstSettings.First().exportFolder + file.Name;
+                            step = 18;
                             if (!File.Exists(destinationFileName))
                             {
                                 using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
@@ -611,11 +627,15 @@ namespace BauhofOffline
                             }
                         }
 
-
+                        step = 19;
                         var logsDir = device.GetDirectoryInfo(@"\" + (language == "EN" ? "Internal shared storage" : "Sisemine jagatud mäluruum") + @"\DCIM\Logs");
+                        step = 20;
+                        errorText = errorText + "\r\n" + "logsDir path: " + logsDir.FullName;
                         var logFiles = logsDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly);
+                        step = 21;
                         foreach (var file in logFiles)
                         {
+                            step = 22;
                             Debug.WriteLine(file.Name);
                             count = count + 1;
                             string shopIDFromFileName = "";
@@ -628,29 +648,34 @@ namespace BauhofOffline
                                 Debug.WriteLine(shopIDFromFileName);
                                 deviceIDFromFileName = splitFileName[1];
                                 Debug.WriteLine(deviceIDFromFileName);
-                                logDateFromFileName = DateTime.Parse(splitFileName[2]);
+                                Debug.WriteLine(splitFileName[2]);
+                                logDateFromFileName = DateTime.ParseExact(splitFileName[2], "dd-MM-yyyy", CultureInfo.InvariantCulture);
                                 Debug.WriteLine(logDateFromFileName.ToString());
                             }
+                            step = 23;
                             if (!Directory.Exists(lstSettings.First().logFolder + @"\" + shopIDFromFileName))
                             {
                                 Directory.CreateDirectory(lstSettings.First().logFolder + @"\" + shopIDFromFileName);
                             }
-
+                            step = 24;
                             if (!Directory.Exists(lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName))
                             {
                                 Directory.CreateDirectory(lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName);
                             }
+                            step = 25;
                             string destinationFileName = lstSettings.First().logFolder + @"\" + shopIDFromFileName + @"\" + deviceIDFromFileName + @"\" + file.Name;
                             if (File.Exists(destinationFileName))
                             {
                                 File.Delete(destinationFileName);
                                 
                             }
+                            step = 26;
                             using (FileStream fs = new FileStream(destinationFileName, FileMode.Create, System.IO.FileAccess.Write))
                             {
                                 device.DownloadFile(file.FullName, fs);
                                 WriteLog(@"btnDownload_Click downloaded " + file.FullName, 2);
                             }
+                            step = 27;
                             if (logDateFromFileName != DateTime.Now.Date)
                             {
                                 if (File.Exists(destinationFileName))
@@ -659,7 +684,7 @@ namespace BauhofOffline
                                 }
                             }
                         }
-
+                        step = 28;
                         device.Disconnect();
                         WriteLog(@"btnDownload_Click device disconnected", 2);
                     }
@@ -674,7 +699,7 @@ namespace BauhofOffline
                         else
                         {
                             WriteError("btnDownload_Click " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                            MessageBox.Show("btnDownload_Click  " + ex.Message);
+                            MessageBox.Show("btnDownload_Click  " + ex.Message + " step " + step + "\r\n" + errorText);
                         }
                     }
                     if (proceed)
@@ -687,7 +712,7 @@ namespace BauhofOffline
             catch (Exception ex)
             {
                 WriteError("btnDownload_Click " + ex.Message + " " + ((ex.InnerException != null) ? ex.InnerException.ToString() : null));
-                MessageBox.Show("btnDownload_Click  " + ex.Message);
+                MessageBox.Show("btnDownload_Click  " + ex.Message + " step " + step + "\r\n"+ errorText);
             }
         }
 

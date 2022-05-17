@@ -35,7 +35,7 @@
           </uap:FileTypeAssociation>
         </uap:Extension>
         <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation>
+          <uap:FileTypeAssociation Name="txt">
             <uap:DisplayName>txt</uap:DisplayName>
             <uap:SupportedFileTypes>
               <uap:FileType>.txt</uap:FileType>
