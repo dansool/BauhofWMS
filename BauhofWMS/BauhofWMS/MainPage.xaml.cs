@@ -233,360 +233,367 @@ namespace BauhofWMS
         {
             try
             {
-				
-					if (string.IsNullOrEmpty(obj.deviceSerial))
-					{
-						bool proceed = true;
-						obj.currentLayoutName = "MainPage";
-						obj.mainOperation = "";
-						obj.nextLayoutName = "";
-						obj.previousLayoutName = "";
-						CollapseAllStackPanels.Collapse(this);
-						grdMain.IsVisible = false;
-						Device.SetFlags(new string[] { "RadioButton_Experimental" });
-						grdMain.IsVisible = true;
+                Debug.WriteLine("StartMainPage StartMainPage");
+                if (string.IsNullOrEmpty(obj.deviceSerial))
+                {
+                    bool proceed = true;
+                    obj.currentLayoutName = "MainPage";
+                    obj.mainOperation = "";
+                    obj.nextLayoutName = "";
+                    obj.previousLayoutName = "";
+                    CollapseAllStackPanels.Collapse(this);
 
-						if (Device.RuntimePlatform == Device.UWP) { obj.operatingSystem = "UWP"; UWP(); }
-						if (Device.RuntimePlatform == Device.Android) { obj.operatingSystem = "Android"; Android(); }
+                    grdMain.IsVisible = false;
 
-						LoadTemplates();
-						ScannedValueReceive();
-						var resultSettings = await ReadSettings.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-						if (Device.RuntimePlatform == Device.Android)
-						{
-							GetShopRelations();
-						}
+                    Device.SetFlags(new string[] { "RadioButton_Experimental" });
+                    if (Device.RuntimePlatform == Device.UWP) { obj.operatingSystem = "UWP"; UWP(); }
+                    if (Device.RuntimePlatform == Device.Android) { obj.operatingSystem = "Android"; Android(); }
 
-						if (resultSettings.Item1)
-						{
-							lstSettings = resultSettings.Item3;
-							lstSettings.First().shopLocationCode = lstSettings.First().shopLocationCode.Replace("\"", "");
-
-							obj.wcfAddress = lstSettings.First().wmsAddress;
-							obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
-							obj.showInvQty = lstSettings.First().showInvQty;
-							obj.showPurchaseReceiveQty = lstSettings.First().showPurchaseReceiveQty;
-							obj.showPurchaseReceiveQtySum = lstSettings.First().showPurchaseReceiveQtySum;
-							obj.showTransferReceiveQty = lstSettings.First().showTransferReceiveQty;
-							obj.showTransferReceiveQtySum = lstSettings.First().showTransferReceiveQtySum;
-							obj.pEnv = lstSettings.First().pEnv;
-							obj.companyName = null;
-							if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
-							{
-								obj.companyName = lstSettings.First().wmsAddress.Contains("/") ? lstSettings.First().wmsAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
-							}
-
-							ediAddress.Text = obj.wcfAddress;
-							if (obj.pEnv)
-							{
-								rbtnProduction.IsChecked = true;
-								EnvironmentColorChange(productionColor);
-							}
-							else
-							{
-								rbtnTest.IsChecked = true;
-								EnvironmentColorChange(testColor);
-							}
-
-							if (obj.showInvQty)
-							{
-								rbtnInvQtyYes.IsChecked = true;
-							}
-							else
-							{
-								rbtnInvQtyNo.IsChecked = true;
-							}
-
-							if (obj.showPurchaseReceiveQty)
-							{
-								rbtnPurchaseReceiveQtyYes.IsChecked = true;
-							}
-							else
-							{
-								rbtnPurchaseReceiveQtyNo.IsChecked = true;
-							}
-
-							if (obj.showPurchaseReceiveQtySum)
-							{
-								rbtnPurchaseReceiveQtySumYes.IsChecked = true;
-							}
-							else
-							{
-								rbtnPurchaseReceiveQtySumNo.IsChecked = true;
-							}
-
-							if (obj.showTransferReceiveQty)
-							{
-								rbtnTransferReceiveQtyYes.IsChecked = true;
-							}
-							else
-							{
-								rbtnTransferReceiveQtyNo.IsChecked = true;
-							}
-
-							if (obj.showTransferReceiveQtySum)
-							{
-								rbtnTransferReceiveQtySumYes.IsChecked = true;
-							}
-							else
-							{
-								rbtnTransferReceiveQtySumNo.IsChecked = true;
-							}
+                    
+                    ScannedValueReceive();
 
 
-							if (!string.IsNullOrEmpty(obj.shopLocationCode))
-							{
-								shopLocationCode.Text = obj.shopLocationCode;
-							}
+                    var resultSettings = await ReadSettings.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                    if (Device.RuntimePlatform == Device.Android)
+                    {
+                        GetShopRelations();
+                    }
 
-						}
-						else
-						{
-							proceed = false;
-							grdMain.IsVisible = true;
+                    if (resultSettings.Item1)
+                    {
+                        lstSettings = resultSettings.Item3;
+                        lstSettings.First().shopLocationCode = lstSettings.First().shopLocationCode.Replace("\"", "");
 
-							string prefix = "";
-							PrepareSettings();
-						}
+                        obj.wcfAddress = lstSettings.First().wmsAddress;
+                        obj.shopLocationCode = !string.IsNullOrEmpty(lstSettings.First().shopLocationCode) ? lstSettings.First().shopLocationCode.ToUpper() : "";
+                        obj.showInvQty = lstSettings.First().showInvQty;
+                        Debug.WriteLine("lstSettings.First().showPurchaseReceiveQty " + lstSettings.First().showPurchaseReceiveQty);
+                        obj.showPurchaseReceiveQty = lstSettings.First().showPurchaseReceiveQty;
+                        obj.showPurchaseReceiveQtySum = lstSettings.First().showPurchaseReceiveQtySum;
+                        obj.showTransferReceiveQty = lstSettings.First().showTransferReceiveQty;
+                        obj.showTransferReceiveQtySum = lstSettings.First().showTransferReceiveQtySum;
+                        obj.pEnv = lstSettings.First().pEnv;
+                        obj.companyName = null;
+                        if (!string.IsNullOrEmpty(lstSettings.First().wmsAddress))
+                        {
+                            obj.companyName = lstSettings.First().wmsAddress.Contains("/") ? lstSettings.First().wmsAddress.Split(new[] { "/" }, StringSplitOptions.None).Last().ToUpper().Replace("WMS", "") : null;
+                        }
 
-						if (lstSettings.Any())
-						{
-							Debug.WriteLine("SHOPLOCATION: " + lstSettings.First().shopLocationCode);
-							if (!string.IsNullOrEmpty(lstSettings.First().shopLocationCode))
-							{
-								grdProgressBar.IsVisible = true;
-								//prgRing = new  ProgressRing { RingThickness = 20, Progress = 0.5f };
-								progressBarActive = true;
-								if (Device.RuntimePlatform == Device.UWP)
-								{
-									var resultReaddbRecords = await ReaddbRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-									if (resultReaddbRecords.Item1)
-									{
-										if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
-										{
-											Stopwatch swlstInternalRecordDB = Stopwatch.StartNew();
-											JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-											lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-											progressBarActive = false;
-											swlstInternalRecordDB.Stop();
-											WriteLog.Write(this, "InternalRecordDB created - " + lstInternalRecordDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalRecordDB.Elapsed.Milliseconds.ToString() + " milliseconds");
-										}
-									}
-									else
-									{
-										Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
-									}
+                        ediAddress.Text = obj.wcfAddress;
+                        if (obj.pEnv)
+                        {
+                            rbtnProduction.IsChecked = true;
+                            EnvironmentColorChange(productionColor);
+                        }
+                        else
+                        {
+                            rbtnTest.IsChecked = true;
+                            EnvironmentColorChange(testColor);
+                        }
 
+                        if (obj.showInvQty)
+                        {
+                            rbtnInvQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnInvQtyNo.IsChecked = true;
+                        }
 
+                        if (obj.showPurchaseReceiveQty)
+                        {
+                            rbtnPurchaseReceiveQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnPurchaseReceiveQtyNo.IsChecked = true;
+                        }
 
-									grdProgressBar.IsVisible = false;
-									progressBarActive = false;
-									complete = true;
-								}
+                        if (obj.showPurchaseReceiveQtySum)
+                        {
+                            rbtnPurchaseReceiveQtySumYes.IsChecked = true;
+                            rbtnPurchaseReceiveQtySumNo.IsChecked = false;
+                        }
+                        else
+                        {
+                            rbtnPurchaseReceiveQtySumYes.IsChecked = false;
+                            rbtnPurchaseReceiveQtySumNo.IsChecked = true;
+                        }
 
+                        if (obj.showTransferReceiveQty)
+                        {
+                            rbtnTransferReceiveQtyYes.IsChecked = true;
+                        }
+                        else
+                        {
+                            rbtnTransferReceiveQtyNo.IsChecked = true;
+                        }
 
-
-							if (Device.RuntimePlatform == Device.Android)
-							{
-
-								await GetShopRelations();
-								string prefix = "";
-								Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
-								if (lstShopRelations.Any())
-								{
-									if (lstSettings.Any())
-									{
-
-										var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
-										if (r.Any())
-										{
-											prefix = r.First().shopID;
-											obj.shopLocationID = prefix;
-											if (prefix.Length == 2)
-											{
-												Device.BeginInvokeOnMainThread(() =>
-												{
-													startRing();
-												});
-
-
-												var resultReadPurchaseReceivedbRecords = await ReadPurchaseReceiveRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-												if (resultReadPurchaseReceivedbRecords.Item1)
-												{
-													//Debug.WriteLine(resultReadPurchaseReceivedbRecords.Item2);
-													if (!string.IsNullOrEmpty(resultReadPurchaseReceivedbRecords.Item2))
-													{
-														Stopwatch swlstInternalPurchaseReceiveDB = Stopwatch.StartNew();
-														JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-														lstInternalPurchaseReceiveDB = JsonConvert.DeserializeObject<List<ListOfPurchaseReceive>>(resultReadPurchaseReceivedbRecords.Item2, jSONsettings);
-														progressBarActive = false;
-														swlstInternalPurchaseReceiveDB.Stop();
-														WriteLog.Write(this, "PurchaseReceiveDB created - " + lstInternalPurchaseReceiveDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalPurchaseReceiveDB.Elapsed.Milliseconds.ToString() + " milliseconds");
-													}
-												}
-
-												var resultReadTransferReceivedbRecords = await ReadTransferReceiveRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-												if (resultReadTransferReceivedbRecords.Item1)
-												{
-													//Debug.WriteLine(resultReadTransferReceivedbRecords.Item2);
-													if (!string.IsNullOrEmpty(resultReadTransferReceivedbRecords.Item2))
-													{
-														Stopwatch swlstInternalTransferReceiveDB = Stopwatch.StartNew();
-														JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-														lstInternalTransferReceiveDB = JsonConvert.DeserializeObject<List<ListOfTransferReceive>>(resultReadTransferReceivedbRecords.Item2, jSONsettings);
-														progressBarActive = false;
-														complete = true;
-														swlstInternalTransferReceiveDB.Stop();
-														WriteLog.Write(this, "TransferReceiveDB created - " + lstInternalTransferReceiveDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalTransferReceiveDB.Elapsed.Milliseconds.ToString() + " milliseconds");
-													}
-												}
-												var resultReaddbRecords = await ReaddbRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-												if (resultReaddbRecords.Item1)
-												{
-													//Debug.WriteLine(resultReaddbRecords.Item2);
-													if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
-													{
-														Stopwatch swlstInternalRecordDB = Stopwatch.StartNew();
-														JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-														lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
-														progressBarActive = false;
-														complete = true;
-														swlstInternalRecordDB.Stop();
-														WriteLog.Write(this, "InternalRecordDB created - " + lstInternalRecordDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalRecordDB.Elapsed.Milliseconds.ToString() + " milliseconds");
-													}
-												}
-
-												Stopwatch swlstBarcodes = Stopwatch.StartNew();
-												foreach (var n in lstInternalRecordDB)
-												{
-													if (n.barCode.Contains(";"))
-													{
-														var barCodes = n.barCode.Split(new[] { ";" }, StringSplitOptions.None);
-														if (barCodes.Any())
-														{
-															foreach (var p in barCodes)
-															{
-																var row = new ListOfBarcodes { barCode = p, itemCode = n.itemCode };
-																lstBarcodes.Add(row);
-															}
-														}
-
-													}
-													else
-													{
-														var row = new ListOfBarcodes { barCode = n.barCode, itemCode = n.itemCode };
-														lstBarcodes.Add(row);
-													}
-
-												}
-												swlstBarcodes.Stop();
-
-												WriteLog.Write(this, "lstBarcodes created - " + lstBarcodes.Count().ToString() + " recods. Time elapsed : " + swlstBarcodes.Elapsed.Milliseconds.ToString() + " milliseconds");
-
-											}
-										}
-									}
-									else
-									{
-										DisplayAlert("VIGA", "KAUPLUSE NIMI ON SEADISTAMATA!", "OK");
-										grdProgressBar.IsVisible = false;
-										progressBarActive = false;
-										PrepareOperations();
-									}
-								}
-
-								Debug.WriteLine("SHOP: " + prefix);
+                        if (obj.showTransferReceiveQtySum)
+                        {
+                            rbtnTransferReceiveQtySumYes.IsChecked = true;
+                            rbtnTransferReceiveQtySumNo.IsChecked = false;
+                        }
+                        else
+                        {
+                            rbtnTransferReceiveQtySumYes.IsChecked = false;
+                            rbtnTransferReceiveQtySumNo.IsChecked = true;
+                        }
 
 
-								
+                        if (!string.IsNullOrEmpty(obj.shopLocationCode))
+                        {
+                            shopLocationCode.Text = obj.shopLocationCode;
+                        }
+
+                    }
+                    else
+                    {
+                        proceed = false;
+                        grdMain.IsVisible = true;
+
+                        string prefix = "";
+                        PrepareSettings();
+                    }
+
+                    if (lstSettings.Any())
+                    {
+                        Debug.WriteLine("SHOPLOCATION A : " + lstSettings.First().shopLocationCode);
+                        if (!string.IsNullOrEmpty(lstSettings.First().shopLocationCode))
+                        {
+                            grdProgressBar.IsVisible = true;
+                            //prgRing = new  ProgressRing { RingThickness = 20, Progress = 0.5f };
+                            progressBarActive = true;
+                            if (Device.RuntimePlatform == Device.UWP)
+                            {
+                                var resultReaddbRecords = await ReaddbRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                if (resultReaddbRecords.Item1)
+                                {
+                                    if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
+                                    {
+                                        Stopwatch swlstInternalRecordDB = Stopwatch.StartNew();
+                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                        lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                        progressBarActive = false;
+                                        swlstInternalRecordDB.Stop();
+                                        WriteLog.Write(this, "InternalRecordDB created - " + lstInternalRecordDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalRecordDB.Elapsed.Milliseconds.ToString() + " milliseconds");
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("=====resultReaddbRecords.Item2  ERROR " + resultReaddbRecords.Item2);
+                                }
 
 
 
-								grdProgressBar.IsVisible = false;
-								progressBarActive = false;
+                                grdProgressBar.IsVisible = false;
+                                progressBarActive = false;
+                                complete = true;
+                            }
 
-							}
 
-							var resultReadInvRecords = await ReadInvRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-							if (resultReadInvRecords.Item1)
-							{
-								if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
-								{
-									JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-									lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
-									progressBarActive = false;
-								}
-							}
 
-							var resultReadMovementRecords = await ReadMovementRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-							if (resultReadMovementRecords.Item1)
-							{
-								if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
-								{
-									JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-									lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
-									progressBarActive = false;
-								}
-							}
+                            if (Device.RuntimePlatform == Device.Android)
+                            {
 
-							var resultPurchaseOrderPickedQuantities = await ReadPurchaseOrderPickedQuantitiesRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-							if (resultPurchaseOrderPickedQuantities.Item1)
-							{
-								if (!string.IsNullOrEmpty(resultPurchaseOrderPickedQuantities.Item2))
-								{
-									JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-									lstPurchaseOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfSHRCVToExport>>(resultPurchaseOrderPickedQuantities.Item2, jSONsettings);
-									progressBarActive = false;
-								}
-							}
+                                await GetShopRelations();
+                                string prefix = "";
+                                Debug.WriteLine("lstShopRelations: " + lstShopRelations.Count());
+                                if (lstShopRelations.Any())
+                                {
+                                    if (lstSettings.Any())
+                                    {
 
-							var resultTransferPickedQuantities = await ReadTransferOrderPickedQuantitiesRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
-							if (resultTransferPickedQuantities.Item1)
-							{
-								if (!string.IsNullOrEmpty(resultTransferPickedQuantities.Item2))
-								{
-									JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
-									lstTransferOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfTRFRCVToExport>>(resultTransferPickedQuantities.Item2, jSONsettings);
-									progressBarActive = false;
-								}
-							}
+                                        var r = lstShopRelations.Where(x => x.shopName.ToUpper() == lstSettings.First().shopLocationCode.ToUpper());
+                                        if (r.Any())
+                                        {
+                                            prefix = r.First().shopID;
+                                            obj.shopLocationID = prefix;
+                                            if (prefix.Length == 2)
+                                            {
+                                                Device.BeginInvokeOnMainThread(() =>
+                                                {
+                                                    startRing();
+                                                });
 
-							#region ostuasjad?
-							Stopwatch swPurchaseOrdersGroup = Stopwatch.StartNew();
-							lstPurchaseOrders = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID).ToList().GroupBy(x => x.docNo).Select(s => new ListOfPurchaseReceive
-							{
-								docNo = s.First().docNo,
-								vendorCode = s.First().vendorCode,
-								vendorName = s.First().vendorName,
-								vendorReference = s.First().vendorReference,
-								shop = s.First().shop,
-								shipmentDate = s.First().shipmentDate,
-								department = s.First().department
-							}).ToList().OrderBy(x => x.shipmentDate).ToList();
-							WriteLog.Write(this, "lstPurchaseOrders grouped - " + lstPurchaseOrders.Count().ToString() + " recods. Time elapsed : " + swPurchaseOrdersGroup.Elapsed.Milliseconds.ToString() + " milliseconds");
-							Stopwatch swPurchaseOrdersCalc = Stopwatch.StartNew();
 
-							var allPicked = false;
-							var purchaseRowCount = new List<ListOfPurchaseReceive>();
-							foreach (var r in lstPurchaseOrders)
-							{
-								purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo).ToList();
-								if (purchaseRowCount.Any())
-								{
-									r.purchaseRowCount = purchaseRowCount.Count();
-								}
+                                                var resultReadPurchaseReceivedbRecords = await ReadPurchaseReceiveRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                if (resultReadPurchaseReceivedbRecords.Item1)
+                                                {
+                                                    //Debug.WriteLine(resultReadPurchaseReceivedbRecords.Item2);
+                                                    if (!string.IsNullOrEmpty(resultReadPurchaseReceivedbRecords.Item2))
+                                                    {
+                                                        Stopwatch swlstInternalPurchaseReceiveDB = Stopwatch.StartNew();
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalPurchaseReceiveDB = JsonConvert.DeserializeObject<List<ListOfPurchaseReceive>>(resultReadPurchaseReceivedbRecords.Item2, jSONsettings);
+                                                        progressBarActive = false;
+                                                        swlstInternalPurchaseReceiveDB.Stop();
+                                                        WriteLog.Write(this, "PurchaseReceiveDB created - " + lstInternalPurchaseReceiveDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalPurchaseReceiveDB.Elapsed.Milliseconds.ToString() + " milliseconds");
+                                                    }
+                                                }
 
-							}
-							foreach (var s in lstPurchaseOrderPickedQuantities)
-							{
+                                                var resultReadTransferReceivedbRecords = await ReadTransferReceiveRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                if (resultReadTransferReceivedbRecords.Item1)
+                                                {
+                                                    //Debug.WriteLine(resultReadTransferReceivedbRecords.Item2);
+                                                    if (!string.IsNullOrEmpty(resultReadTransferReceivedbRecords.Item2))
+                                                    {
+                                                        Stopwatch swlstInternalTransferReceiveDB = Stopwatch.StartNew();
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalTransferReceiveDB = JsonConvert.DeserializeObject<List<ListOfTransferReceive>>(resultReadTransferReceivedbRecords.Item2, jSONsettings);
+                                                        progressBarActive = false;
+                                                        complete = true;
+                                                        swlstInternalTransferReceiveDB.Stop();
+                                                        WriteLog.Write(this, "TransferReceiveDB created - " + lstInternalTransferReceiveDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalTransferReceiveDB.Elapsed.Milliseconds.ToString() + " milliseconds");
+                                                    }
+                                                }
+                                                var resultReaddbRecords = await ReaddbRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                                                if (resultReaddbRecords.Item1)
+                                                {
+                                                    //Debug.WriteLine(resultReaddbRecords.Item2);
+                                                    if (!string.IsNullOrEmpty(resultReaddbRecords.Item2))
+                                                    {
+                                                        Stopwatch swlstInternalRecordDB = Stopwatch.StartNew();
+                                                        JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                                        lstInternalRecordDB = JsonConvert.DeserializeObject<List<ListOfdbRecords>>(resultReaddbRecords.Item2, jSONsettings);
+                                                        progressBarActive = false;
+                                                        complete = true;
+                                                        swlstInternalRecordDB.Stop();
+                                                        WriteLog.Write(this, "InternalRecordDB created - " + lstInternalRecordDB.Count().ToString() + " recods. Time elapsed : " + swlstInternalRecordDB.Elapsed.Milliseconds.ToString() + " milliseconds");
+                                                    }
+                                                }
 
-								currentPurchaseOrder = s.docNo;
+                                                Stopwatch swlstBarcodes = Stopwatch.StartNew();
+                                                foreach (var n in lstInternalRecordDB)
+                                                {
+                                                    if (n.barCode.Contains(";"))
+                                                    {
+                                                        var barCodes = n.barCode.Split(new[] { ";" }, StringSplitOptions.None);
+                                                        if (barCodes.Any())
+                                                        {
+                                                            foreach (var p in barCodes)
+                                                            {
+                                                                var row = new ListOfBarcodes { barCode = p, itemCode = n.itemCode };
+                                                                lstBarcodes.Add(row);
+                                                            }
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        var row = new ListOfBarcodes { barCode = n.barCode, itemCode = n.itemCode };
+                                                        lstBarcodes.Add(row);
+                                                    }
+
+                                                }
+                                                swlstBarcodes.Stop();
+
+                                                WriteLog.Write(this, "lstBarcodes created - " + lstBarcodes.Count().ToString() + " recods. Time elapsed : " + swlstBarcodes.Elapsed.Milliseconds.ToString() + " milliseconds");
+
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DisplayAlert("VIGA", "KAUPLUSE NIMI ON SEADISTAMATA!", "OK");
+                                        grdProgressBar.IsVisible = false;
+                                        progressBarActive = false;
+                                        PrepareOperations();
+                                    }
+                                }
+
+                                Debug.WriteLine("SHOP: " + prefix);
+
+
+
+
+
+
+                                grdProgressBar.IsVisible = false;
+                                progressBarActive = false;
+
+                            }
+
+                            var resultReadInvRecords = await ReadInvRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                            if (resultReadInvRecords.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultReadInvRecords.Item2))
+                                {
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstInternalInvDB = JsonConvert.DeserializeObject<List<ListOfInvRecords>>(resultReadInvRecords.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            var resultReadMovementRecords = await ReadMovementRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                            if (resultReadMovementRecords.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultReadMovementRecords.Item2))
+                                {
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstInternalMovementDB = JsonConvert.DeserializeObject<List<ListOfMovementRecords>>(resultReadMovementRecords.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            var resultPurchaseOrderPickedQuantities = await ReadPurchaseOrderPickedQuantitiesRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                            if (resultPurchaseOrderPickedQuantities.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultPurchaseOrderPickedQuantities.Item2))
+                                {
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstPurchaseOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfSHRCVToExport>>(resultPurchaseOrderPickedQuantities.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            var resultTransferPickedQuantities = await ReadTransferOrderPickedQuantitiesRecords.Read(this, obj.shopLocationID ?? "SHOPID-PUUDUB?", obj.deviceSerial ?? "DEVICEID-PUUDUB?");
+                            if (resultTransferPickedQuantities.Item1)
+                            {
+                                if (!string.IsNullOrEmpty(resultTransferPickedQuantities.Item2))
+                                {
+                                    JsonSerializerSettings jSONsettings = new JsonSerializerSettings() { Formatting = Formatting.Indented };
+                                    lstTransferOrderPickedQuantities = JsonConvert.DeserializeObject<List<ListOfTRFRCVToExport>>(resultTransferPickedQuantities.Item2, jSONsettings);
+                                    progressBarActive = false;
+                                }
+                            }
+
+                            #region ostuasjad?
+                            Stopwatch swPurchaseOrdersGroup = Stopwatch.StartNew();
+                            lstPurchaseOrders = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID).ToList().GroupBy(x => x.docNo).Select(s => new ListOfPurchaseReceive
+                            {
+                                docNo = s.First().docNo,
+                                vendorCode = s.First().vendorCode,
+                                vendorName = s.First().vendorName,
+                                vendorReference = s.First().vendorReference,
+                                shop = s.First().shop,
+                                shipmentDate = s.First().shipmentDate,
+                                department = s.First().department
+                            }).ToList().OrderBy(x => x.shipmentDate).ToList();
+                            WriteLog.Write(this, "lstPurchaseOrders grouped - " + lstPurchaseOrders.Count().ToString() + " recods. Time elapsed : " + swPurchaseOrdersGroup.Elapsed.Milliseconds.ToString() + " milliseconds");
+                            Stopwatch swPurchaseOrdersCalc = Stopwatch.StartNew();
+
+                            var allPicked = false;
+                            var purchaseRowCount = new List<ListOfPurchaseReceive>();
+                            foreach (var r in lstPurchaseOrders)
+                            {
+                                purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo).ToList();
+                                if (purchaseRowCount.Any())
+                                {
+                                    r.purchaseRowCount = purchaseRowCount.Count();
+                                }
+
+                            }
+                            foreach (var s in lstPurchaseOrderPickedQuantities)
+                            {
+
+                                currentPurchaseOrder = s.docNo;
                                 Debug.WriteLine(currentPurchaseOrder);
-								if (lstPurchaseOrders.Any())
-								{
-									if (!string.IsNullOrEmpty(currentPurchaseOrder))
-									{
-										var currentRows = lstPurchaseOrders.Where(x => x.docNo == currentPurchaseOrder);
+                                if (lstPurchaseOrders.Any())
+                                {
+                                    if (!string.IsNullOrEmpty(currentPurchaseOrder))
+                                    {
+                                        var currentRows = lstPurchaseOrders.Where(x => x.docNo == currentPurchaseOrder);
                                         if (currentRows.Any())
                                         {
                                             currentRows.First().purchasePickedRowCount = 0;
@@ -623,85 +630,88 @@ namespace BauhofWMS
                                                 currentPurchaseOrder = "";
                                             }
                                         }
-									}
-								}
-								currentPurchaseOrder = "";
-								}
+                                    }
+                                }
+                                currentPurchaseOrder = "";
+                            }
 
 
-							//foreach (var r in lstPurchaseOrders)
-							//{
-							//	var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
-							//	if (purchaseRowCount.Any())
-							//	{
-							//		r.purchaseRowCount = purchaseRowCount.Count();
-							//	}
+                            //foreach (var r in lstPurchaseOrders)
+                            //{
+                            //	var purchaseRowCount = lstInternalPurchaseReceiveDB.Where(x => x.shop == obj.shopLocationID && x.docNo == r.docNo);
+                            //	if (purchaseRowCount.Any())
+                            //	{
+                            //		r.purchaseRowCount = purchaseRowCount.Count();
+                            //	}
 
-							//	var allPicked = true;
+                            //	var allPicked = true;
 
-							//	foreach (var p in purchaseRowCount)
-							//	{
-							//		var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == p.docNo && x.docLineNo == p.docLineNo);
-							//		if (purchasePickedCount.Any())
-							//		{
-							//			r.purchasePickedRowCount = r.purchasePickedRowCount + 1;
-							//			if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
-							//			{
-							//				allPicked = false;
-							//			}
-							//		}
-							//		else
-							//		{
-							//			allPicked = false;
-							//		}
-							//		r.purchaseOrderPicked = allPicked;
-							//		currentPurchaseOrder = "";
-							//	}
-							//}
-							stkOperations.IsEnabled = true;
-							WriteLog.Write(this, "lstPurchaseOrders read records calculation - " + lstPurchaseOrders.Count().ToString() + " recods. Time elapsed : " + swPurchaseOrdersCalc.Elapsed.Milliseconds.ToString() + " milliseconds");
-							#endregion
-
-
-							Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
+                            //	foreach (var p in purchaseRowCount)
+                            //	{
+                            //		var purchasePickedCount = lstPurchaseOrderPickedQuantities.Where(x => x.docNo == p.docNo && x.docLineNo == p.docLineNo);
+                            //		if (purchasePickedCount.Any())
+                            //		{
+                            //			r.purchasePickedRowCount = r.purchasePickedRowCount + 1;
+                            //			if (!((p.initialQty - purchasePickedCount.First().pickedQty) == 0))
+                            //			{
+                            //				allPicked = false;
+                            //			}
+                            //		}
+                            //		else
+                            //		{
+                            //			allPicked = false;
+                            //		}
+                            //		r.purchaseOrderPicked = allPicked;
+                            //		currentPurchaseOrder = "";
+                            //	}
+                            //}
+                            stkOperations.IsEnabled = true;
+                            WriteLog.Write(this, "lstPurchaseOrders read records calculation - " + lstPurchaseOrders.Count().ToString() + " recods. Time elapsed : " + swPurchaseOrdersCalc.Elapsed.Milliseconds.ToString() + " milliseconds");
+                            #endregion
 
 
-								if (proceed)
-								{
-									grdMain.IsVisible = true;
-									var version = await GetCurrentVersion.Get();
-
-									if (!string.IsNullOrEmpty(version))
-									{
-										if (lstSettings.Any())
-										{
-											lstSettings.First().currentVersion = version;
-											lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
-										}
-										else
-										{
-											lstSettings = new List<ListOfSettings>();
-											lstSettings.Add(new ListOfSettings { currentVersion = version });
-											lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
-										}
-									}
-									else
-									{
-										Debug.WriteLine("VERSIOONI EI SAADUD!");
-									}
+                            Debug.WriteLine("lstInternalRecordDB + " + lstInternalRecordDB.Count());
 
 
-									PrepareOperations();
+                            if (proceed)
+                            {
+                                grdMain.IsVisible = true;
+                                var version = await GetCurrentVersion.Get();
 
-								}
-							}
-						}
-						else
-						{
-							string prefix = "";
-							PrepareSettings();
-						}
-					}
+                                if (!string.IsNullOrEmpty(version))
+                                {
+                                    if (lstSettings.Any())
+                                    {
+                                        lstSettings.First().currentVersion = version;
+                                        lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
+                                    }
+                                    else
+                                    {
+                                        lstSettings = new List<ListOfSettings>();
+                                        lstSettings.Add(new ListOfSettings { currentVersion = version });
+                                        lblVersion.Text = "Versioon: " + lstSettings.First().currentVersion;
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("VERSIOONI EI SAADUD!");
+                                }
+
+                                Debug.WriteLine("lstSettings.First().showPurchaseReceiveQty " + lstSettings.First().showPurchaseReceiveQty);
+                                Debug.WriteLine("obj.showPurchaseReceiveQty " + obj.showPurchaseReceiveQty);
+                                PrepareOperations();
+
+                            }
+                        }
+                        LoadTemplates();
+                    }
+                    else
+                    {
+                        LoadTemplates();
+                        string prefix = "";
+                        PrepareSettings();
+                    }
+                }
 
             }
             catch (Exception ex)
@@ -752,6 +762,7 @@ namespace BauhofWMS
 				obj.isZebra = false;
 			}
 		}
+
 		public async Task GetShopRelations()
         {
             try

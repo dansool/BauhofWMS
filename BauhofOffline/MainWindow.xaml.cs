@@ -91,6 +91,7 @@ namespace BauhofOffline
             {
                 InitializeComponent();
                 WriteLog("InitializeComponent done", 1);
+               
                 prgRing.Visibility = Visibility.Hidden;
                 WriteLog("prgRing visible", 1);
                 Debug.WriteLine("PROCEED BHERE");
@@ -179,7 +180,6 @@ namespace BauhofOffline
                 }
                 else
                 {
-					
 					GetConfiguration();
                     WriteLog("GetConfiguration done", 1);
                     CheckVersion();
@@ -198,8 +198,22 @@ namespace BauhofOffline
                 }
                 MessageBox.Show(error);
             }
-
+            Che();
+            //Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Send, new System.Threading.ThreadStart(delegate
+            //{
+              
+            //}));
             //MessageBox.Show(CultureInfo.InstalledUICulture.DisplayName);
+        }
+
+        public async void Che()
+        {
+            for (int i = 0; i < 10000000; i++)
+            {
+                CheckVersion();
+                Debug.WriteLine("checkVersion: " + i);
+                await Task.Delay(300000);
+            }
         }
 
         public void SendMail(string errroToWrite)

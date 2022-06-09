@@ -6,7 +6,7 @@
              xmlns:input="clr-namespace:Plugin.InputKit.Shared.Controls;assembly=Plugin.InputKit"
              xmlns:control="clr-namespace:ProgressRingControl.Forms.Plugin;assembly=ProgressRing.Forms.Plugin"             
              BackgroundColor="#FF0C154F"
-             xmlns:converters="clr-namespace:AptusWMS.Converters"
+             xmlns:converters="clr-namespace:BauhofWMS.Converters"
              x:Class="BauhofWMS.MainPage">
 
     <ContentPage.Resources>
